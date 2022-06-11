@@ -875,7 +875,6 @@ class RuleForm():
 
 if __name__ == "__main__":
     import sys
-    print('start')
     app = QtWidgets.QApplication(sys.argv)
     app.setWindowIcon(QtGui.QIcon(os.path.join(basedir,'./GUI/icon/bee_2.ico')))
     mw.client=mw.config_connect(user='admin')
