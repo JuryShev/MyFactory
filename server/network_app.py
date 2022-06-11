@@ -131,7 +131,7 @@ def create_company(name_db):
 @app.route('/furniture/add_personal_<name_db>/', methods=['POST'])
 def add_personal(name_db):
     name_avatar=''
-    path_save_avatar='./avatar/'+name_db+'/'
+    path_save_avatar=f'C:/Users/{os.getlogin()}/Documents/avatar/{name_db}/'
     if not os.path.exists(path_save_avatar):
         os.makedirs(path_save_avatar)
 
