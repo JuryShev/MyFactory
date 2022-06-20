@@ -761,7 +761,7 @@ class MainWindow_all_3(QtWidgets.QMainWindow):
             year_cr, month_cr, day_cr=person['created_pers'].split(' ')[0].split('-')
 
             age, str_year = self.age(date(int(year), int(month), int(day)))
-            age_cr, str_year_cr = self.age(date(int(year_cr), int(month_cr), int(day)))
+            age_cr, str_year_cr = self.age(date(int(year_cr), int(month_cr), int(day_cr)))
             if age_cr <=0:
                 work_exp='меньше года'
             else :
