@@ -108,7 +108,7 @@ class FurnitureDtabase:
             database=self.database
 
         ) as connection:
-            mysql_comand='{0}{1}{2}{3}{4}{5}'.format('ALTER TABLE ', name_table, ' ADD ', name_column, ' ', type_data)
+            mysql_comand=f"ALTER TABLE {name_table} ADD COLUMN {name_column} {type_data}"
             mycursor = connection.cursor()
             mycursor.execute(mysql_comand)
 
@@ -150,6 +150,20 @@ class FurnitureDtabase:
                 mysql_comand = f"DELETE FROM {name_table} WHERE {title_id[n]} = {value_id[n]}"
                 mycursor.execute(mysql_comand)
                 connection.commit()
+
+    def del_column(self, name_table, name_column):
+        with mysql.connector.connect(
+            host=self.host,
+            user=self.user,
+            password=self.password,
+            port=self.port,
+            database=self.database
+
+        ) as connection:
+            mysql_comand=f"ALTER TABLE {name_table} DROP COLUMN {name_column}"
+            mycursor = connection.cursor()
+            mycursor.execute(mysql_comand)
+
 
     def get_type(self, name_table, orig_t=1):
         with mysql.connector.connect(
@@ -372,6 +386,19 @@ class FurnitureDtabase:
                     mysql_comand = f"UPDATE {name_table} SET {title[n]} = {value[n]} WHERE {title[0]} = {value[0]}"
                 mycursor.execute(mysql_comand)
                 connection.commit()
+
+    def edit_column(self, name_table, old_name, new_name):
+        with mysql.connector.connect(
+                host=self.host,
+                user=self.user,
+                password=self.password,
+                port=self.port,
+                database=self.database
+
+        ) as connection:
+            mysql_comand = f"ALTER TABLE {name_table} CHANGE {old_name} {new_name} INT"
+            mycursor = connection.cursor()
+            mycursor.execute(mysql_comand)
 
     def search_personal(self, name_table, name_personal):
         with mysql.connector.connect(

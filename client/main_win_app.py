@@ -660,13 +660,11 @@ class MainWindow_all_3(QtWidgets.QMainWindow):
 
     def load_struct(self):
         print("load_struct")
-        name_db = 'hellow'
         dir_table_name = {"conf_criterion": self.struct.table_conf_criterion,
                               "department": self.struct.table_department,
                               "posts": self.struct.table_posts,
                               "bonus_koeficient": self.struct.table_bonus_koeficient}
 
-        #self.server.name_db = name_db
         try:
             self.struct.label_name_factory.setText(self._translate("Form", client.name_db))
             get_json = self.server.get_struct().content
@@ -761,7 +759,7 @@ class MainWindow_all_3(QtWidgets.QMainWindow):
             year_cr, month_cr, day_cr=person['created_pers'].split(' ')[0].split('-')
 
             age, str_year = self.age(date(int(year), int(month), int(day)))
-            age_cr, str_year_cr = self.age(date(int(year_cr), int(month_cr), int(day)))
+            age_cr, str_year_cr = self.age(date(int(year_cr), int(month_cr), int(day_cr)))
             if age_cr <=0:
                 work_exp='меньше года'
             else :

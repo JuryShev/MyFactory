@@ -105,7 +105,7 @@ def connect_server():
 
 @app.route('/furniture/create_company_<name_db>/', methods=['POST'])
 def create_company(name_db):
-
+    name_criterions=[]
     stand_comand={'comand': 5000,
                   'user': 'admin',
                   'db_comand':1}
@@ -126,6 +126,12 @@ def create_company(name_db):
             title = list(row.keys())
             value = [row[i] for i in title]
             my_db.add_row(name_table, tuple(title), tuple(value))
+            if name_table=='conf_criterion':
+                name_criterions.append(row['title_criterion'])
+    for name_criterion in name_criterions:
+        name_criterion=name_criterion.replace(' ', '_')
+        my_db.add_column('personal_assessment',  name_criterion, 'INT')
+
     return 'ok'
 
 @app.route('/furniture/add_personal_<name_db>/', methods=['POST'])
@@ -163,6 +169,7 @@ def add_personal(name_db):
             title = list(row.keys())
             value = [row[i] for i in title]
             my_db.add_row(name_table, tuple(title), tuple(value))
+
     return 'ok'
 
 @app.route('/furniture/get_personal_<name_db>/', methods=['POST'])
@@ -273,6 +280,39 @@ def set_edit_tables(name_db):
             my_db.edit_row(name_table, tuple(title), tuple(value))
     return "ok"
 
+@app.route('/furniture/edit_column_tables_<name_db>/', methods=['POST'])
+def edit_column_tables(name_db):
+
+    stand_comand = {'comand': 1336,
+                    'user': 'admin',
+                    'db_comand': 1,
+                    }
+
+    my_db = FurnitureDtabase(name_db=name_db)
+    a = request.data
+    j = json.loads(a.decode('utf-8'))
+    check_error = check_headline(j, stand_comand)
+    if check_error != True:
+        return check_error
+    list_tables = j['tables']
+    ch_table = check_table(j, list_tables)
+    if ch_table == False:
+        return 'Check table False'
+    for name_table in list_tables:
+            list_rows = list_tables[name_table]
+            list_column = my_db.get_name_column(name_table, format_result='names')
+            for row in list_rows:
+                old_name=row['old_name']
+                if old_name in list_column:
+                    new_name=row['new_name']
+                    my_db.edit_column(name_table, old_name, new_name)
+                else:
+                    return f"Невозможно отредактировать колонку {old_name}"
+
+    return 'ok'
+
+
+
 @app.route('/furniture/delete_row_<name_db>/', methods=['POST'])
 def del_row_tables(name_db):
     stand_comand = {'comand': 1110,
@@ -293,6 +333,37 @@ def del_row_tables(name_db):
             value = [row[i] for i in title]
             my_db.del_row(name_table, tuple(title), tuple(value))
     return 'ok'
+
+@app.route('/furniture/delete_column_<name_db>/', methods=['POST'])
+def del_column_table(name_db):
+    stand_comand = {'comand': 1503,
+                    'user': 'admin',
+                    'db_comand': 1,
+                    }
+
+    my_db = FurnitureDtabase(name_db=name_db)
+    a = request.data
+    j = json.loads(a.decode('utf-8'))
+    check_error = check_headline(j,stand_comand)
+    if check_error != True:
+        return check_error
+    list_tables = j['tables']
+    ch_table = check_table(j, list_tables)
+    if ch_table == False:
+        return 'Check table False'
+
+    for name_table in list_tables:
+        list_column = my_db.get_name_column(name_table, format_result='names')
+        list_rows = list_tables[name_table]
+        for row in list_rows:
+            name_column=row['name_column']
+            if name_column in list_column:
+                my_db.del_column(name_table, name_column)
+            else:
+                return f'невозможно удалить колонку {name_column}'
+
+    return 'ok'
+
 
 @app.route('/furniture/del_associated_file_<name_db>/', methods=['POST'])
 def del_associated_file(name_db):
@@ -359,6 +430,30 @@ def add_row_tables(name_db):
             title = list(row.keys())
             value = [row[i] for i in title]
             my_db.add_row(name_table, tuple(title), tuple(value))
+    return 'ok'
+@app.route('/furniture/add_column_<name_db>/', methods=['POST'])
+def add_column_table(name_db):
+    stand_comand = {'comand': 2569,
+                    'user': 'admin',
+                    'db_comand': 1,
+                    }
+
+    my_db = FurnitureDtabase(name_db=name_db)
+    a = request.data
+    j = json.loads(a.decode('utf-8'))
+    check_error = check_headline(j, stand_comand)
+    if check_error != True:
+        return check_error
+    list_tables = j['tables']
+    ch_table = check_table(j, list_tables)
+    if ch_table == False:
+        return 'Check table False'
+    for name_table in list_tables:
+        list_rows = list_tables[name_table]
+        for row in list_rows:
+            name_column=row['name_column']
+            type_data=row['type_data']
+            my_db.add_column(name_table, name_column, type_data )
     return 'ok'
 #############доработать(не понятно как собирать если по result["tables"] если по одной таблице идет несколько условий)
 @app.route('/furniture/get_row_<name_db>_<column_condition>/', methods=['POST'])

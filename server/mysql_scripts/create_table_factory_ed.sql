@@ -74,12 +74,12 @@ CREATE TABLE `personal` (
   CONSTRAINT `fk_id_post` FOREIGN KEY (`id_posts`) REFERENCES `posts` (`id_posts`)
 ) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb3;
 
-CREATE TABLE `progress_now` (
+CREATE TABLE `personal_assessment` (
   `id_progress_now` int NOT NULL AUTO_INCREMENT,
   `date` date DEFAULT NULL,
   `id_name_personal` int NOT NULL,
   `id_title_project` int NOT NULL,
-  `task` varchar(45) DEFAULT NULL,
+  `comments` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id_progress_now`),
   KEY `fk_id_project_idx` (`id_title_project`,`id_name_personal`),
   KEY `fk_id_name_idx` (`id_name_personal`),
