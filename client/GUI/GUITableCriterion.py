@@ -299,7 +299,7 @@ class Table_start_v2(object):
                                          "")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(
-            "./icon/1800 Icon Pack [20x20]/PNG@2_green_icons/arrow_repeat [#236].png"),
+            "./GUI/icon/arrow_repeat [#236].png"),
                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.refreshButton.setIcon(icon)
         self.refreshButton.setIconSize(QtCore.QSize(24, 24))

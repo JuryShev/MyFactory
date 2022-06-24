@@ -660,13 +660,11 @@ class MainWindow_all_3(QtWidgets.QMainWindow):
 
     def load_struct(self):
         print("load_struct")
-        name_db = 'hellow'
         dir_table_name = {"conf_criterion": self.struct.table_conf_criterion,
                               "department": self.struct.table_department,
                               "posts": self.struct.table_posts,
                               "bonus_koeficient": self.struct.table_bonus_koeficient}
 
-        #self.server.name_db = name_db
         try:
             self.struct.label_name_factory.setText(self._translate("Form", client.name_db))
             get_json = self.server.get_struct().content

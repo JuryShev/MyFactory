@@ -45,6 +45,11 @@ class ServerConnector():
                                json=data_send)
         return result
 
+    def edit_column_table(self, data_send):
+        result = requests.post(f"{self.url}/furniture/edit_column_tables_{self.name_db}/",
+                               json=data_send)
+        return result
+
     def del_associated_file(self, data_send):
         result = requests.post(f"{self.url}/furniture/del_associated_file_{self.name_db}/",
                                json=data_send)
@@ -52,6 +57,11 @@ class ServerConnector():
 
     def del_row_table(self, data_send):
         result = requests.post(f"{self.url}/furniture/delete_row_{self.name_db}/",
+                               json=data_send)
+        return result
+
+    def del_column_table(self, data_send):
+        result = requests.post(f"{self.url}/furniture/delete_column_{self.name_db}/",
                                json=data_send)
         return result
 
@@ -98,6 +108,10 @@ class ServerConnector():
 
     def add_row_table(self, data_send):
         result = requests.post(f"{self.url}/furniture/add_row_{self.name_db}/",
+                               json=data_send)
+        return result
+    def add_column_table(self, data_send):
+        result = requests.post(f"{self.url}/furniture/add_column_{self.name_db}/",
                                json=data_send)
         return result
 

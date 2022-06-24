@@ -53,7 +53,7 @@ class Ui_MainWindow(object):
         self.groupBox.setObjectName("groupBox")
         self.groupBox.setStyleSheet("QGroupBox#groupBox { border:0;}")
         self.gridLayoutWidget_2 = QtWidgets.QWidget(self.groupBox)
-        self.gridLayoutWidget_2.setGeometry(QtCore.QRect(150, 60, 841, 67))
+        self.gridLayoutWidget_2.setGeometry(QtCore.QRect(150, 90, 841, 67))
         self.gridLayoutWidget_2.setObjectName("gridLayoutWidget_2")
         self.Glay_serch_personal = QtWidgets.QGridLayout(self.gridLayoutWidget_2)
         self.Glay_serch_personal.setContentsMargins(0, 0, 0, 0)
