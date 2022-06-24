@@ -667,7 +667,6 @@ class Table_start_(QWidget, Table_start_v2):
         return a
 
     def send_data(self):
-        print(self.check_send_data)
         self.progress_bar.status_ = 'on'
         answer_server_row = 'none_operation'
         answer_server_column = 'none_operation'
@@ -678,7 +677,6 @@ class Table_start_(QWidget, Table_start_v2):
 
         elif self.check_send_data==2:
             self.data_send["tables"].clear()
-            print("send_data_2")
             self.data_send["comand"]=1110
 
             data_del_column={

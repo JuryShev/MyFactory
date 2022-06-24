@@ -130,7 +130,7 @@ def create_company(name_db):
                 name_criterions.append(row['title_criterion'])
     for name_criterion in name_criterions:
         name_criterion=name_criterion.replace(' ', '_')
-        my_db.add_column('personal_assessment',  name_criterion, 'INT')
+        my_db.add_column('personal_assessment',  name_criterion.replace(' ', '_'), 'INT')
 
     return 'ok'
 
