@@ -1,4 +1,12 @@
 
+CREATE TABLE `drop_criterion` (
+  `id_drop_criterion` int NOT NULL AUTO_INCREMENT,
+  `title_criterion` varchar(100) DEFAULT NULL,
+  `max_coef` int DEFAULT NULL,
+  `w_coef` decimal(5,2) DEFAULT NULL,
+  PRIMARY KEY (`id_drop_criterion`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE `bonus_koeficient` (
   `id_bonus_koeficient` int NOT NULL AUTO_INCREMENT,
   `percentage_of_profits` decimal(5,2) unsigned NOT NULL,
@@ -77,13 +85,27 @@ CREATE TABLE `personal` (
 CREATE TABLE `personal_assessment` (
   `id_progress_now` int NOT NULL AUTO_INCREMENT,
   `date` date DEFAULT NULL,
+  `id_name_personal_add_data` int NOT NULL,
+  `id_name_personal_edit_data` int DEFAULT NULL,
   `id_name_personal` int NOT NULL,
   `id_title_project` int NOT NULL,
   `comments` varchar(100) DEFAULT NULL,
+  `id_criterion` int DEFAULT NULL,
+  `id_drop_criterion` int DEFAULT NULL,
+  `assesment` int DEFAULT NULL,
   PRIMARY KEY (`id_progress_now`),
-  KEY `fk_id_project_idx` (`id_title_project`,`id_name_personal`),
+  KEY `fk_id_project_idx` (`id_title_project`),
   KEY `fk_id_name_idx` (`id_name_personal`),
+  KEY `fk_id_criterion_idx` (`id_criterion`),
+  KEY `fk_id_drop_criterion_idx` (`id_drop_criterion`),
+  KEY `fk_id_name_add_idx` (`id_name_personal_add_data`,`id_name_personal_edit_data`),
+  KEY `fk_id_name_add_ed_idx` (`id_name_personal_add_data`),
+  KEY `fk_id_name_ed_idx` (`id_name_personal_edit_data`),
+  CONSTRAINT `fk_id_criterion` FOREIGN KEY (`id_criterion`) REFERENCES `conf_criterion` (`id_conf_criterion`) ON DELETE SET NULL,
+  CONSTRAINT `fk_id_drop_criterion` FOREIGN KEY (`id_drop_criterion`) REFERENCES `drop_criterion` (`id_drop_criterion`) ON DELETE SET NULL,
   CONSTRAINT `fk_id_name` FOREIGN KEY (`id_name_personal`) REFERENCES `personal` (`id_personal`),
+  CONSTRAINT `fk_id_name_add` FOREIGN KEY (`id_name_personal_add_data`) REFERENCES `personal` (`id_personal`),
+  CONSTRAINT `fk_id_name_ed` FOREIGN KEY (`id_name_personal_edit_data`) REFERENCES `personal` (`id_personal`),
   CONSTRAINT `fk_id_project` FOREIGN KEY (`id_title_project`) REFERENCES `project` (`id_project`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 

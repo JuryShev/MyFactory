@@ -62,6 +62,23 @@ class FurnitureDtabase:
         self.database = name_db
 
 
+    def mysql_castom_command(self, mysql_comand, GET=1 ):
+        with mysql.connector.connect(
+                host=self.host,
+                user=self.user,
+                password=self.password,
+                port=self.port,
+                database=self.database
+
+        ) as connection:
+            mycursor = connection.cursor()
+            mycursor.execute(mysql_comand)
+            if GET==1:
+                result_data=mycursor.fetchall()
+            else:
+                connection.commit()
+                result_data ='ok'
+            return result_data
 
     def get_last_row(self, name_table, name_column='*'):
         print("start")
@@ -222,7 +239,7 @@ class FurnitureDtabase:
             print(list_table_)
         return list_table_
 
-    def check_value(self, name_table, name_column, data):
+    def check_value(self, name_table, name_column_out, name_column, data):
         """
         Проверяет значение на схожесть.
         MySQL запрос: SELECT column FROM table WHERE column LIKE "%text%"
@@ -243,7 +260,7 @@ class FurnitureDtabase:
 
         ) as connection:
             mycursor = connection.cursor()
-            if data == str :
+            if type(data) == str :
 
                 mysql_comand_full='{0}{1}{2}{3}{4}{5}{6}{7}'.format('SELECT ', name_column, ' FROM ',
                                                          name_table, ' WHERE ', name_column, ' LIKE ', f' "%{data}%" ')
@@ -254,14 +271,17 @@ class FurnitureDtabase:
                 full_match = mycursor.fetchall()
                 mycursor.execute(mysql_comand_partial)
                 partial_match = mycursor.fetchall()
+
+            elif type(data) == int:
+                mysql_comand=f'SELECT {name_column_out} FROM {name_table} WHERE {name_column}={data}'
+                mycursor.execute(mysql_comand)
+                full_match = mycursor.fetchall()
             else:
                 pass
             if len(full_match)>0:
-                return full_match[0][0]+'$'
-            elif len(partial_match)>0:
-                return full_match + '%'
+                return full_match
 
-        return 'True'
+        return 'False'
 
     def count_row(self, name_table):
         """

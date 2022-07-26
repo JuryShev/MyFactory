@@ -126,12 +126,6 @@ def create_company(name_db):
             title = list(row.keys())
             value = [row[i] for i in title]
             my_db.add_row(name_table, tuple(title), tuple(value))
-            if name_table=='conf_criterion':
-                name_criterions.append(row['title_criterion'])
-    for name_criterion in name_criterions:
-        name_criterion=name_criterion.replace(' ', '_')
-        my_db.add_column('personal_assessment',  name_criterion.replace(' ', '_'), 'INT')
-
     return 'ok'
 
 @app.route('/furniture/add_personal_<name_db>/', methods=['POST'])
@@ -331,6 +325,17 @@ def del_row_tables(name_db):
         for row in list_rows:
             title = list(row.keys())
             value = [row[i] for i in title]
+            if name_table=='conf_criterion':
+                list_column_criterion = my_db.get_name_column(name_table, format_result='names')
+                for id_drop_criterion in value:
+                    if len(my_db.check_value('personal_assessment', 'id_progress_now', 'id_criterion', id_drop_criterion))>0:
+                        row_drop_criterion=my_db.check_value(name_table, '*', 'id_conf_criterion', id_drop_criterion)
+                        my_db.add_row('drop_criterion',list_column_criterion[1:], row_drop_criterion[0][1:])
+                        last_id_drop_criterion=my_db.get_last_row(name_table='drop_criterion',
+                                                                  name_column='id_drop_criterion'
+                                                                  )
+                        my_db.edit_row('personal_assessment', ('id_criterion','id_drop_criterion'), (id_drop_criterion, last_id_drop_criterion[0][0]))
+
             my_db.del_row(name_table, tuple(title), tuple(value))
     return 'ok'
 

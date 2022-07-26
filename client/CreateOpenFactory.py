@@ -669,7 +669,6 @@ class Table_start_(QWidget, Table_start_v2):
     def send_data(self):
         self.progress_bar.status_ = 'on'
         answer_server_row = 'none_operation'
-        answer_server_column = 'none_operation'
         if self.check_send_data==1:
             answer_server=client.add_criterion(data_send=self.data_send).content.decode("utf-8")
             self.progress_bar.status_ = answer_server
@@ -678,22 +677,6 @@ class Table_start_(QWidget, Table_start_v2):
         elif self.check_send_data==2:
             self.data_send["tables"].clear()
             self.data_send["comand"]=1110
-
-            data_del_column={
-                        "comand": 1503,
-                        "user": "admin",
-                        "db_comand": 1,
-                        "tables": {"personal_assessment":[]}}
-            data_add_column={
-                        "comand": 2569,
-                        "user": "admin",
-                        "db_comand": 1,
-                        "tables": {"personal_assessment":[]}}
-            data_edit_column={
-                        "comand": 1336,
-                        "user": "admin",
-                        "db_comand": 1,
-                        "tables": {"personal_assessment":[]}}
 
             #### del row ##########################################
             # добавили count_del_row строк в конец таблицы
@@ -708,29 +691,23 @@ class Table_start_(QWidget, Table_start_v2):
                 if count_del_row > 0:
                     value_list = self.data_load["tables"][table][-count_del_row:]
                     id_key = list(value_list[0].keys())[0]
-                    if table == 'conf_criterion':
-                        for criterion_ in value_list:
-                            data_del_column['tables']['personal_assessment'].append(
-                                {"name_column": criterion_['title_criterion'].replace(' ', '_')})
                     for value_dict in value_list:
                         id_dict[id_key] = value_dict[id_key]
                         id_list.append(id_dict.copy())
                     self.data_send["tables"][table] = id_list
             if len(self.data_send["tables"]) > 0:
                 answer_server_row = client.del_row_table(data_send=self.data_send).content.decode("utf-8")
-                answer_server_column = client.del_column_table(data_del_column).content.decode("utf-8")
                 self.data_send["tables"].clear()
                 print(answer_server_row)
-                if answer_server_row == 'ok' and answer_server_column == 'ok':
+                if answer_server_row == 'ok':
                     self.data_load = client.get_struct().content  # загрузка обновленых таблиц
                     self.data_load = json.loads(self.data_load.decode('utf-8'))
             ######################################################################
 
             ###############add row #####################################################
-            if (answer_server_row == 'ok' and answer_server_column == 'ok') or (answer_server_row == 'none_operation' and answer_server_column == 'none_operation') :
+            if answer_server_row == 'ok' or answer_server_row == 'none_operation':
                 save_count_add_row = {}
                 for table in self.data_load["tables"]:
-                    value_add_list = []
                     value_list_copy = self.data_edit["tables"][table]
                     value_list = self.data_load["tables"][table]
                     count_add_row = len(value_list) - len(value_list_copy)
@@ -738,15 +715,11 @@ class Table_start_(QWidget, Table_start_v2):
                     if count_add_row < 0:
                         value_list_copy = self.data_edit["tables"][table][-abs(count_add_row):]
                         self.data_send["tables"][table] = value_list_copy
-                        if table == 'conf_criterion':
-                            for criterion_ in value_list_copy:
-                                data_add_column['tables']['personal_assessment'].append({"name_column":criterion_['title_criterion'].replace(' ', '_'),
-                                                                                         "type_data":"INT"} )
                 if len(self.data_send["tables"]) > 0:
                     answer_server_row = client.add_row_table(data_send=self.data_send).content.decode("utf-8")
-                    answer_server_column = client.add_column_table(data_add_column).content.decode("utf-8")
+
                     self.data_send["tables"].clear()
-                    if answer_server_row == 'ok' and answer_server_column == 'ok':
+                    if answer_server_row == 'ok':
                         self.data_load = client.get_struct().content  # загрузка обновленых таблиц
                         self.data_load = json.loads(self.data_load.decode('utf-8'))
                         for table in self.data_load["tables"]:
@@ -760,7 +733,7 @@ class Table_start_(QWidget, Table_start_v2):
 
             #############################################################
             ###############edit row#####################################################
-            if (answer_server_row == 'ok' and answer_server_column == 'ok') or (answer_server_row == 'none_operation' and answer_server_column == 'none_operation'):
+            if answer_server_row == 'ok' or answer_server_row == 'none_operation' :
                 for table in self.data_load["tables"]:
                     value_edit_list = []
                     value_list_copy = self.data_edit["tables"][table]
@@ -779,27 +752,22 @@ class Table_start_(QWidget, Table_start_v2):
                                     value_edit_dict[v_key] = v_copy
                         if len(value_edit_dict.keys()) > 0:
                             value_edit_list.append(value_edit_dict)
-                            if 'title_criterion' in value_edit_dict:
-                                data_edit_column['tables']['personal_assessment'].append({
-                                    "old_name":self.data_load['tables']['conf_criterion'][value_edit_dict['id_conf_criterion']-1]['title_criterion'].replace(' ', '_'),
-                                    "new_name":value_edit_dict['title_criterion'].replace(' ', '_')})
                     if len(value_edit_list) > 0:
                         self.data_send["tables"][table] = value_edit_list
                 if len(self.data_send["tables"]):
                     answer_server_row=client.edit_table(data_send=self.data_send).content.decode("utf-8")
-                    answer_server_column = client.edit_column_table(data_edit_column).content.decode("utf-8")
-                if answer_server_row == 'ok' and answer_server_column == 'ok':
+                if answer_server_row == 'ok' :
                     self.data_load = client.get_struct().content  # загрузка обновленых таблиц
                     self.data_load = json.loads(self.data_load.decode('utf-8'))
 
             ###############################################################################################
 
-            if answer_server_row == 'ok' and answer_server_column == 'ok':
+            if answer_server_row == 'ok':
                 self.progress_bar.status_ = answer_server_row
                 self.label_error.setStyleSheet("color: rgb(16, 255, 149);")
                 self.label_error.setText(_translate("Form", "Изменения успешно загружены"))
             else :
-                self.progress_bar.status_=f'{answer_server_row}; {answer_server_column};'
+                self.progress_bar.status_=f'{answer_server_row};'
 
 
     def thread_complete(self):
