@@ -54,7 +54,7 @@ block_cipher = None
 specpath = os.path.dirname(os.path.abspath(SPEC))
 
 a = Analysis(['main_win_app.py'],
-             pathex=['C:\\Users\\Yura\\PycharmProjects\\pythonProject\\my_project\\FF_EXE'],
+             pathex=['C:\\Users\\Yura\\PycharmProjects\\MyFactory\\FF_EXE'],
              binaries=[],
              datas=[('.\\GUI\\icon', '.\\GUI\\icon')],
              hiddenimports=[],

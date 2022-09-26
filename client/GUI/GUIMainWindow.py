@@ -21,6 +21,7 @@ class Ui_MainWindow(object):
         # self.h = self.height()
         self.RelationWidth=0.8
         self.RelationHeight = 0.8
+
     def setupUi(self, MainWindow):
         self.screen = QtWidgets.QDesktopWidget().screenGeometry()
         MainWindow.setObjectName("MainWindow")
@@ -402,13 +403,13 @@ class Ui_MainWindow(object):
         self.TB_RemovePersonal.setIcon(icon2)
         self.TB_RemovePersonal.setIconSize(QtCore.QSize(20, 20))
         self.TB_RemovePersonal.setObjectName("TB_remove")
-        self.stackedWidget.addWidget(self.Search_person)
-        self.page_2 = QtWidgets.QWidget()
-        self.page_2.setObjectName("page_2")
-        self.stackedWidget.addWidget(self.page_2)
-        self.page_3 = QtWidgets.QWidget()
-        self.page_3.setObjectName("page_3")
-        self.stackedWidget.addWidget(self.page_3)
+        #self.stackedWidget.addWidget(self.Search_person)
+        # self.page_2 = QtWidgets.QWidget()
+        # self.page_2.setObjectName("page_2")
+        # self.stackedWidget.addWidget(self.page_2)
+        # self.page_3 = QtWidgets.QWidget()
+        # self.page_3.setObjectName("page_3")
+        # self.stackedWidget.addWidget(self.page_3)
 
 
         self.verticalLayoutWidget_3 = QtWidgets.QWidget(self.centralwidget)
@@ -465,6 +466,17 @@ class Ui_MainWindow(object):
         self.TB_structure.setSizePolicy(sizePolicy)
         self.TB_structure.setObjectName("TB_structure")
         self.VLay_main_button.addWidget(self.TB_structure)
+        self.TB_assessment = QtWidgets.QToolButton(self.verticalLayoutWidget_3)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.TB_assessment.sizePolicy().hasHeightForWidth())
+        self.TB_assessment.setStyleSheet(
+            "color: rgb(255, 255,255);\n"
+        )
+        self.TB_assessment.setSizePolicy(sizePolicy)
+        self.TB_assessment.setObjectName("TB_assessment")
+        self.VLay_main_button.addWidget(self.TB_assessment)
         spacerItem9 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         self.VLay_main_button.addItem(spacerItem9)
         MainWindow.setCentralWidget(self.centralwidget)
@@ -507,6 +519,7 @@ class Ui_MainWindow(object):
         self.TB_analytics.setText(_translate("MainWindow", "Аналитика"))
         self.TB_project.setText(_translate("MainWindow", "Проекты"))
         self.TB_structure.setText(_translate("MainWindow", "Структура"))
+        self.TB_assessment.setText(_translate("MainWindow", "Оценка"))
 
 ############################динамический список для нескольких сотрудников##############
 class QCustomQWidget (QtWidgets.QWidget):
@@ -660,22 +673,22 @@ class Window(QtWidgets.QMainWindow):
 
 if __name__ == "__main__":
     import sys
-    # app = QtWidgets.QApplication(sys.argv)
-    # MainWindow = QtWidgets.QMainWindow()
-    # ui = Ui_MainWindow()
-    # ui.setupUi(MainWindow)
-    # MainWindow.show()
-    # sys.exit(app.exec_())
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
+    ui = Ui_MainWindow()
+    ui.setupUi(MainWindow)
+    MainWindow.show()
+    sys.exit(app.exec_())
     # if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
     #     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
     # if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
     #     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
-    app = QtWidgets.QApplication(sys.argv)
-    screen = app.primaryScreen()
-    size = screen.size()
-    w = Window(size.width(), size.height())
-    w.show()
-    sys.exit(app.exec_())
+    # app = QtWidgets.QApplication(sys.argv)
+    # screen = app.primaryScreen()
+    # size = screen.size()
+    # w = Window(size.width(), size.height())
+    # w.show()
+    # sys.exit(app.exec_())
 
     # app  = QtWidgets.QApplication([])
     # window = ExploytListWidget()

@@ -890,6 +890,7 @@ class mywindow(QtWidgets.QMainWindow):
             self.MainWindowAll.resize(1500, 901)
             self.MainWindowAll.GlobalstackedWidget.setCurrentIndex(
             self.MainWindowAll.GlobalstackedWidget.currentIndex() + 3)
+
     def change_name(self):
         worker = Worker_2(self.start_creat_factory)
         worker.signals.finished.connect(self.thread_complete)
