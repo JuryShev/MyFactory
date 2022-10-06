@@ -516,6 +516,7 @@ def get_databases():
     json_send = json.dumps(list_databases)
     return json_send
 
+
 @app.route('/furniture/get_persons_for_assessment/', methods=['POST'])
 def get_persons_for_assessment():
     f = database.FurnitureDtabase("new_factory_6")
@@ -561,18 +562,19 @@ def get_persons_for_assessment():
             person = assessment_list["tables"]["personal"][i]
             person["id_assessment"][criterion[1]] = [0, 0]
             exist_assessment = f.mysql_castom_command(
-                f"SELECT * FROM personal_assessment WHERE date = '{cur_date}' AND id_name_personal = '{persons[i][0]} AND id_criterion = {criterion[0]}'")
+                f"SELECT * FROM personal_assessment WHERE date = '{cur_date}' AND id_name_personal = '{persons[i][0]}' AND id_criterion = {criterion[0]}")
             # print('exist_assessment', exist_assessment)
 
             person["id_assessment"][criterion[1]][0] = exist_assessment[0][0] if len(exist_assessment) != 0 else 0
-            person["assessment"][criterion[1]] = exist_assessment[0][7] if len(exist_assessment) != 0 else 0
+            person["assessment"][criterion[1]] = exist_assessment[0][9] if len(exist_assessment) != 0 else 0
             person["comments"][criterion[1]] = exist_assessment[0][4] if len(exist_assessment) != 0 else ""
             person["add_data"][criterion[1]] = "admin" if len(exist_assessment) != 0 else ""
             person["edit_data"][criterion[1]] = "admin" if len(exist_assessment) != 0 else ""
+        with open(persons[i][9], "rb") as openfile:
+            assessment_list["tables"]["personal"][i]["avatar"] = pickle.load(openfile)
 
-        assessment_list["tables"]["personal"][i]["avatar"] = persons[i][9]
     # pprint(assessment_list)
-    return '200'
+    return assessment_list
 
 
 @app.route('/furniture/send_assessment/', methods=['POST'])
