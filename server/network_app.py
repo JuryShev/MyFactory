@@ -524,17 +524,25 @@ def get_persons_for_assessment():
     department = data["tables"]["department"]
     id_department = f.mysql_castom_command(f'''SELECT id_department 
                                                 FROM department WHERE title = '{department}' ''')[0][0]
-    count_personal = f.mysql_castom_command(f"SELECT COUNT(*) FROM personal WHERE id_department = {id_department}")[0][
-        0]
+    count_personal = f.mysql_castom_command(f"SELECT COUNT(*) FROM personal "
+                                            f"WHERE id_department = {id_department}")[0][0]
     count_criteria = f.mysql_castom_command("SELECT COUNT(*) FROM conf_criterion")[0][0]
     day, month, year = map(int, data['date'].split('-'))
-    cur_date = dt(year, month, day)  # не забыть поменять месяц обратно
+    cur_date = dt(year, month, day)
     # print('cur_date', cur_date)
+    count_next_date = f.mysql_castom_command(f'''SELECT COUNT(date) FROM personal_assessment
+                                                WHERE date > '{cur_date}' ''')[0][0]
+    if count_next_date > 0:  # проверка, если пользователь захочет поставить оценку по старой несуществующей дате
+        count_exist_rows = f.mysql_castom_command(f'''SELECT COUNT(date) FROM personal_assessment 
+                                                WHERE date = '{cur_date}' ''')[0][0]
+        if count_exist_rows == 0:
+            result = {"error": "Error"}
+            json_send = json.dumps(result)
+            return json_send
 
-    prev_date = \
-        f.mysql_castom_command(
-            f"SELECT date FROM personal_assessment WHERE date < '{cur_date}' ORDER BY date DESC LIMIT 1")
-    print(prev_date)
+    prev_date = f.mysql_castom_command(f"SELECT date FROM personal_assessment "
+                                       f"WHERE date < '{cur_date}' ORDER BY date DESC LIMIT 1")
+    # print(prev_date)
     if len(prev_date) != 0:
         count_assessments = f.mysql_castom_command(
             f"SELECT COUNT(*) FROM personal_assessment WHERE date = '{prev_date[0][0]}'")[0][0]
@@ -570,8 +578,8 @@ def get_persons_for_assessment():
             person["comments"][criterion[1]] = exist_assessment[0][4] if len(exist_assessment) != 0 else ""
             person["add_data"][criterion[1]] = "admin" if len(exist_assessment) != 0 else ""
             person["edit_data"][criterion[1]] = "admin" if len(exist_assessment) != 0 else ""
-        with open(persons[i][9], "rb") as openfile:
-            assessment_list["tables"]["personal"][i]["avatar"] = pickle.load(openfile)
+        with open(persons[i][9], "rb") as open_file:
+            assessment_list["tables"]["personal"][i]["avatar"] = pickle.load(open_file)
 
     # pprint(assessment_list)
     return assessment_list
