@@ -1,3 +1,4 @@
+import datetime
 import decimal
 import json
 
@@ -517,6 +518,7 @@ def get_databases():
     return json_send
 
 
+
 @app.route('/furniture/get_persons_for_assessment/', methods=['POST'])
 def get_persons_for_assessment():
     f = database.FurnitureDtabase("new_factory_6")
@@ -532,18 +534,19 @@ def get_persons_for_assessment():
     # print('cur_date', cur_date)
     count_next_date = f.mysql_castom_command(f'''SELECT COUNT(date) FROM personal_assessment
                                                 WHERE date > '{cur_date}' ''')[0][0]
+
     if count_next_date > 0:  # проверка, если пользователь захочет поставить оценку по старой несуществующей дате
         count_exist_rows = f.mysql_castom_command(f'''SELECT COUNT(date) FROM personal_assessment 
                                                 WHERE date = '{cur_date}' ''')[0][0]
         if count_exist_rows == 0:
-            result = {"error": "Error"}
+            result = {"error": "Bad date"}
             json_send = json.dumps(result)
             return json_send
 
     prev_date = f.mysql_castom_command(f"SELECT date FROM personal_assessment "
                                        f"WHERE date < '{cur_date}' ORDER BY date DESC LIMIT 1")
     # print(prev_date)
-    if len(prev_date) != 0:
+    if len(prev_date) != 0:  # проверка на законченность предыдущей оценки
         count_assessments = f.mysql_castom_command(
             f"SELECT COUNT(*) FROM personal_assessment WHERE date = '{prev_date[0][0]}'")[0][0]
         if count_personal * count_criteria != count_assessments:
@@ -553,8 +556,9 @@ def get_persons_for_assessment():
     # pprint(data)
 
     assessment_list = {"tables": {"personal": []}}
-    persons = f.mysql_castom_command(f'''SELECT * FROM personal 
-    WHERE id_department = (SELECT id_department FROM department WHERE title = '{department}')''')
+    persons = f.mysql_castom_command(f'''SELECT id_personal, name, dir_avatar FROM personal 
+                                        WHERE id_department = (SELECT id_department FROM department
+                                                                                    WHERE title = '{department}')''')
     # print(persons)
     for i in range(len(persons)):
         assessment_list["tables"]["personal"].append({
@@ -564,13 +568,15 @@ def get_persons_for_assessment():
             "assessment": {},
             "comments": {},
             "edit_data": {},
-            "add_data": {}
+            "add_data": {},
+            "average_value": {}
         })
+        person = assessment_list["tables"]["personal"][i]
         for criterion in f.mysql_castom_command("SELECT id_conf_criterion, title_criterion FROM conf_criterion"):
-            person = assessment_list["tables"]["personal"][i]
             person["id_assessment"][criterion[1]] = [0, 0]
-            exist_assessment = f.mysql_castom_command(
-                f"SELECT * FROM personal_assessment WHERE date = '{cur_date}' AND id_name_personal = '{persons[i][0]}' AND id_criterion = {criterion[0]}")
+            exist_assessment = f.mysql_castom_command(f'''SELECT * FROM personal_assessment
+                                                            WHERE date = '{cur_date}' AND id_name_personal = '{persons[i][0]}' 
+                                                            AND id_criterion = {criterion[0]} ''')
             # print('exist_assessment', exist_assessment)
 
             person["id_assessment"][criterion[1]][0] = exist_assessment[0][0] if len(exist_assessment) != 0 else 0
@@ -578,8 +584,11 @@ def get_persons_for_assessment():
             person["comments"][criterion[1]] = exist_assessment[0][4] if len(exist_assessment) != 0 else ""
             person["add_data"][criterion[1]] = "admin" if len(exist_assessment) != 0 else ""
             person["edit_data"][criterion[1]] = "admin" if len(exist_assessment) != 0 else ""
-        with open(persons[i][9], "rb") as open_file:
-            assessment_list["tables"]["personal"][i]["avatar"] = pickle.load(open_file)
+            person["average_value"][criterion[1]] = f.get_average_value(cur_date, data["period_mean"],
+                                                                        person["id_person"], criterion[0])
+
+        # with open(persons[i][2], "rb") as open_file:
+        #     assessment_list["tables"]["personal"][i]["avatar"] = pickle.load(open_file)
 
     # pprint(assessment_list)
     return assessment_list
@@ -624,6 +633,7 @@ def send_assessments():
                 f.mysql_castom_command(f"DELETE FROM personal_assessment WHERE id_assessment = {id_row}", 0)
 
     return "200"
+
 
 # list_tables = db.get_tables()
 # stand_comand={ 'comand': 1000,
