@@ -3,7 +3,7 @@ import decimal
 import json
 
 from flask import Flask, request
-from database import FurnitureDtabase
+from database import FurnitureDatabase
 import database
 import pickle
 import itertools
@@ -12,7 +12,7 @@ from datetime import datetime as dt
 
 
 def full_check(json_data, stand_comand: dir, name_db):
-    my_db = FurnitureDtabase(name_db=name_db)
+    my_db = FurnitureDatabase(name_db=name_db)
     ch_headline = check_headline(json_data, stand_comand)
     if ch_headline != True:
         return ch_headline
@@ -121,7 +121,7 @@ def create_company(name_db):
     check_error = full_check(json_data=j, stand_comand=stand_comand, name_db=name_db)
     if check_error != 'ok':
         return check_error
-    my_db = FurnitureDtabase(name_db=name_db)
+    my_db = FurnitureDatabase(name_db=name_db)
     ### Отправляться в метод add_row только в конструкции списка множектва (столбец 1, столбец 2)
     ###                                                                     данные 1    данные 2
 
@@ -151,7 +151,7 @@ def add_personal(name_db):
     check_error = full_check(json_data=j, stand_comand=stand_comand, name_db=name_db)
     if check_error != 'ok':
         return check_error
-    my_db = FurnitureDtabase(name_db=name_db)
+    my_db = FurnitureDatabase(name_db=name_db)
     list_tables = j['tables']
     for name_table in list_tables:
         # my_db.clear_table(name_table)
@@ -186,7 +186,7 @@ def get_personal(name_db):
     check_error = full_check(json_data=j, stand_comand=stand_comand, name_db=name_db)
     if check_error != 'ok':
         return check_error
-    my_db = FurnitureDtabase(name_db=name_db)
+    my_db = FurnitureDatabase(name_db=name_db)
     list_tables = j['tables']
     for name_table in list_tables:
         # my_db.clear_table(name_table)
@@ -239,7 +239,7 @@ def get_inside_struct(name_db):
                     'user': 'admin',
                     'db_comand': 1,
                     }
-    my_db = FurnitureDtabase(name_db=name_db)
+    my_db = FurnitureDatabase(name_db=name_db)
     a = request.data
     j = json.loads(a.decode('utf-8'))
     check_error = check_headline(j, stand_comand)
@@ -269,7 +269,7 @@ def set_edit_tables(name_db):
                     'db_comand': 1,
                     }
 
-    my_db = FurnitureDtabase(name_db=name_db)
+    my_db = FurnitureDatabase(name_db=name_db)
     a = request.data
     j = json.loads(a.decode('utf-8'))
     check_error = full_check(json_data=j, stand_comand=stand_comand, name_db=name_db)
@@ -292,7 +292,7 @@ def edit_column_tables(name_db):
                     'db_comand': 1,
                     }
 
-    my_db = FurnitureDtabase(name_db=name_db)
+    my_db = FurnitureDatabase(name_db=name_db)
     a = request.data
     j = json.loads(a.decode('utf-8'))
     check_error = check_headline(j, stand_comand)
@@ -322,7 +322,7 @@ def del_row_tables(name_db):
                     'user': 'admin',
                     'db_comand': 1,
                     }
-    my_db = FurnitureDtabase(name_db=name_db)
+    my_db = FurnitureDatabase(name_db=name_db)
     a = request.data
     j = json.loads(a.decode('utf-8'))
     check_error = full_check(json_data=j, stand_comand=stand_comand, name_db=name_db)
@@ -358,7 +358,7 @@ def del_column_table(name_db):
                     'db_comand': 1,
                     }
 
-    my_db = FurnitureDtabase(name_db=name_db)
+    my_db = FurnitureDatabase(name_db=name_db)
     a = request.data
     j = json.loads(a.decode('utf-8'))
     check_error = check_headline(j, stand_comand)
@@ -388,7 +388,7 @@ def del_associated_file(name_db):
                     'user': 'admin',
                     'db_comand': 1,
                     }
-    my_db = FurnitureDtabase(name_db=name_db)
+    my_db = FurnitureDatabase(name_db=name_db)
     a = request.data
     j = json.loads(a.decode('utf-8'))
     check_error = full_check(json_data=j, stand_comand=stand_comand, name_db=name_db)
@@ -411,7 +411,7 @@ def edit_associated_file(name_db):
                     'user': 'admin',
                     'db_comand': 1,
                     }
-    my_db = FurnitureDtabase(name_db=name_db)
+    my_db = FurnitureDatabase(name_db=name_db)
     a = request.data
     j = json.loads(a.decode('utf-8'))
     check_error = full_check(json_data=j, stand_comand=stand_comand, name_db=name_db)
@@ -436,7 +436,7 @@ def add_row_tables(name_db):
                     'user': 'admin',
                     'db_comand': 1,
                     }
-    my_db = FurnitureDtabase(name_db=name_db)
+    my_db = FurnitureDatabase(name_db=name_db)
     a = request.data
     j = json.loads(a.decode('utf-8'))
     check_error = full_check(json_data=j, stand_comand=stand_comand, name_db=name_db)
@@ -459,7 +459,7 @@ def add_column_table(name_db):
                     'db_comand': 1,
                     }
 
-    my_db = FurnitureDtabase(name_db=name_db)
+    my_db = FurnitureDatabase(name_db=name_db)
     a = request.data
     j = json.loads(a.decode('utf-8'))
     check_error = check_headline(j, stand_comand)
@@ -486,7 +486,7 @@ def get_row_tables(name_db, column_condition):
                     'db_comand': 1,
                     }
     result = {"tables": {}}
-    my_db = FurnitureDtabase(name_db=name_db)
+    my_db = FurnitureDatabase(name_db=name_db)
     a = request.data
     j = json.loads(a.decode('utf-8'))
     check_error = full_check(json_data=j, stand_comand=stand_comand, name_db=name_db)
@@ -518,45 +518,53 @@ def get_databases():
     return json_send
 
 
+def is_all_employers_rated(db, prev_date: dt, id_department):
+    count_assessments = db.mysql_custom_command(
+        f'''SELECT COUNT(*) FROM personal_assessment 
+                INNER JOIN personal ON personal_assessment.id_name_personal=personal.id_personal
+                 WHERE personal.id_department={id_department} AND personal_assessment.date = '{prev_date}' ''')[0][0]
+    count_personal = db.mysql_custom_command(f'''SELECT COUNT(*) FROM personal 
+                                                WHERE id_department = {id_department} ''')[0][0]
+    count_criteria = db.mysql_custom_command("SELECT COUNT(*) FROM conf_criterion")[0][0]
+
+    return count_personal * count_criteria == count_assessments
+
+
+def is_date_avaible(db, date):
+    count_exist_rows = db.mysql_custom_command(f'''SELECT COUNT(date) FROM personal_assessment 
+                                                       WHERE date = '{date}' ''')[0][0]
+    count_rows_next_dates = db.mysql_custom_command(f'''SELECT COUNT(date) FROM personal_assessment
+                                                   WHERE date > '{date}' ''')[0][0]
+    return not (count_exist_rows == 0 and count_rows_next_dates > 0)
+
 
 @app.route('/furniture/get_persons_for_assessment/', methods=['POST'])
 def get_persons_for_assessment():
-    f = database.FurnitureDtabase("new_factory_6")
+    db = database.FurnitureDatabase("new_factory_6")
     data = json.loads(request.data.decode('utf-8'))
     department = data["tables"]["department"]
-    id_department = f.mysql_castom_command(f'''SELECT id_department 
+    id_department = db.mysql_custom_command(f'''SELECT id_department 
                                                 FROM department WHERE title = '{department}' ''')[0][0]
-    count_personal = f.mysql_castom_command(f"SELECT COUNT(*) FROM personal "
-                                            f"WHERE id_department = {id_department}")[0][0]
-    count_criteria = f.mysql_castom_command("SELECT COUNT(*) FROM conf_criterion")[0][0]
-    day, month, year = map(int, data['date'].split('-'))
-    cur_date = dt(year, month, day)
+
+    cur_date = dt(*reversed(list(map(int, data['date'].split('-')))))
     # print('cur_date', cur_date)
-    count_next_date = f.mysql_castom_command(f'''SELECT COUNT(date) FROM personal_assessment
-                                                WHERE date > '{cur_date}' ''')[0][0]
+    if not is_date_avaible(db, cur_date):
+        result = {"error": "Bad date"}
+        json_send = json.dumps(result)
+        return json_send
 
-    if count_next_date > 0:  # проверка, если пользователь захочет поставить оценку по старой несуществующей дате
-        count_exist_rows = f.mysql_castom_command(f'''SELECT COUNT(date) FROM personal_assessment 
-                                                WHERE date = '{cur_date}' ''')[0][0]
-        if count_exist_rows == 0:
-            result = {"error": "Bad date"}
-            json_send = json.dumps(result)
-            return json_send
+    prev_date = db.mysql_custom_command(f'''SELECT date FROM personal_assessment 
+                                            WHERE date < '{cur_date}' ORDER BY date DESC LIMIT 1 ''')
+    print('prev_date', prev_date)
 
-    prev_date = f.mysql_castom_command(f"SELECT date FROM personal_assessment "
-                                       f"WHERE date < '{cur_date}' ORDER BY date DESC LIMIT 1")
-    # print(prev_date)
-    if len(prev_date) != 0:  # проверка на законченность предыдущей оценки
-        count_assessments = f.mysql_castom_command(
-            f"SELECT COUNT(*) FROM personal_assessment WHERE date = '{prev_date[0][0]}'")[0][0]
-        if count_personal * count_criteria != count_assessments:
-            result = {"error": "Не все сотрудники были оценены в прошлый раз"}
-            json_send = json.dumps(result)
-            return json_send
+    if len(prev_date) != 0 and not is_all_employers_rated(db, prev_date[0][0], id_department):
+        result = {"error": "Не все сотрудники были оценены в прошлый раз"}
+        json_send = json.dumps(result)
+        return json_send
+
     # pprint(data)
-
     assessment_list = {"tables": {"personal": []}}
-    persons = f.mysql_castom_command(f'''SELECT id_personal, name, dir_avatar FROM personal 
+    persons = db.mysql_custom_command(f'''SELECT id_personal, name, dir_avatar FROM personal 
                                         WHERE id_department = (SELECT id_department FROM department
                                                                                     WHERE title = '{department}')''')
     # print(persons)
@@ -572,24 +580,21 @@ def get_persons_for_assessment():
             "average_value": {}
         })
         person = assessment_list["tables"]["personal"][i]
-        for criterion in f.mysql_castom_command("SELECT id_conf_criterion, title_criterion FROM conf_criterion"):
+        for criterion in db.mysql_custom_command("SELECT id_conf_criterion, title_criterion FROM conf_criterion"):
             person["id_assessment"][criterion[1]] = [0, 0]
-            exist_assessment = f.mysql_castom_command(f'''SELECT * FROM personal_assessment
+            exist_assessment = db.mysql_custom_command(f'''SELECT * FROM personal_assessment
                                                             WHERE date = '{cur_date}' AND id_name_personal = '{persons[i][0]}' 
                                                             AND id_criterion = {criterion[0]} ''')
             # print('exist_assessment', exist_assessment)
-
             person["id_assessment"][criterion[1]][0] = exist_assessment[0][0] if len(exist_assessment) != 0 else 0
             person["assessment"][criterion[1]] = exist_assessment[0][9] if len(exist_assessment) != 0 else 0
             person["comments"][criterion[1]] = exist_assessment[0][4] if len(exist_assessment) != 0 else ""
             person["add_data"][criterion[1]] = "admin" if len(exist_assessment) != 0 else ""
             person["edit_data"][criterion[1]] = "admin" if len(exist_assessment) != 0 else ""
-            person["average_value"][criterion[1]] = f.get_average_value(cur_date, data["period_mean"],
-                                                                        person["id_person"], criterion[0])
-
+            person["average_value"][criterion[1]] = db.get_average_value(cur_date, data["period_mean"],
+                                                                         person["id_person"], criterion[0])
         # with open(persons[i][2], "rb") as open_file:
         #     assessment_list["tables"]["personal"][i]["avatar"] = pickle.load(open_file)
-
     # pprint(assessment_list)
     return assessment_list
 
@@ -598,7 +603,7 @@ def get_persons_for_assessment():
 def send_assessments():
     # print(type(request.data)) # <class 'bytes'>
     data = json.loads(request.data.decode('utf-8'))
-    f = database.FurnitureDtabase("new_factory_6")
+    db = database.FurnitureDatabase("new_factory_6")
     for person in data['tables']['personal']:
         for criterion, value in dict(person['id_assessment']).items():
             id_row, command = value
@@ -607,30 +612,30 @@ def send_assessments():
             elif command == 1:
                 if id_row == 0:  # добавляем новую оценку
                     # print('add')
-                    id_criterion = f.mysql_castom_command(
+                    id_criterion = db.mysql_custom_command(
                         f"SELECT id_conf_criterion FROM conf_criterion WHERE title_criterion = '{criterion}'")[0][0]
-                    f.add_row_v2('personal_assessment',
-                                 ('date', 'id_name_personal', 'id_title_project', 'comments',
-                                  'id_criterion', 'id_drop_criterion', 'user_add', 'user_edit', 'assessment'),
-                                 (dt.today(), person['id_person'], 'NULL', person['comments'][criterion],
-                                  id_criterion, 'NULL', 'admin', 'NULL', person['assessment'][criterion]
-                                  ))
+                    db.add_row_v2('personal_assessment',
+                                  ('date', 'id_name_personal', 'id_title_project', 'comments',
+                                   'id_criterion', 'id_drop_criterion', 'user_add', 'user_edit', 'assessment'),
+                                  (dt.today(), person['id_person'], 'NULL', person['comments'][criterion],
+                                   id_criterion, 'NULL', 'admin', 'NULL', person['assessment'][criterion]
+                                   ))
                     #  таблицы проекты и персонал будут связаны через битрикс
                 else:  # редактируем
                     # print('edit')
-                    f.mysql_castom_command(f'''UPDATE personal_assessment
+                    db.mysql_custom_command(f'''UPDATE personal_assessment
                                                     SET
                                                         assessment = {person['assessment'][criterion]},
                                                         comments = '{person['comments'][criterion]}',
                                                         user_edit = '{person['edit_data'][criterion]}'
                                                     WHERE id_assessment = {id_row};''', 0)
 
-                    print(f.mysql_castom_command(
+                    print(db.mysql_custom_command(
                         f'''SELECT * FROM personal_assessment WHERE id_assessment = {id_row}'''))
 
             elif command == -1:  # удаляем
                 print('delete')
-                f.mysql_castom_command(f"DELETE FROM personal_assessment WHERE id_assessment = {id_row}", 0)
+                db.mysql_custom_command(f"DELETE FROM personal_assessment WHERE id_assessment = {id_row}", 0)
 
     return "200"
 

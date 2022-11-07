@@ -60,16 +60,17 @@ def get_databases():
 
 def get_date_range(date_: dt, period):
     if period == "month":
-        return dt(date_.year, date_.month, 1), dt(date_.year, date_.month + 1, 1) - timedelta(days=1)
+        temp = dt(date_.year, date_.month, 1) + timedelta(days=31)
+        return dt(date_.year, date_.month, 1), temp - timedelta(days=temp.day)
     if period == "quarter":
-        return dt(date_.year, (date_.month - 1) // 3 * 3 + 1, 1), \
-               dt(date_.year, (date_.month - 1) // 3 * 3 + 4, 1) - timedelta(days=1)
+        temp = dt(date_.year, (date_.month - 1) // 3 * 3 + 3, 1) + timedelta(days=31)
+        return dt(date_.year, (date_.month - 1) // 3 * 3 + 1, 1), temp - timedelta(days=temp.day)
     if period == "year":
         return dt(date_.year, 1, 1), dt(date_.year, 12, 31)
     return 0
 
 
-class FurnitureDtabase:
+class FurnitureDatabase:
     def __init__(self, name_db):
         self.host = '127.0.0.1'
         self.user = 'root'
@@ -77,7 +78,7 @@ class FurnitureDtabase:
         self.port = '3306'
         self.database = name_db
 
-    def mysql_castom_command(self, mysql_comand, GET=1):
+    def mysql_custom_command(self, mysql_comand, GET=1):
         with mysql.connector.connect(
                 host=self.host,
                 user=self.user,
@@ -194,7 +195,7 @@ class FurnitureDtabase:
 
     def get_average_value(self, date_: dt, period, id_person, id_criterion):
         from_, to_ = get_date_range(date_, period)
-        assessments = self.mysql_castom_command(f'''SELECT assessment FROM personal_assessment
+        assessments = self.mysql_custom_command(f'''SELECT assessment FROM personal_assessment
                                     WHERE date >= '{from_}' AND date <= '{to_}' AND id_name_personal = {id_person}
                                             AND id_criterion = {id_criterion}''')
         if len(assessments) == 0:
