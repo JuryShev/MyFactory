@@ -244,21 +244,21 @@ class GUIPersonInteraction(QtWidgets.QWidget):
         self.label_asses_certification.setAlignment(QtCore.Qt.AlignCenter)
         self.label_asses_certification.setObjectName("label_asses_certification")
         self.gridLayout.addWidget(self.label_asses_certification, 1, 0, 1, 1)
-        self.PB_SharePermissions = QtWidgets.QPushButton(self.GLay_bonus)
-        self.PB_SharePermissions.setMaximumSize(QtCore.QSize(150, 25))
-        self.PB_SharePermissions.setBaseSize(QtCore.QSize(0, 0))
-        font = QtGui.QFont()
-        font.setFamily("Roboto")
-        font.setPointSize(9)
-        font.setBold(False)
-        font.setItalic(False)
-        font.setUnderline(False)
-        font.setWeight(50)
-        self.PB_SharePermissions.setFont(font)
-        self.PB_SharePermissions.setStyleSheet("color: rgb(0, 0, 0);\n"
-                                               "background-color: rgb(145, 158, 208);")
-        self.PB_SharePermissions.setObjectName("pushButton")
-        self.gridLayout.addWidget(self.PB_SharePermissions, 2, 1, 1, 1)
+        # self.PB_SharePermissions = QtWidgets.QPushButton(self.GLay_bonus)
+        # self.PB_SharePermissions.setMaximumSize(QtCore.QSize(150, 25))
+        # self.PB_SharePermissions.setBaseSize(QtCore.QSize(0, 0))
+        # font = QtGui.QFont()
+        # font.setFamily("Roboto")
+        # font.setPointSize(9)
+        # font.setBold(False)
+        # font.setItalic(False)
+        # font.setUnderline(False)
+        # font.setWeight(50)
+        # self.PB_SharePermissions.setFont(font)
+        # self.PB_SharePermissions.setStyleSheet("color: rgb(0, 0, 0);\n"
+        #                                        "background-color: rgb(145, 158, 208);")
+        # self.PB_SharePermissions.setObjectName("pushButton")
+        # self.gridLayout.addWidget(self.PB_SharePermissions, 2, 1, 1, 1)
         spacerItem1 = QtWidgets.QSpacerItem(30, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         self.gridLayout.addItem(spacerItem1, 1, 1, 1, 1)
         self.gridLayout_2.addWidget(self.GLay_bonus, 3, 1, 1, 1)
@@ -314,6 +314,83 @@ class GUIPersonInteraction(QtWidgets.QWidget):
         self.line_number_asses.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line_number_asses.setObjectName("line_number_asses")
         self.verticalLayout.addWidget(self.line_number_asses)
+        ###################################################################
+        self.HLay_right_button = QtWidgets.QHBoxLayout()
+        self.HLay_right_button.setObjectName("HLay_right_button")
+        self.PB_right_user = QtWidgets.QPushButton(self.VLay_contact)
+        self.PB_right_user.setMaximumSize(QtCore.QSize(150, 25))
+        self.PB_right_user.setBaseSize(QtCore.QSize(0, 0))
+        font = QtGui.QFont()
+        font.setFamily("Roboto")
+        font.setPointSize(9)
+        font.setBold(False)
+        font.setItalic(False)
+        font.setUnderline(False)
+        font.setWeight(50)
+        self.PB_right_user.setFont(font)
+        self.PB_right_user.setStyleSheet("QPushButton{\n"
+                                         "background-color: rgb(151, 156, 180);\n"
+                                         "    color: rgb(0, 0, 0);\n"
+                                         "border-style: solid;\n"
+                                         "border-width: 0.5px;\n"
+                                         "    border-color: rgb(151, 156, 180);\n"
+                                         "border-radius: 5px;\n"
+                                         "\n"
+                                         "}\n"
+                                         "\n"
+                                         "QPushButton:hover {\n"
+                                         "background-color: rgb(140, 148, 180);\n"
+                                         "}\n"
+                                         "\n"
+                                         "QPushButton:pressed {\n"
+                                         "border-style: inset;\n"
+                                         "\n"
+                                         "    \n"
+                                         "    background-color: rgb(24, 33, 69);\n"
+                                         "color: rgb(250, 250, 250);\n"
+                                         "\n"
+                                         "}color: rgb(0, 0, 0);")
+        self.PB_right_user.setObjectName("PB_right_user")
+        self.HLay_right_button.addWidget(self.PB_right_user)
+        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+        self.HLay_right_button.addItem(spacerItem1)
+        self.PB_right_admin = QtWidgets.QPushButton(self.VLay_contact)
+        self.PB_right_admin.setMaximumSize(QtCore.QSize(150, 25))
+        self.PB_right_admin.setBaseSize(QtCore.QSize(0, 0))
+        font = QtGui.QFont()
+        font.setFamily("Roboto")
+        font.setPointSize(9)
+        font.setBold(False)
+        font.setItalic(False)
+        font.setUnderline(False)
+        font.setWeight(50)
+        self.PB_right_admin.setFont(font)
+        self.PB_right_admin.setStyleSheet("QPushButton{\n"
+                                          "background-color: rgb(151, 156, 180);\n"
+                                          "    color: rgb(0, 0, 0);\n"
+                                          "border-style: solid;\n"
+                                          "border-width: 0.5px;\n"
+                                          "    border-color: rgb(151, 156, 180);\n"
+                                          "border-radius: 5px;\n"
+                                          "\n"
+                                          "}\n"
+                                          "\n"
+                                          "QPushButton:hover {\n"
+                                          "background-color: rgb(140, 148, 180);\n"
+                                          "}\n"
+                                          "\n"
+                                          "QPushButton:pressed {\n"
+                                          "border-style: inset;\n"
+                                          "\n"
+                                          "    \n"
+                                          "    background-color: rgb(24, 33, 69);\n"
+                                          "color: rgb(250, 250, 250);\n"
+                                          "\n"
+                                          "}color: rgb(0, 0, 0);")
+        self.PB_right_admin.setObjectName("PB_right_admin")
+        self.HLay_right_button.addWidget(self.PB_right_admin)
+        self.verticalLayout.addLayout(self.HLay_right_button)
+        ###################################################################
         self.gridLayout_2.addWidget(self.VLay_contact, 2, 1, 1, 1)
         self.VLay_work_inf_2 = QtWidgets.QFrame(self.frame_loadCard)
         self.VLay_work_inf_2.setObjectName("VLay_work_inf_2")

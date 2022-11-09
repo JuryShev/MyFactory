@@ -85,6 +85,24 @@ class Ui_MainWindow(object):
         self.TB_IPEnter.setIcon(icon2)
         self.TB_IPEnter.setShortcut("")
         self.TB_IPEnter.setObjectName("TB_IPEnter")
+        ###########################################
+        self.TB_ActiveUser = QtWidgets.QToolButton(self.centralwidget)
+        self.TB_ActiveUser.setGeometry(QtCore.QRect(640, 20, 80, 31))
+        self.TB_ActiveUser.setStyleSheet(
+
+                                        "color: rgb(245, 245, 245);\n"
+                                        "background-color: rgb(96, 105, 138);"
+                                         " border-width: 1px;\n"
+                                         " border-style: solid;\n"
+                                         " border-color:  rgb(158, 158, 158);\n"
+                                         "border-radius: 5px"
+
+                                         )
+
+
+        self.TB_ActiveUser.setShortcut("")
+        self.TB_ActiveUser.setObjectName("TB_ActiveUser")
+        ###########################################
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
@@ -97,6 +115,7 @@ class Ui_MainWindow(object):
         self.label_2.setText(_translate("MainWindow", "Эффективно управляйте предприятем и оценивайте персонал"))
         self.label_3.setText(_translate("MainWindow", "Создать предприятие"))
         self.label_4.setText(_translate("MainWindow", "Открыть мое предприятие"))
+        self.TB_ActiveUser.setText(_translate("MainWindow", "активировать"))
         self.TB_IPEnter.setToolTip(_translate("MainWindow",
                                               "<html><head/><body><p><span style=\" color:#ffffff;\">Поключиться к серверу</span></p></body></html>"))
         self.TB_IPEnter.setText(_translate("MainWindow", "..."))

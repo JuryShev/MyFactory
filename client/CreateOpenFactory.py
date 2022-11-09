@@ -1,10 +1,12 @@
 import transliterate
 import time
 import json
+import os
+import argon2
 import sys
 import traceback
 from functools import partial
-
+import re
 from PyQt5.QtWidgets import QDialog, QAction
 from PyQt5.QtWidgets import QWidget, QPushButton, QProgressBar, QVBoxLayout, QApplication,\
     QMessageBox,QGraphicsDropShadowEffect,QStyledItemDelegate,QLineEdit
@@ -60,7 +62,179 @@ class DeployDialogIP(QDialog, DialogIP):
         self.NameUser=''
         self.PasswordUser=''
         self.flag_connect = 0
+        self.right=''
+
+
+
+    def activ_user(self):
+        self.activ_dialog()
+        self.buttonBox.accepted.connect(self.connect_activ)
+        regular_ex = QtCore.QRegExp("[A-Za-z\d@$!%*?&]{20}")
+        input_validator = QtGui.QRegExpValidator(regular_ex, self.LE_password)
+        self.LE_password.setValidator(input_validator)
+        #regular_pass = "^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
+    def check_activ(self):
+        self.IPadress = self.LE_IP.text()
+        self.Key=self.LE_key.text()
+        self.NameUser = self.LE_name.text()
+        self.PasswordUser = self.LE_password.text()
+        self.PasswordUser_rep=self.LE_password_rep.text()
+        self.Asterisk_Password.hide()
+        flag_list=[]
+
+
+        if len(self.IPadress) < 8:
+            flag_list.append(0)
+            self.QL_error.setText(_translate("Dialog", "некорректный IP-адрес"))
+            self.Asterisk_IP.show()
+            return flag_list
+        else:
+            flag_list.append(1)
+            self.Asterisk_IP.hide()
+
+        if len(self.Key)<16:
+            flag_list.append(0)
+            self.Asterisk_key.show()
+            self.QL_error.setText(_translate("Dialog", "неверный формат ключа"))
+            return flag_list
+        else:
+            self.Asterisk_key.hide()
+            flag_list.append(1)
+
+        if len(self.NameUser) <= 1:
+            flag_list.append(0)
+            self.QL_error.setText(_translate("Dialog", "слишком короткое имя"))
+            self.Asterisk_Name.show()
+            return flag_list
+        else:
+            flag_list.append(1)
+            self.Asterisk_Name.hide()
+
+        regular_pass = "^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
+
+        if re.match(regular_pass, self.PasswordUser) == None:
+            flag_list.append(0)
+            self.Asterisk_Password.show()
+            self.QL_error.setText(_translate("Dialog", "слишком простой пароль \n"
+                                                       "(должен содержать цифру и быть не меньше 8 символов)"))
+            return flag_list
+        else:
+            flag_list.append(1)
+            self.Asterisk_Password.hide()
+
+
+
+        if self.PasswordUser_rep!=self.PasswordUser:
+            flag_list.append(0)
+            self.Asterisk_Password_rep.show()
+            self.QL_error.setText(_translate("Dialog", "пароли не совпадают \n"
+                                                       ))
+            return flag_list
+        else:
+            flag_list.append(1)
+            self.Asterisk_Password_rep.hide()
+
+        return flag_list
+    def connect_activ(self):
+
+        check_list=self.check_activ()
+        if 0 not in check_list:
+            salt_user = os.urandom(32).hex()
+            salt_user = bytes(salt_user, 'utf-8')
+            self.PasswordUser = argon2.hash_password_raw(time_cost=16, memory_cost=2 ** 15,
+                                                parallelism=2, hash_len=32,
+                                                password=bytes(self.LE_password.text(), 'utf-8'),
+                                                salt=salt_user,
+                                                type=argon2.low_level.Type.ID)
+            activ_user = {
+                "tables": {
+                    "admin": {
+                        "nickname": self.NameUser,
+                        "password": self.PasswordUser.hex(),
+                        "salt_user": salt_user.decode()
+                    },
+                    "keys":{"name_keys":self.Key}
+                }
+            }
+            print("srart")
+            result=client.activate_user(activ_user).content.decode('utf-8')
+            if result!='ok':
+                self.QL_error.setText(_translate("UserRule",result))
+                self.QL_error.show()
+
+            elif result=='ok':
+                self.flag_activate_user=1
+                self.close()
+
+
+            print("ok")
+
+    def activ_dialog(self):
+        self.flag_activate_user = 0
+        self.resize(393, 230)
+        self.QL_error.setGeometry(QtCore.QRect(0, 160, 391, 27))
+        self.LE_key = QtWidgets.QLineEdit(self)
+        self.LE_key.setGeometry(QtCore.QRect(60, 50, 271, 20))
+        self.LE_key.setInputMask(">AAAA-AAAA-AAAA-AAAA-AAAA;.")
+        font = QtGui.QFont()
+        font.setFamily("Roboto")
+        font.setPointSize(10)
+        self.LE_key.setFont(font)
+        self.LE_key.setStyleSheet( "border:none;\n"
+                                   "border-bottom: 1px solid rgb(16,240,207);\n"
+                                   "padding_bottom: 7px;\n"
+                                   "background-color: rgb(255, 255,255);\n"
+                                   "border-radius: 5px;\n"
+                                   "")
+        self.LE_key.setPlaceholderText(_translate("Dialog", "ключ активации"))
+        self.LE_key.setObjectName("lineEdit_3")
+
+        self.LE_name.setGeometry(QtCore.QRect(60, 80, 271, 20))
+        self.Asterisk_Name.setGeometry(QtCore.QRect(340, 82, 17, 17))
+
+        self.LE_password.setGeometry(QtCore.QRect(60, 110, 271, 20))
+        self.Asterisk_Password.setGeometry(QtCore.QRect(340, 112, 17, 17))
+
+        self.LE_password_rep = QtWidgets.QLineEdit(self)
+        self.LE_password_rep.setGeometry(QtCore.QRect(60, 140, 271, 20))
+        font = QtGui.QFont()
+        font.setFamily("Roboto")
+        font.setPointSize(10)
+        self.LE_password_rep.setFont(font)
+        self.LE_password_rep.setStyleSheet("border:none;\n"
+                                       "border-bottom: 1px solid rgb(16,240,207);\n"
+                                       "padding_bottom: 7px;\n"
+                                       "background-color: rgb(255, 255,255);\n"
+                                       "border-radius: 5px;\n"
+                                       "")
+        self.LE_password_rep.setObjectName("lineEdit_2")
+        self.LE_password_rep.setPlaceholderText(_translate("Dialog", "повторите пароль"))
+        self.buttonBox.setGeometry(QtCore.QRect(120, 190, 151, 32))
+        self.Asterisk_key = QtWidgets.QLabel(self)
+        self.Asterisk_key.setGeometry(QtCore.QRect(340, 50, 17, 17))
+        self.Asterisk_key.setStyleSheet("border-color:  rgb(74,80 ,106 );\n"
+                                         "color: rgb(255, 129, 112);")
+        self.Asterisk_key.setObjectName("QL_Error_key")
+        self.Asterisk_key.setStyleSheet("border-image: url(./GUI/icon/asterisk.png);")
+
+
+        #inform_password = "Пароль должен содержать минимум восемь символов, \nминимум одну букву и одну цифру"
+
+        # self.QL_Error_pass.setToolTip(_translate("MainWindow",
+        #                                                  inform_password))
+
+        self.Asterisk_Password_rep = QtWidgets.QLabel(self)
+        self.Asterisk_Password_rep.setGeometry(QtCore.QRect(340, 142, 17, 17))
+        self.Asterisk_Password_rep.setStyleSheet('QWidget { border-color:  rgb(74,80 ,106 );color: rgb(255, 129, 112);}')
+        self.Asterisk_Password_rep.setObjectName("QL_Error_name")
+        self.Asterisk_Password_rep.setStyleSheet("border-image: url(./GUI/icon/asterisk.png);")
+
+        self.Asterisk_key.hide()
+
+        self.Asterisk_Password_rep.hide()
+
     def accept(self) -> None:
+
         self.IPadress=self.LE_IP.text()
         self.NameUser=self.LE_name.text()
         self.PasswordUser=self.LE_password.text()
@@ -81,8 +255,29 @@ class DeployDialogIP(QDialog, DialogIP):
             self.Asterisk_Password.hide()
 
         if len(self.IPadress)>8 and len(self.NameUser)>1 and len(self.PasswordUser)>=4:
-            self.flag_connect=1
-            self.close()
+            _translate = QtCore.QCoreApplication.translate
+            client.adress = self.IPadress
+            client.password = self.PasswordUser
+            client.id_user = self.NameUser
+            login_user = {
+                "tables": {
+                    "user": {
+                        "nickname": self.NameUser,
+                        "password": self.PasswordUser,
+                        "salt_user": ''
+                    }
+                }
+            }
+            client.url = f"http://{client.adress}:{5000}"
+            result = client.connect_server(login_user).content.decode('utf-8')
+            result=json.loads(result)
+            if len(result['error'])>0:
+                self.QL_error.setText(_translate("Dialog", f"{result['error']}"))
+                self.QL_error.show()
+            else:
+                self.right=result['right']
+                self.flag_connect=1
+                self.close()
 
 
 class NumericDelegate(QStyledItemDelegate):
@@ -308,7 +503,7 @@ class ChooseFactoryDialog_(QDialog, ChooseFactoryDialog ):
 
     def write_in_combobox(self):
         for factory in self.list_factory:
-            self.comboBox.addItem(factory)
+            self.comboBox.addItem(factory[0])
 
 
 
@@ -790,6 +985,7 @@ class mywindow(QtWidgets.QMainWindow):
 
     valueChanged = pyqtSignal(object)
     flagServerChange=pyqtSignal(object)
+    start_win = pyqtSignal()
 
     def __init__(self, MainWindowAll, NextWidget):
         super(mywindow, self).__init__()
@@ -802,6 +998,7 @@ class mywindow(QtWidgets.QMainWindow):
         self.ui.pushButton_Creat.clicked.connect(self.btn_Creat)
         self.ui.pushButton_Open.clicked.connect(self.btn_Open)
         self.ui.TB_IPEnter.clicked.connect(self.btn_IPEnter)
+        self.ui.TB_ActiveUser.clicked.connect(self.btn_Active)
         self._name_factory=''
         self.name_factory_orig=''
         self._flag_server=0
@@ -845,20 +1042,28 @@ class mywindow(QtWidgets.QMainWindow):
         self._flag_server=value
         self.flagServerChange.emit(value)
 
-
+    def btn_Active(self):
+        dlg = DeployDialogIP(self)
+        dlg.activ_user()
+        dlg.exec()
+        pass
     def btn_IPEnter(self):
         dlg=DeployDialogIP(self)
+        dlg.buttonBox.accepted.connect(dlg.accept)
         dlg.exec()
         result='False'
-        if dlg.flag_connect==1:
-            client.adress=dlg.IPadress
-            client.password=dlg.PasswordUser
-            client.id_user=dlg.NameUser
-            client.url=f"http://{client.adress}:{5000}"
-            result=client.connect_server(command=6666, db_command=6666).content.decode('utf-8')
-        if result=='ok':
+        if dlg.flag_connect==1 and dlg.right=='admin':
             self.ui.pushButton_Open.setEnabled(True)
             self.ui.pushButton_Creat.setEnabled(True)
+        elif dlg.flag_connect==1 and dlg.right=='user':
+            self.ui.pushButton_Open.setEnabled(True)
+            # client.adress=dlg.IPadress
+            # client.password=dlg.PasswordUser
+            # client.id_user=dlg.NameUser
+            # client.url=f"http://{client.adress}:{5000}"
+            #result=client.connect_server(command=6666, db_command=6666).content.decode('utf-8')
+
+
     def btn_Creat(self):
         dlg = DialogCreatFactory(self)
         dlg.exec()
@@ -885,11 +1090,13 @@ class mywindow(QtWidgets.QMainWindow):
         dlg = ChooseFactoryDialog_(self, list_factory=databases)
         dlg.exec()
         if dlg.flag_choose==1:
+            self.start_win.emit()
             self.MainWindowAll.setMaximumWidth(4000)
             self.MainWindowAll.setMaximumHeight(4000)
             self.MainWindowAll.resize(1500, 901)
             self.MainWindowAll.GlobalstackedWidget.setCurrentIndex(
             self.MainWindowAll.GlobalstackedWidget.currentIndex() + 3)
+
 
     def change_name(self):
         worker = Worker_2(self.start_creat_factory)

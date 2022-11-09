@@ -1,4 +1,6 @@
 from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5.QtCore import  pyqtSignal
+
 from PyQt5.QtWidgets import QDialog, QFileDialog, qApp, QWidget
 
 class GUIPersonalWidget (QtWidgets.QWidget):
@@ -73,15 +75,15 @@ class GUIPersonalWidget (QtWidgets.QWidget):
         self.gridLayout_8.addItem(spacerItem9, 0, 3, 1, 1)
         spacerItem10 = QtWidgets.QSpacerItem(7, 40, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.gridLayout_8.addItem(spacerItem10, 0, 1, 1, 1)
-        self.label_LPersCommentAssessment_14 = QtWidgets.QToolButton(self.GLay_LPers)
-        self.label_LPersCommentAssessment_14.setMinimumSize(QtCore.QSize(30, 30))
-        self.label_LPersCommentAssessment_14.setStyleSheet("\n"
+        self.TB_LPersCommentAssessment = QtWidgets.QToolButton(self.GLay_LPers)
+        self.TB_LPersCommentAssessment.setMinimumSize(QtCore.QSize(30, 30))
+        self.TB_LPersCommentAssessment.setStyleSheet("\n"
                                                            "border:none\\n")
-        self.label_LPersCommentAssessment_14.setIcon(icon4)
-        self.label_LPersCommentAssessment_14.setIconSize(QtCore.QSize(35, 35))
-        self.label_LPersCommentAssessment_14.setCheckable(False)
-        self.label_LPersCommentAssessment_14.setObjectName("label_LPersCommentAssessment_14")
-        self.gridLayout_8.addWidget(self.label_LPersCommentAssessment_14, 2, 5, 3, 1)
+        self.TB_LPersCommentAssessment.setIcon(icon4)
+        self.TB_LPersCommentAssessment.setIconSize(QtCore.QSize(35, 35))
+        self.TB_LPersCommentAssessment.setCheckable(False)
+        self.TB_LPersCommentAssessment.setObjectName("label_LPersCommentAssessment_14")
+        self.gridLayout_8.addWidget(self.TB_LPersCommentAssessment, 2, 5, 3, 1)
         self.label_LPersPhoto = QtWidgets.QLabel(self.GLay_LPers)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -136,3 +138,106 @@ class GUIPersonalWidget (QtWidgets.QWidget):
         self.verticalLayout_9.addWidget(self.Label_LPersName)
         self.gridLayout_8.addWidget(self.VLay_Name_LPers, 0, 2, 5, 1)
         self.verticalLayout_3.addWidget(self.GLay_LPers)
+
+class GUIPersonalWidgetScroll (QtWidgets.QWidget):
+
+
+    def __init__(self, id_widget: int, path_icon_edit, parent=None):
+        super(GUIPersonalWidgetScroll, self).__init__(parent)
+        self.id=id_widget
+        self.path_icon_edit=path_icon_edit
+        self.flag_edit=0
+        self.comment=''
+        self._translate = QtCore.QCoreApplication.translate
+        self.Pers_new = QtWidgets.QFrame()  # self.WorkWindow.scrollArea_AListPersonal
+        self.sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+        self.config_pers_frame()
+        self.Label_APersPhoto_new = QtWidgets.QLabel(self.Pers_new)
+        self.Label_APersPhoto_new=self.config_label(self.Label_APersPhoto_new,
+                                                    QtCore.QRect(10, 10, 64, 64),
+                                                    stylesheet="background-color: rgb(255, 255, 255);",
+                                                    name="Label_APersPhoto_3")
+
+
+        self.TB_APersCommentAssessment_new = QtWidgets.QToolButton(self.Pers_new)
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap("C:\\Users\\Yura\\PycharmProjects\\pythonProject\\my_project\\furniture_factory\\GUI_designer\\icon/comment 4.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.TB_APersCommentAssessment_new=self.config_button(self.TB_APersCommentAssessment_new,
+                                                              QtCore.QRect(530, 40, 51, 41), stylesheet="\n""border:none\\n",
+                                                              icon=icon1, icon_size=QtCore.QSize(35, 35), name="Label_APersCommentAssessment_3"
+                                                              )
+
+
+        self.ComboBox_SelectAssessment_new = QtWidgets.QComboBox(self.Pers_new)
+        self.ComboBox_SelectAssessment_new.addItem("")
+        self.ComboBox_SelectAssessment_new.setItemText(0, self._translate("MainWindow", 'не оценен'))
+        self.ComboBox_SelectAssessment_new.setGeometry(QtCore.QRect(530, 10, 80, 22))
+        self.ComboBox_SelectAssessment_new.setObjectName("ComboBox_SelectAssessment_3")
+        self.ComboBox_SelectAssessment_new.currentTextChanged.connect(self.combobox_select_assessment_emit)
+
+        self.Label_APersName_new = QtWidgets.QLabel(self.Pers_new)
+        font = QtGui.QFont()
+        font.setFamily("Roboto")
+        font.setPointSize(12)
+
+        self.Label_APersLastName_new = QtWidgets.QLabel(self.Pers_new)
+        self.Label_APersLastName_new=self.config_label(self.Label_APersLastName_new,
+                                                       rect=QtCore.QRect(80, 20, 391, 20),
+                                                       font=font, name="Label_APersLastName_3")
+        self.Label_APersLastName_new.setAlignment(QtCore.Qt.AlignCenter)
+
+        self.Label_APersName_new=self.config_label(self.Label_APersName_new,rect=QtCore.QRect(80, 50, 391, 20),
+                                                   font=font, name="Label_APersName_3")
+        self.Label_APersName_new.setAlignment(QtCore.Qt.AlignCenter)
+
+
+
+        self.TB_APersCheckEdit_new = QtWidgets.QToolButton(self.Pers_new)
+        self.icon_APersCheckEdit_new = QtGui.QIcon()
+        self.icon_APersCheckEdit_new.addPixmap(QtGui.QPixmap(self.path_icon_edit
+            ),
+            QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.TB_APersCheckEdit_new=self.config_button(self.TB_APersCheckEdit_new,
+                                                      QtCore.QRect(503, 4, 21, 31), stylesheet="\n""border:none\\n",
+                                                      icon=self.icon_APersCheckEdit_new, icon_size=QtCore.QSize(17, 17), name="Label_APersCheckEdit_3"
+                                                      )
+        self.TB_APersCheckEdit_new.setCheckable(False)
+        self.TB_APersCheckEdit_new.clicked.connect(self.edit_assessment)
+
+        self.Label_APersCheckAssessment_new = QtWidgets.QLabel(self.Pers_new)
+        self.Label_APersCheckAssessment_new=self.config_label(self.Label_APersCheckAssessment_new,
+                                                              rect=QtCore.QRect(479, 10, 21, 21),
+                                                              stylesheet="border-image: url(C:\\Users\\Yura\\PycharmProjects\\pythonProject\\my_project\\furniture_factory\\GUI_designer\\icon/comment 4.png);",
+                                                              name="Label_APersCheckAssessment_3")
+
+    def config_pers_frame(self):
+        self.sizePolicy.setHorizontalStretch(0)
+        self.sizePolicy.setVerticalStretch(0)
+        self.Pers_new.setSizePolicy(self.sizePolicy)
+        self.Pers_new.setMinimumSize(QtCore.QSize(100, 90))
+        self.Pers_new.setStyleSheet("background-color: rgb(217, 217, 217);")
+        self.Pers_new.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.Pers_new.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.Pers_new.setObjectName("Pers_new")
+    def config_label(self, label_config,rect, text="", stylesheet="", font=None, name=""):
+        label_config.setGeometry(rect)
+        label_config.setStyleSheet(stylesheet)#
+        if font!=None:
+            label_config.setFont(font)
+        label_config.setText(text)
+        label_config.setObjectName(name)#""
+        return label_config
+    def config_button(self, button_conf, rect, stylesheet="", icon=None, icon_size=None, name=""  ):
+        button_conf.setGeometry(rect)#
+        button_conf.setStyleSheet(stylesheet)
+        if icon!=None:
+            button_conf.setIcon(icon)
+            button_conf.setIconSize(icon_size)#
+        button_conf.setObjectName(name)
+        return button_conf
+    def config_combobox(self):
+
+        self.ComboBox_SelectAssessment_new.setGeometry(QtCore.QRect(530, 10, 80, 22))
+        self.ComboBox_SelectAssessment_new.setObjectName("ComboBox_SelectAssessment_3")
+        self.ComboBox_SelectAssessment_new.addItem("")
+

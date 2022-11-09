@@ -1,5 +1,15 @@
 import requests
 import json
+import argon2
+
+def hash_password(salt_user, password):
+    salt_user=bytes(salt_user, 'utf-8')
+    password = argon2.hash_password_raw(time_cost=16, memory_cost=2 ** 15,
+                                        parallelism=2, hash_len=32,
+                                        password=bytes(password, 'utf-8'),
+                                        salt=salt_user,
+                                        type=argon2.low_level.Type.ID).hex()
+    return salt_user.decode(), password
 
 class ServerConnector():
     def __init__(self, id_user, password, adress, port):
@@ -10,19 +20,28 @@ class ServerConnector():
         self.name_db=''
         self.url = f"http://{self.adress}:{port}"
         self.password=password
+        self.coockies=None
 
-    def connect_server(self, command, db_command):
-        result = requests.post(f"{self.url}/furniture/connect_server/",
-                               json={
-                                   "comand": command,
-                                   "user": self.id_user,
-                                   "db_comand": db_command,
-                                   "password": self.password},
-                                )
+    def connect_server(self, json_send):
+        result=requests.post(f"{self.url}/furniture/get_salt/",
+                                    cookies=self.coockies,
+                                   json=json_send)
+
+        if len(json.loads(result.content.decode('utf-8'))['error'])==0:
+            result = json.loads(result.content.decode('utf-8'))
+            _,password=hash_password(result['salt'], json_send['tables']['user']['password'])
+            json_send['tables']['user']['password']=password
+            json_send['tables']['user']['right']=result['right']
+            result=requests.post(f"{self.url}/furniture/connect_server/",
+                                        cookies=self.coockies,
+                                       json=json_send)
+
+            self.coockies=result.cookies
         return result
 
     def add_db(self, command, db_command):
         result = requests.post(f"{self.url}/furniture/add_db",
+                               cookies=self.coockies,
                                json={
                                    "comand": command,
                                    "user": self.id_user,
@@ -32,41 +51,49 @@ class ServerConnector():
 
     def add_criterion(self, data_send):
         result = requests.post(f"{self.url}/furniture/create_company_{self.name_db}/",
+                               cookies=self.coockies,
                                json=data_send)
         return result
 
     def add_personal(self, data_send):
         result = requests.post(f"{self.url}/furniture/add_personal_{self.name_db}/",
+                               cookies=self.coockies,
                                json=data_send)
         return result
 
     def edit_table(self, data_send):
         result = requests.post(f"{self.url}/furniture/edit_tables_{self.name_db}/",
+                               cookies=self.coockies,
                                json=data_send)
         return result
 
     def edit_column_table(self, data_send):
         result = requests.post(f"{self.url}/furniture/edit_column_tables_{self.name_db}/",
+                               cookies=self.coockies,
                                json=data_send)
         return result
 
     def del_associated_file(self, data_send):
         result = requests.post(f"{self.url}/furniture/del_associated_file_{self.name_db}/",
+                               cookies=self.coockies,
                                json=data_send)
         return result
 
     def del_row_table(self, data_send):
         result = requests.post(f"{self.url}/furniture/delete_row_{self.name_db}/",
+                               cookies=self.coockies,
                                json=data_send)
         return result
 
     def del_column_table(self, data_send):
         result = requests.post(f"{self.url}/furniture/delete_column_{self.name_db}/",
+                               cookies=self.coockies,
                                json=data_send)
         return result
 
     def edit_associated_file(self, data_send):
         result = requests.post(f"{self.url}/furniture/edit_associated_file_{self.name_db}/",
+                               cookies=self.coockies,
                                json=data_send)
         return result
     def edit_person(self, data_send, name_column_file):
@@ -103,23 +130,42 @@ class ServerConnector():
 
     def get_row_table(self, data_send, name_row_condition):
         result = requests.post(f"{self.url}/furniture/get_row_{self.name_db}_{name_row_condition}/",
+                               cookies=self.coockies,
                                json=data_send)
         return result
 
     def add_row_table(self, data_send):
         result = requests.post(f"{self.url}/furniture/add_row_{self.name_db}/",
+                               cookies=self.coockies,
                                json=data_send)
         return result
     def add_column_table(self, data_send):
         result = requests.post(f"{self.url}/furniture/add_column_{self.name_db}/",
+                               cookies=self.coockies,
                                json=data_send)
         return result
 
     def get_struct(self):
-        result = requests.post(f"{self.url}/furniture/get_inside_struct_{self.name_db}/",json={
+        result = requests.post(f"{self.url}/furniture/get_inside_struct_{self.name_db}/",
+                               cookies=self.coockies,
+                               json={
                                    "comand": 1100,
                                    "user": self.id_user,
                                    "db_comand": 1})
+        return result
+
+    def assessment_personal(self, data_send, mode='get'):
+        if mode=='get':
+            result = requests.post(f"{self.url}/furniture/get_persons_for_assessment_{self.name_db}/",
+                                   cookies=self.coockies,
+                                   json=data_send)
+        elif mode=='send':
+            result = requests.post(f"{self.url}/furniture/send_assessment_{self.name_db}/",
+                                   cookies=self.coockies,
+                                   json=data_send)
+        else:
+            result=f'команды {mode} не существует'
+
         return result
 
     def load_data_all(self,  name_table):
@@ -138,6 +184,7 @@ class ServerConnector():
 
     def load_databases(self):
         result = requests.post(f"{self.url}/furniture/get_databases/",
+                               cookies=self.coockies,
                                json={
                                    "comand": 1110,
                                    "user": self.id_user,
@@ -146,8 +193,28 @@ class ServerConnector():
 
     def get_personal(self, data_send):
         result=requests.post(f"{self.url}/furniture/get_personal_{self.name_db}/",
+                             cookies=self.coockies,
                       json=data_send)
 
+        return result
+
+    def register(self, data_send):
+        result = requests.post(f"{self.url}/furniture/register_{self.name_db}/",
+                               cookies=self.coockies,
+                               json=data_send)
+
+        return result
+
+    def activate_user(self, data_send):
+        result = requests.post(f"{self.url}/furniture/activate_user/",
+                               cookies=self.coockies,
+                               json=data_send)
+        return result
+
+    def appoint_admin(self, data_send):
+        result = requests.post(f"{self.url}/furniture/appoint_admin_{self.name_db}/",
+                               cookies=self.coockies,
+                               json=data_send)
         return result
 
 
