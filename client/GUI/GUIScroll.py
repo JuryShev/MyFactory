@@ -21,6 +21,7 @@ class GUIListPersonal(QtWidgets.QWidget):
         self.scrollArea_ListPersonal.setStyleSheet(style)
 
 
+
 class GUIScrollPersonal():
     def __init__(self, frame_loadList, base_size):
         super(GUIScrollPersonal, self).__init__()
@@ -78,6 +79,7 @@ class GUIScrollPersonal():
         self.Label_AllPersonal.setStyleSheet("color: rgb(255, 255, 255);")
         self.Label_AllPersonal.setAlignment(QtCore.Qt.AlignCenter)
         self.Label_AllPersonal.setObjectName("Label_AllPersonal")
+
         # self.PB_Save_APers = QtWidgets.QPushButton(frame_loadList)
         # font = QtGui.QFont()
         # font.setFamily("Roboto")

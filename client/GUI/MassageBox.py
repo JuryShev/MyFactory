@@ -24,7 +24,7 @@ class MassageBox(object):
         self.PB_OK_Canel.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
         self.PB_OK_Canel.setObjectName("PB_OK_Canel")
         self.Label_message = QtWidgets.QLabel(Dialog)
-        self.Label_message.setGeometry(QtCore.QRect(10, 30, 391, 20))
+        self.Label_message.setGeometry(QtCore.QRect(10, 24, 391, 28))
         font = QtGui.QFont()
         font.setFamily("Roboto")
         font.setPointSize(8)
@@ -40,7 +40,7 @@ class MassageBox(object):
         self.label_2.setText("")
         self.label_2.setObjectName("label_2")
         self.PB_OK_second = QtWidgets.QPushButton(Dialog)
-        self.PB_OK_second.setGeometry(QtCore.QRect(170, 65, 61, 20))
+        self.PB_OK_second.setGeometry(QtCore.QRect(170, 65, 61, 25))
         self.PB_OK_second.setStyleSheet("background-color: rgb(213, 213, 213);")
         self.PB_OK_second.setObjectName("PB_OK_second")
 
@@ -52,7 +52,7 @@ class MassageBox(object):
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
-        self.Label_message.setText(_translate("Dialog", "Подтвердить изменения профиля?"))
+        self.Label_message.setText(_translate("Dialog", "Подтвердить изменения профиля?\n jgjgjgjgjgjgj"))
         self.PB_OK_second.setText(_translate("Dialog", "OK"))
 
 

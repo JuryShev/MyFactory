@@ -22,9 +22,10 @@ from GUI.MassageBox import MassageBox
 from GUI.DialogCalendar import DialogCalendar
 from GUI.GUIPersonInteraction import GUIPersonInteraction
 from GUI.GUIScroll import GUIListPersonal, GUIScrollPersonal
-from GUI.GUIPersonalWidget import GUIPersonalWidget, GUIPersonalWidgetScroll
+from GUI.GUIPersonalWidget import GUIPersonalWidget, GUIPersonalWidgetScroll, GUIPersonalWidget_2
 from GUI.GUIAssessment import GUIAssessment
 from GUI.DialogComment import DialogComment
+from GUI.DialogIpEnter import DialogEnter
 import CreateOpenFactory as COF
 from GUI.DialogUserRule import *
 
@@ -82,8 +83,171 @@ class DeployDialogComment(QDialog, DialogComment):
     def cancel(self):
         self.close()
 
+class Deploy_ChangeLogin(QDialog,DialogEnter):
+    def __init__(self, parent):
+        super().__init__(parent)
+        _translate = QtCore.QCoreApplication.translate
+        self.setupUi(self)
+        self.resize(380, 100)
+        self.LE_IP.hide()
+        self.LE_password.hide()
+        self.LE_password.setGeometry(QtCore.QRect(60, 65, 271, 20))
+        self.NameUser = ''
+        self.PasswordUser = ''
+        self.flag_connect = 0
+        self.path_icon_edit='./GUI/icon/pen [#1320].png'
+        self.LE_name.setGeometry(QtCore.QRect(60, 20, 271, 20))
+        self.buttonBox.setGeometry(QtCore.QRect(120, 60, 151, 32))
+        self.LE_name.setEnabled(False)
 
-class PersonalWidget(GUIPersonalWidget):
+        self.LE_password_new = QtWidgets.QLineEdit(self)
+        self.LE_password_new.setGeometry(QtCore.QRect(60, 95, 271, 20))
+        font = QtGui.QFont()
+        font.setFamily("Roboto")
+        font.setPointSize(10)
+        self.LE_password_new.setFont(font)
+        self.LE_password_new.setStyleSheet("border:none;\n"
+                                       "border-bottom: 1px solid rgb(16,240,207);\n"
+                                       "padding_bottom: 7px;\n"
+                                       "background-color: rgb(255, 255,255);\n"
+                                       "border-radius: 5px;\n"
+                                       "")
+        self.LE_password_new.setObjectName("LE_password_new")
+        self.LE_password_new.setPlaceholderText(_translate("Dialog", "новый пароль"))
+        regular_ex = QtCore.QRegExp("[A-Za-z\d@$!%*?&]{20}")  # №\\b^.*(?=.{8,})(?=.*\d)(?=.*[a-z]).*$\\b
+        input_validator = QtGui.QRegExpValidator(regular_ex, self.LE_password_new)
+        self.LE_password.setValidator(input_validator)
+        self.LE_password_new.hide()
+
+        self.LE_password_rep = QtWidgets.QLineEdit(self)
+        self.LE_password_rep.setGeometry(QtCore.QRect(60,125, 271, 20))
+        font = QtGui.QFont()
+        font.setFamily("Roboto")
+        font.setPointSize(10)
+        self.LE_password_rep.setFont(font)
+        self.LE_password_rep.setStyleSheet("border:none;\n"
+                                           "border-bottom: 1px solid rgb(16,240,207);\n"
+                                           "padding_bottom: 7px;\n"
+                                           "background-color: rgb(255, 255,255);\n"
+                                           "border-radius: 5px;\n"
+                                           "")
+        self.LE_password_rep.setObjectName("LE_password_new")
+        self.LE_password_rep.setPlaceholderText(_translate("Dialog", "повторите пароль"))
+        input_validator = QtGui.QRegExpValidator(regular_ex, self.LE_password_rep)
+        self.LE_password_rep.setValidator(input_validator)
+        self.LE_password_rep.hide()
+
+        self.TB_edit_name_user = QtWidgets.QToolButton(self)
+        self.icon_edit_name_user = QtGui.QIcon()
+        self.icon_edit_name_user.addPixmap(QtGui.QPixmap(self.path_icon_edit),
+                                               QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.TB_edit_name_user.setGeometry(QtCore.QRect(340, 21, 17, 17))
+        self.TB_edit_name_user.setStyleSheet("\n""border:none\\n")
+        self.TB_edit_name_user.setIcon(self.icon_edit_name_user)
+        self.TB_edit_name_user.setIconSize(QtCore.QSize(17, 17))
+
+        self.PB_edit_pass = QtWidgets.QPushButton(self)
+        self.PB_edit_pass.setGeometry(QtCore.QRect(37, 40, 150, 15))
+        font = QtGui.QFont()
+        font.setFamily("MS Shell Dlg 2")
+        font.setPointSize(8)
+        font.setBold(True)
+        font.setUnderline(False)
+        font.setWeight(75)
+        font.setKerning(True)
+        self.PB_edit_pass.setFont(font)
+        self.PB_edit_pass.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.PB_edit_pass.setStyleSheet("QPushButton{\n"
+                                        "background-color: rgb(74, 80, 106);\n"
+                                        "color: rgb(233, 195, 184);;\n"
+                                        "border-style: solid;\n"
+                                        "}\n"
+                                        "\n"
+                                        "QPushButton:hover {\n"
+                                        "\n"
+                                        "    color:rgb(176, 223, 198);\n"
+                                        "}\n"
+                                        "\n"
+                                        "rgb(205, 202, 153);\n"
+                                        "")
+        self.PB_edit_pass.setObjectName("PB_name_user")
+        self.PB_edit_pass.setText(_translate("MainWindow", "изменить пароль"))
+        self.Asterisk_Name.setGeometry(QtCore.QRect(360, 21, 17, 17))
+        self.Asterisk_Name.show()
+
+        self.buttonBox.accepted.connect(self.change_)
+        self.PB_edit_pass.clicked.connect(self.edit_pass)
+
+    def check_change(self):
+        _translate = QtCore.QCoreApplication.translate
+        self.NameUser = self.LE_name.text()
+        flag_list = []
+
+        if len(self.NameUser) <= 1:
+            flag_list.append(0)
+            self.QL_error.setText(_translate("Dialog", "слишком короткое имя"))
+            self.Asterisk_Name.show()
+            return flag_list
+        else:
+            flag_list.append(1)
+            self.Asterisk_Name.hide()
+
+        regular_pass = "^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
+
+        if self.LE_password.isHidden()==False:
+            self.PasswordUser = self.LE_password.text()
+            self.PasswordUser_new = self.LE_password_new.text()
+            self.PasswordUser_rep = self.LE_password_rep.text()
+
+            if re.match(regular_pass, self.PasswordUser) == None:
+                flag_list.append(0)
+                self.Asterisk_Password.show()
+                self.QL_error.setText(_translate("Dialog", "слишком простой пароль \n"
+                                                           "(должен содержать цифру и быть не меньше 8 символов)"))
+                return flag_list
+            else:
+                flag_list.append(1)
+                self.Asterisk_Password.hide()
+
+            if re.match(regular_pass, self.PasswordUser_new) == None:
+                flag_list.append(0)
+                self.Asterisk_Password.show()
+                self.QL_error.setText(_translate("Dialog", "слишком простой пароль \n"
+                                                           "(должен содержать цифру и быть не меньше 8 символов)"))
+                return flag_list
+            else:
+                flag_list.append(1)
+                self.Asterisk_Password.hide()
+
+            if re.match(regular_pass, self.PasswordUser_rep) == None:
+                flag_list.append(0)
+                self.Asterisk_Password.show()
+                self.QL_error.setText(_translate("Dialog", "слишком простой пароль \n"
+                                                           "(должен содержать цифру и быть не меньше 8 символов)"))
+                return flag_list
+            else:
+                flag_list.append(1)
+                self.Asterisk_Password.hide()
+
+
+
+    def change_(self):
+        self.chec_change()
+    def edit_pass(self):
+
+        self.resize(380,230)
+        self.buttonBox.setGeometry(QtCore.QRect(120, 190, 151, 32))
+        self.LE_password.show()
+        self.LE_password_new.show()
+        self.LE_password_rep.show()
+
+
+        #self.TB_APersCheckEdit_new.setCheckable(False)
+        #self.TB_APersCheckEdit_new.clicked.connect(self.edit_assessment)
+
+
+
+class PersonalWidget(GUIPersonalWidget_2):
     def __init__(self, id_widget, path_icon_edit):
         super(PersonalWidget, self).__init__(id_widget, path_icon_edit)
         self.comment = ''
@@ -542,6 +706,7 @@ class PersonalAssessment(GUIAssessment):
         massage.Label_message.setGeometry(QtCore.QRect(10, 20, 460, 40))
         massage.PB_OK_Canel.setGeometry(QtCore.QRect(100, 65, 201, 21))
         massage.PB_OK_second.setGeometry(QtCore.QRect(190, 65, 61, 20))
+        massage.label_2.setGeometry(QtCore.QRect(15, 20, 61, 51))
         massage.label_2.setStyleSheet("image: url(./GUI/icon/caution.png);")
         massage.resize(450, 98)
         massage.PB_OK_second.hide()
@@ -704,7 +869,9 @@ class PersonalAssessment(GUIAssessment):
             self.scroll_personal.fill_scroll(data_personal)
 
     def save_data(self):
-
+        _translate = QtCore.QCoreApplication.translate
+        massage = ImpMassageBox(self)
+        massage.PB_OK_Canel.hide()
         # with open("send_list_assessment_user_t.json", "r") as outfile:
         #     PersonalDataAssessment_send = json.load(outfile)
 
@@ -722,7 +889,13 @@ class PersonalAssessment(GUIAssessment):
 
                 }
             )
-        res = self.client.assessment_personal(PersonalDataAssessment_send, 'send')
+        answer = self.client.assessment_personal(PersonalDataAssessment_send, 'send').content.decode('utf-8')
+        if answer=='ok':
+            massage.Label_message.setText(_translate("Dialog", "Оценки успешно добавлены"))
+        else:
+            massage.Label_message.setText(_translate("Dialog", "Что то пошло не так"))
+        massage.exec_()
+
 
 
 class PersonInteraction(GUIPersonInteraction):
@@ -730,13 +903,26 @@ class PersonInteraction(GUIPersonInteraction):
     def __init__(self, cl):
         super(PersonInteraction, self).__init__()
         style_list = """QListView {    
+
                 }
                 QListView::item:selected:active:!hover{
-                    background-color: rgb(211, 211, 211); color: white;
+                    border-style: inset;
+                    background-color: rgb(217, 217, 217); color: white;
+                    border-width: 2px;
+                    border-color: red;
                 }
-
-                QListView::item:!selected:hover{
-                    background-color: rgb(195, 195, 195); color: white;
+                QListView::item{
+                background-color: rgb(217, 217, 217);
+                border-radius: 10px;
+                }
+                QListView::item:!hover{
+                    background-color: rgb(217, 217, 217); color: white;
+                }
+                    QListView::item:!selected:hover{
+                    border-style: inset;
+                    border-width: 2px;
+                   border-color: rgb(12, 156, 180);
+                   border-radius: 5px; color: white;
                 }"""
         self.list_personal = ListPersonal_(self.frame_loadList, (0, 70), (150, 150), style_list)
         self.verticalLayout_5.insertWidget(1, self.list_personal.scrollArea_ListPersonal)
@@ -779,10 +965,16 @@ class PersonInteraction(GUIPersonInteraction):
     def new_admin(self):
         _translate = QtCore.QCoreApplication.translate
         answer=client.appoint_admin(self.PersonalDataGet).content.decode('utf-8')
+        name_personal=f"{self.PersonalDataGet['tables']['personal'][0]['name'].split(' ')[0]}" \
+                      f" {self.PersonalDataGet['tables']['personal'][0]['name'].split(' ')[1]}"
         massage_box=ImpMassageBox(self)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        massage_box.Label_message.setFont(font)
         massage_box.PB_OK_Canel.hide()
-        if answer=='ok_add':
-            massage_box.Label_message.setText(_translate("Dialog", "   Администратор успешно добавлен"))
+        if answer=='ok_add' or answer=='ok_edd':
+            massage_box.Label_message.setText(_translate("Dialog", f"Сотрудник {name_personal} \n "
+                                                                   f"назначен администратором "))
             massage_box.label_2.setStyleSheet("image: url(./GUI/icon/done_mini [#1484].png);")
             massage_box.exec()
 
@@ -945,7 +1137,15 @@ class PersonInteraction(GUIPersonInteraction):
         self.label_AllPersonal.setText(_translate("MainWindow", "всего в отделе - сотрудников"))
         self.PB_right_admin.setText(_translate("MainWindow", "администратор"))
 
+
     def fill_scroll_slot(self):
+        massage = ImpMassageBox(self)
+        massage.Label_message.setGeometry(QtCore.QRect(10, 20, 460, 40))
+        massage.PB_OK_Canel.setGeometry(QtCore.QRect(100, 65, 201, 21))
+        massage.PB_OK_second.setGeometry(QtCore.QRect(190, 65, 61, 20))
+        massage.label_2.setStyleSheet("image: url(./GUI/icon/caution.png);")
+        massage.resize(450, 98)
+        massage.PB_OK_second.hide()
         _translate = QtCore.QCoreApplication.translate
         if self.ComboBox_Meanval_LPers.currentText()=='За месяц':
             period_mean='month'
@@ -954,17 +1154,20 @@ class PersonInteraction(GUIPersonInteraction):
         elif self.ComboBox_Meanval_LPers.currentText() == 'За год':
             period_mean = 'year'
         request_send = {
-            "comand": 5000,
-            "user": "admin",
-            "db_comand": 1,
             "date": self.date,
             "tables":{"department": self.ComboBox_Dep_LPers.currentText()},
+            "flag_previous_day": 2,
             "period_mean": period_mean}
         list_person=self.client.assessment_personal(request_send).content.decode('utf-8')
         self.list_personal.PersonalDataAssessment = json.loads(list_person)
-        # with codecs.open("send_list_personal_server.json", "r", "utf_8_sig") as outfile:
-        #     self.list_personal.PersonalDataAssessment = json.load(outfile)
-
+        if self.list_personal.PersonalDataAssessment["error"] == 'Bad date':
+            massage.Label_message.setText(_translate("Dialog", "За выбранную дату нет оценок"))
+            massage.PB_OK_second.show()
+            massage.PB_OK_Canel.hide()
+            massage.exec()
+            return
+        cur_date=self.list_personal.PersonalDataAssessment['date'].replace('-', '.')
+        self.label_date_assessment.setText(_translate("MainWindow", f"загружено от {cur_date}"))
         for i in range(len(self.list_personal.PersonalDataAssessment["tables"]["personal"])):
             self.list_personal.PersonalDataAssessment["tables"]["personal"][i]['id_main_list'] = i
 
@@ -1652,6 +1855,8 @@ class ImpDialogUserRule(DialogUserRule):
         self.salt_user = ''
         self.rule_inform={}
 
+
+
     def reject_(self):
         print("close")
         self.close()
@@ -1776,6 +1981,7 @@ class MainWindow_all_3(QtWidgets.QMainWindow):
         self.WorkWindow.TB_assessment.clicked.connect(self.assessment)
         self.WorkWindow.TB_EditPersonal.setEnabled(False)
         self.WorkWindow.TB_RemovePersonal.setEnabled(False)
+        self.WorkWindow.PB_name_user.clicked.connect(self.change_log)
 
         face = cv2.imread('./GUI/icon/silhouette_icon128x128.png')
         height, width, channel = face.shape
@@ -1838,6 +2044,14 @@ class MainWindow_all_3(QtWidgets.QMainWindow):
         # MW.setWindowFlags(MW.windowFlags()| QtCore.Qt.MSWindowsFixedSizeDialogHint)
         QtCore.QMetaObject.connectSlotsByName(self)
 
+
+    def change_log(self):
+        nickname=client.get_nick_user()
+        dlg=Deploy_ChangeLogin(self)
+        dlg.LE_name.setText(self._translate("Form", nickname))
+        dlg.exec()
+
+
     def add_worksapace(self):
         self.GlobalstackedWidget.addWidget(self.WorkWindow.centralwidget)
         self.setCentralWidget(self.centralwidget)
@@ -1894,7 +2108,7 @@ class MainWindow_all_3(QtWidgets.QMainWindow):
     def set_params_start_win(self):
         if self.WorkWindow.stackedWidget.currentIndex() == 0:
             self.pers_inter.set_params_personal()
-        elif self.WorkWindow.stackedWidget.currentIndex() == 3:
+        elif self.WorkWindow.stackedWidget.currentIndex() == 4:
             self.pers_assessment.load_combobox_assessment()
 
     def personal(self):

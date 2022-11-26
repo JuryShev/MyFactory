@@ -480,14 +480,99 @@ class Ui_MainWindow(object):
         spacerItem9 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         self.VLay_main_button.addItem(spacerItem9)
         MainWindow.setCentralWidget(self.centralwidget)
+        ##################################################
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1274, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1474, 21))
+        self.menubar.setStyleSheet("QMenuBar{color: rgb(255, 255, 255);}\n"
+                                   "\n"
+                                   "QMenuBar::item::selected{\n"
+                                   "color: rgb(0, 0, 0);\n"
+                                   "}\n"
+                                   "\n"
+                                   "\n"
+                                   "\n"
+                                   "QMenu::item::selected\n"
+                                   "{\n"
+                                   "    background-color: #cce8ff;\n"
+                                   "   color: rgb(0, 0, 0);\n"
+                                   "}")
         self.menubar.setObjectName("menubar")
+        self.Personal = QtWidgets.QMenu(self.menubar)
+        self.Personal.setStyleSheet("color: rgb(255, 255, 255);")
+        self.Personal.setObjectName("Personal")
+        self.Project = QtWidgets.QMenu(self.menubar)
+        self.Project.setObjectName("Project")
+        self.Analytics = QtWidgets.QMenu(self.menubar)
+        self.Analytics.setObjectName("Analytics")
+        self.Struct = QtWidgets.QMenu(self.menubar)
+        self.Struct.setObjectName("Struct")
+        self.Assessment = QtWidgets.QMenu(self.menubar)
+        self.Assessment.setObjectName("Assessment")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
+        self.calc_salaryl = QtWidgets.QAction(MainWindow)
+        self.calc_salaryl.setObjectName("calc_salaryl")
+        self.Personal.addSeparator()
+        self.Personal.addAction(self.calc_salaryl)
+        self.menubar.addAction(self.Personal.menuAction())
+        self.menubar.addAction(self.Project.menuAction())
+        self.menubar.addAction(self.Analytics.menuAction())
+        self.menubar.addAction(self.Struct.menuAction())
+        self.menubar.addAction(self.Assessment.menuAction())
+        ##################################################
+        self.PB_name_user = QtWidgets.QPushButton(self.centralwidget)
+        self.PB_name_user.setGeometry(QtCore.QRect(1290, 0, 171, 23))
+        font = QtGui.QFont()
+        font.setFamily("MS Shell Dlg 2")
+        font.setPointSize(8)
+        font.setBold(True)
+        font.setUnderline(False)
+        font.setWeight(75)
+        font.setKerning(True)
+        self.PB_name_user.setFont(font)
+        self.PB_name_user.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.PB_name_user.setStyleSheet("QPushButton{\n"
+                                        "background-color: rgb(74, 80, 106);\n"
+                                        "color: rgb(233, 195, 184);;\n"
+                                        "border-style: solid;\n"
+                                        "}\n"
+                                        "\n"
+                                        "QPushButton:hover {\n"
+                                        "\n"
+                                        "    color:rgb(176, 223, 198);\n"
+                                        "}\n"
+                                        "\n"
+                                        "rgb(205, 202, 153);\n"
+                                        "")
+        self.PB_name_user.setObjectName("PB_name_user")
 
+        self.PB_esc = QtWidgets.QPushButton(self.centralwidget)
+        self.PB_esc.setGeometry(QtCore.QRect(1360, 20, 41, 23))
+        font = QtGui.QFont()
+        font.setFamily("MS Shell Dlg 2")
+        font.setPointSize(9)
+        font.setBold(True)
+        font.setUnderline(True)
+        font.setWeight(75)
+        font.setKerning(True)
+        self.PB_esc.setFont(font)
+        self.PB_esc.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.PB_esc.setStyleSheet("QPushButton{\n"
+                                  "background-color: rgb(74, 80, 106);\n"
+                                  "color: rgb(250, 250, 250);\n"
+                                  "border-style: solid;\n"
+                                  "}\n"
+                                  "\n"
+                                  "QPushButton:hover {\n"
+                                  "\n"
+                                  "    color:rgb(176, 223, 198);\n"
+                                  "}\n"
+                                  "\n"
+                                  "rgb(205, 202, 153);\n"
+                                  "")
+        self.PB_esc.setObjectName("PB_esc")
         self.retranslateUi(MainWindow)
         self.stackedWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -520,6 +605,19 @@ class Ui_MainWindow(object):
         self.TB_project.setText(_translate("MainWindow", "Проекты"))
         self.TB_structure.setText(_translate("MainWindow", "Структура"))
         self.TB_assessment.setText(_translate("MainWindow", "Оценка"))
+        self.PB_esc.setText(_translate("MainWindow", "выйти"))
+        self.Personal.setTitle(_translate("MainWindow", "Персонал"))
+        self.Project.setTitle(_translate("MainWindow", "Проекты"))
+        self.Analytics.setTitle(_translate("MainWindow", "Аналитика"))
+        self.Struct.setTitle(_translate("MainWindow", "Структура"))
+        self.Assessment.setTitle(_translate("MainWindow", "Оценка"))
+        self.calc_salaryl.setText(_translate("MainWindow", "Расчитать зар. плату"))
+        self.TB_search_personal.setEnabled(False)
+        self.TB_analytics.setEnabled(False)
+        self.TB_project.setEnabled(False)
+        self.TB_structure.setEnabled(False)
+        self.TB_assessment.setEnabled(False)
+
 
 ############################динамический список для нескольких сотрудников##############
 class QCustomQWidget (QtWidgets.QWidget):

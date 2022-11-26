@@ -1,4 +1,5 @@
 import mysql.connector
+import calendar
 from datetime import datetime as dt, timedelta
 BD_password='1234'
 def create_database(name_db, path_script):
@@ -58,7 +59,7 @@ def get_date_range(date_: dt, period):
             return dt(date_.year, date_.month, 1), dt(date_.year, date_.month + 1, 1) - timedelta(days=1)
         if period == "quarter":
             return dt(date_.year, (date_.month - 1) // 3 * 3 + 1, 1), \
-                   dt(date_.year, (date_.month - 1) // 3 * 3 + 4, 1) - timedelta(days=1)
+                   dt(date_.year, (date_.month - 1) // 3 * 3 + 3, calendar.monthrange(date_.year, date_.month)[1])
         if period == "year":
             return dt(date_.year, 1, 1), dt(date_.year, 12, 31)
         return 0

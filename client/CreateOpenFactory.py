@@ -15,7 +15,7 @@ from PyQt5 import QtWidgets, QtCore,QtGui
 
 # Импортируем наш шаблон.
 from GUI.GUIStartWindow import Ui_MainWindow
-from GUI.DialogIpEnter import DialogIP
+from GUI.DialogIpEnter import DialogEnter
 from GUI.DialogNewFuctory import Ui_Dialog as creat_dialog
 from GUI.DialogSelectFactory import ChooseFactoryDialog
 from GUI.GUICountCriterion import CountCr
@@ -54,7 +54,7 @@ _translate = QtCore.QCoreApplication.translate
 client = config_connect()
 
 
-class DeployDialogIP(QDialog, DialogIP):
+class DeployDialogIP(QDialog, DialogEnter):
     def __init__(self, parent):
         super().__init__(parent)
         self.setupUi(self)
@@ -499,24 +499,23 @@ class ChooseFactoryDialog_(QDialog, ChooseFactoryDialog ):
         self.buttonBox.rejected.connect(self.reject_data)
         self.write_in_combobox()
         self.flag_choose = 0
-
+        self.rights_user=[]
+        self.name_person=''
+        self.user=''
 
     def write_in_combobox(self):
         for factory in self.list_factory:
             self.comboBox.addItem(factory[0])
 
-
-
-
     def accept_data(self):
         client.name_db = self.comboBox.currentText()
+        result=client.get_id_user().decode('utf-8')
+        result=json.loads(result)
+        self.rights_user=result['rights']
+        self.name_person=result['name']
+        self.user=result['user']
         self.flag_choose = 1
         self.close()
-
-
-        pass
-
-
 
     def reject_data(self):
         print('reject')
@@ -1085,17 +1084,34 @@ class mywindow(QtWidgets.QMainWindow):
     def btn_Open(self):
 
         print('open')
+        _translate = QtCore.QCoreApplication.translate
         get_json=client.load_databases().content
         databases = json.loads(get_json.decode('utf-8'))
         dlg = ChooseFactoryDialog_(self, list_factory=databases)
         dlg.exec()
         if dlg.flag_choose==1:
+
+            main_win_block={1:self.MainWindowAll.WorkWindow.TB_search_personal,
+                            2:self.MainWindowAll.WorkWindow.TB_analytics,
+                            3:self.MainWindowAll.WorkWindow.TB_project,
+                            4:self.MainWindowAll.WorkWindow.TB_structure,
+                            5:self.MainWindowAll.WorkWindow.TB_assessment}
+            for right in dlg.rights_user:
+                block=main_win_block[right]
+                block.setEnabled(True)
+            self.MainWindowAll.WorkWindow.PB_name_user.setText(_translate("MainWindow",
+                                                                          f"{dlg.name_person} ({dlg.user})"))
+            min_id_right=min(dlg.rights_user)
+            self.MainWindowAll.WorkWindow.stackedWidget.setCurrentIndex(min_id_right-1)
             self.start_win.emit()
+
+
             self.MainWindowAll.setMaximumWidth(4000)
             self.MainWindowAll.setMaximumHeight(4000)
             self.MainWindowAll.resize(1500, 901)
             self.MainWindowAll.GlobalstackedWidget.setCurrentIndex(
             self.MainWindowAll.GlobalstackedWidget.currentIndex() + 3)
+
 
 
     def change_name(self):

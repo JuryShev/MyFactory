@@ -611,7 +611,21 @@ class GUIPersonInteraction(QtWidgets.QWidget):
         self.VLay_Leaf.setObjectName("VLay_Leaf")
         self.HLay_NumPageList = QtWidgets.QHBoxLayout()
         self.HLay_NumPageList.setObjectName("HLay_NumPageList")
-        spacerItem9 = QtWidgets.QSpacerItem(210, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+
+        #################label_date_assessment######################################
+        self.label_date_assessment = QtWidgets.QLabel(self.frame_loadList)
+        font = QtGui.QFont()
+        font.setFamily("Roboto")
+        font.setPointSize(8)
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_date_assessment.setFont(font)
+        self.label_date_assessment.setStyleSheet("color:rgb(178, 225, 192)")
+        self.label_date_assessment.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_date_assessment.setObjectName("label_date_assessment")
+        self.HLay_NumPageList.addWidget(self.label_date_assessment)
+        ##########################################################
+        spacerItem9 = QtWidgets.QSpacerItem(50, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.HLay_NumPageList.addItem(spacerItem9)
         self.TB_Left_LPers = QtWidgets.QToolButton(self.frame_loadList)
         self.TB_Left_LPers.setStyleSheet("\n"
@@ -653,7 +667,7 @@ class GUIPersonInteraction(QtWidgets.QWidget):
         self.TB_Right_LPers.setIcon(icon3)
         self.TB_Right_LPers.setObjectName("TB_Right_LPers")
         self.HLay_NumPageList.addWidget(self.TB_Right_LPers)
-        spacerItem10 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem10 = QtWidgets.QSpacerItem(140, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
         self.HLay_NumPageList.addItem(spacerItem10)
         self.PB_serch_personalList = QtWidgets.QPushButton(self.frame_loadList)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
@@ -720,3 +734,4 @@ class GUIPersonInteraction(QtWidgets.QWidget):
         self.horizontalLayout_3.addWidget(self.frame_loadCard)
         ########################################################################################
         self.horizontalLayout_3.addWidget(self.frame_loadList)
+
