@@ -43,6 +43,23 @@ from PyQt5.QtCore import QThread, pyqtSignal, QObject, pyqtSlot, QRunnable, QThr
 from datetime import date
 
 
+
+def getGrayed(src):
+    if isinstance(src, QtGui.QPixmap):
+        src = src.toImage()
+    dest = QtGui.QImage(src.size(), QtGui.QImage.Format_ARGB32)
+    widthRange = range(src.width())
+    for y in range(src.height()):
+        for x in widthRange:
+            pixel = src.pixelColor(x, y)
+            alpha = pixel.alpha()
+            if alpha < 255:
+                alpha //= 3
+            gray = QtGui.qGray(src.pixel(x, y))
+            pixel.setRgb(gray, gray, gray, alpha)
+            dest.setPixelColor(x, y, pixel)
+    return QtGui.QPixmap.fromImage(dest)
+
 def start_process(progress_bar, self=None):
     thread_funct = COF.Worker_2(self.load_struct)
     thread_funct.signals.finished.connect(self.finish)
@@ -88,18 +105,20 @@ class Deploy_ChangeLogin(QDialog,DialogEnter):
         super().__init__(parent)
         _translate = QtCore.QCoreApplication.translate
         self.setupUi(self)
-        self.resize(380, 100)
+        self.resize(380, 110)
         self.LE_IP.hide()
         self.LE_password.hide()
         self.LE_password.setGeometry(QtCore.QRect(60, 65, 271, 20))
         self.NameUser = ''
+        self.NameUser_new = ''
         self.PasswordUser = ''
         self.flag_connect = 0
+        self.result=''
         self.path_icon_edit='./GUI/icon/pen [#1320].png'
+        self.path_icon_edit_inactive='./GUI/icon/pen_inactive [#1320].png'
         self.LE_name.setGeometry(QtCore.QRect(60, 20, 271, 20))
-        self.buttonBox.setGeometry(QtCore.QRect(120, 60, 151, 32))
+        self.buttonBox.setGeometry(QtCore.QRect(120, 70, 151, 32))
         self.LE_name.setEnabled(False)
-
         self.LE_password_new = QtWidgets.QLineEdit(self)
         self.LE_password_new.setGeometry(QtCore.QRect(60, 95, 271, 20))
         font = QtGui.QFont()
@@ -136,15 +155,16 @@ class Deploy_ChangeLogin(QDialog,DialogEnter):
         input_validator = QtGui.QRegExpValidator(regular_ex, self.LE_password_rep)
         self.LE_password_rep.setValidator(input_validator)
         self.LE_password_rep.hide()
-
+        self.QL_error.setGeometry(QtCore.QRect(0, 50, 391, 27))
         self.TB_edit_name_user = QtWidgets.QToolButton(self)
         self.icon_edit_name_user = QtGui.QIcon()
         self.icon_edit_name_user.addPixmap(QtGui.QPixmap(self.path_icon_edit),
-                                               QtGui.QIcon.Normal, QtGui.QIcon.Off)
+                                               QtGui.QIcon.Normal, QtGui.QIcon.On)
         self.TB_edit_name_user.setGeometry(QtCore.QRect(340, 21, 17, 17))
         self.TB_edit_name_user.setStyleSheet("\n""border:none\\n")
         self.TB_edit_name_user.setIcon(self.icon_edit_name_user)
         self.TB_edit_name_user.setIconSize(QtCore.QSize(17, 17))
+        self.TB_edit_name_user.clicked.connect(self.edit_name)
 
         self.PB_edit_pass = QtWidgets.QPushButton(self)
         self.PB_edit_pass.setGeometry(QtCore.QRect(37, 40, 150, 15))
@@ -173,16 +193,94 @@ class Deploy_ChangeLogin(QDialog,DialogEnter):
         self.PB_edit_pass.setObjectName("PB_name_user")
         self.PB_edit_pass.setText(_translate("MainWindow", "изменить пароль"))
         self.Asterisk_Name.setGeometry(QtCore.QRect(360, 21, 17, 17))
-        self.Asterisk_Name.show()
+        self.Asterisk_Name.hide()
+        self.Asterisk_Password.setGeometry(QtCore.QRect(340, 61, 17, 17))
+
+        self.Asterisk_Password_new = QtWidgets.QLabel(self)
+        self.Asterisk_Password_new.setEnabled(True)
+        self.Asterisk_Password_new.setGeometry(QtCore.QRect(340, 96, 17, 17))
+        self.Asterisk_Password_new.setStyleSheet("border-image: url(./GUI//icon/asterisk.png);")
+        self.Asterisk_Password_new.setText("")
+        self.Asterisk_Password_new.setObjectName("Asterisk_FamalyName_3")
+        self.Asterisk_Password_new.hide()
+
+        self.Asterisk_Password_rep = QtWidgets.QLabel(self)
+        self.Asterisk_Password_rep.setEnabled(True)
+        self.Asterisk_Password_rep.setGeometry(QtCore.QRect(340, 126, 17, 17))
+        self.Asterisk_Password_rep.setStyleSheet("border-image: url(./GUI//icon/asterisk.png);")
+        self.Asterisk_Password_rep.setText("")
+        self.Asterisk_Password_rep.setObjectName("Asterisk_FamalyName_3")
+        self.Asterisk_Password_rep.hide()
 
         self.buttonBox.accepted.connect(self.change_)
         self.PB_edit_pass.clicked.connect(self.edit_pass)
 
-    def check_change(self):
-        _translate = QtCore.QCoreApplication.translate
-        self.NameUser = self.LE_name.text()
-        flag_list = []
 
+    def check_change_pass(self):
+        _translate = QtCore.QCoreApplication.translate
+        flag_list = []
+        regular_pass = "^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
+        self.PasswordUser = self.LE_password.text()
+        self.PasswordUser_new = self.LE_password_new.text()
+        self.PasswordUser_rep = self.LE_password_rep.text()
+
+        if re.match(regular_pass, self.PasswordUser) == None:
+            flag_list.append(0)
+            self.Asterisk_Password.show()
+            self.QL_error.setText(_translate("Dialog", "слишком простой пароль \n"
+                                                       "(должен содержать цифру и быть не меньше 8 символов)"))
+            return flag_list
+        else:
+            flag_list.append(1)
+            self.Asterisk_Password.hide()
+
+        if re.match(regular_pass, self.PasswordUser_new) == None:
+            flag_list.append(0)
+            self.Asterisk_Password_new.show()
+            self.QL_error.setText(_translate("Dialog", "слишком простой пароль \n"
+                                                       "(должен содержать цифру и быть не меньше 8 символов)"))
+            return flag_list
+        else:
+            flag_list.append(1)
+            self.Asterisk_Password_new.hide()
+
+        if re.match(regular_pass, self.PasswordUser_rep) == None:
+            flag_list.append(0)
+            self.Asterisk_Password_rep.show()
+            self.QL_error.setText(_translate("Dialog", "слишком простой пароль \n"
+                                                       "(должен содержать цифру и быть не меньше 8 символов)"))
+            return flag_list
+        else:
+            flag_list.append(1)
+            self.Asterisk_Password_rep.hide()
+
+        if self.PasswordUser == self.PasswordUser_new:
+            flag_list.append(0)
+            self.Asterisk_Password_new.show()
+            self.QL_error.setText(_translate("Dialog", "старый и новый пароль одинаковы \n"
+                                             ))
+            return flag_list
+        else:
+            flag_list.append(1)
+            self.Asterisk_Password_new.hide()
+
+        if self.PasswordUser_rep != self.PasswordUser_new:
+            flag_list.append(0)
+            self.Asterisk_Password_rep.show()
+            self.QL_error.setText(_translate("Dialog", "пароли не совпадают \n"
+                                             ))
+            return flag_list
+        else:
+            flag_list.append(1)
+            self.Asterisk_Password_rep.hide()
+        return flag_list
+
+
+
+    def check_change_name(self):
+        _translate = QtCore.QCoreApplication.translate
+        flag_list = []
+        self.NameUser_new = self.LE_name.text()
         if len(self.NameUser) <= 1:
             flag_list.append(0)
             self.QL_error.setText(_translate("Dialog", "слишком короткое имя"))
@@ -192,58 +290,111 @@ class Deploy_ChangeLogin(QDialog,DialogEnter):
             flag_list.append(1)
             self.Asterisk_Name.hide()
 
-        regular_pass = "^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
-
-        if self.LE_password.isHidden()==False:
-            self.PasswordUser = self.LE_password.text()
-            self.PasswordUser_new = self.LE_password_new.text()
-            self.PasswordUser_rep = self.LE_password_rep.text()
-
-            if re.match(regular_pass, self.PasswordUser) == None:
-                flag_list.append(0)
-                self.Asterisk_Password.show()
-                self.QL_error.setText(_translate("Dialog", "слишком простой пароль \n"
-                                                           "(должен содержать цифру и быть не меньше 8 символов)"))
-                return flag_list
-            else:
-                flag_list.append(1)
-                self.Asterisk_Password.hide()
-
-            if re.match(regular_pass, self.PasswordUser_new) == None:
-                flag_list.append(0)
-                self.Asterisk_Password.show()
-                self.QL_error.setText(_translate("Dialog", "слишком простой пароль \n"
-                                                           "(должен содержать цифру и быть не меньше 8 символов)"))
-                return flag_list
-            else:
-                flag_list.append(1)
-                self.Asterisk_Password.hide()
-
-            if re.match(regular_pass, self.PasswordUser_rep) == None:
-                flag_list.append(0)
-                self.Asterisk_Password.show()
-                self.QL_error.setText(_translate("Dialog", "слишком простой пароль \n"
-                                                           "(должен содержать цифру и быть не меньше 8 символов)"))
-                return flag_list
-            else:
-                flag_list.append(1)
-                self.Asterisk_Password.hide()
-
-
-
+        if self.NameUser == self.NameUser_new:
+            flag_list.append(0)
+            self.QL_error.setText(_translate("Dialog", "имя не изменено"))
+            self.Asterisk_Name.show()
+            return flag_list
+        else:
+            flag_list.append(1)
+            self.Asterisk_Name.hide()
+        return flag_list
     def change_(self):
-        self.chec_change()
+        _translate = QtCore.QCoreApplication.translate
+        result=''
+        log_pass=''
+        dlg=ImpMassageBox(self)
+        dlg.PB_OK_second.hide()
+        if self.LE_password.isHidden() and self.LE_name.isEnabled():
+            check_list=self.check_change_name()
+            if 0 not in check_list:
+                log_pass='_login'
+                dlg.Label_message.setText((_translate("Dialog", "Подтверждаете изменение логина?")))
+                dlg.exec()
+                if dlg.flag_choose=='ok':
+                    change_ = {
+                        "change": "login",
+                        "tables": {
+                            "users": {
+                                "nickname": self.NameUser_new,
+                            }
+                        }
+                    }
+                    result=client.change_log_pass(change_).content.decode('utf-8')
+
+
+        else:
+            check_list = self.check_change_pass()
+            if 0 not in check_list:
+                log_pass='_pass'
+                salt_user_new = os.urandom(32).hex()
+                salt_user_new = bytes(salt_user_new, 'utf-8')
+                self.PasswordUser_new = argon2.hash_password_raw(time_cost=16, memory_cost=2 ** 15,
+                                                             parallelism=2, hash_len=32,
+                                                             password=bytes(self.PasswordUser_new, 'utf-8'),
+                                                             salt=salt_user_new,
+                                                             type=argon2.low_level.Type.ID)
+
+
+                print(self.PasswordUser)
+                change_ = {
+                    "change":"pass",
+                    "password_new":self.PasswordUser_new.hex(),
+                    "salt_user_new":salt_user_new.decode(),
+                    "tables": {
+                        "users": {
+                            "password": self.PasswordUser,
+                            "salt_user": ''
+                        }
+
+                    }
+                }
+                result=client.change_log_pass(change_).content.decode('utf-8')
+        if result=='ok':
+            self.result=result+log_pass
+            self.close()
+        else:
+            self.QL_error.setText(_translate("Dialog", "неверный пароль"))
+
+
+
+
     def edit_pass(self):
+        _translate = QtCore.QCoreApplication.translate
+        if self.LE_password.isHidden():
+            self.resize(380,230)
+            self.QL_error.setGeometry(QtCore.QRect(0, 145, 391, 27))
+            self.buttonBox.setGeometry(QtCore.QRect(120, 190, 151, 32))
+            self.LE_name.setEnabled(False)
+            self.TB_edit_name_user.setEnabled(False)
+            original = QtGui.QPixmap(self.path_icon_edit_inactive)
+            self.icon_edit_name_user = QtGui.QIcon(original)
+            self.icon_edit_name_user.addPixmap(original, QtGui.QIcon.Normal, QtGui.QIcon.On)
+            self.QL_error.setText(_translate("Dialog", ""))
+            self.Asterisk_Name.hide()
+            self.TB_edit_name_user.setIcon(self.icon_edit_name_user)
+            self.LE_password.show()
+            self.LE_password_new.show()
+            self.LE_password_rep.show()
+        else:
+            self.resize(380, 120)
+            self.buttonBox.setGeometry(QtCore.QRect(120, 80, 151, 32))
+            self.QL_error.setGeometry(QtCore.QRect(0, 60, 391, 27))
+            self.TB_edit_name_user.setEnabled(True)
+            original = QtGui.QPixmap(self.path_icon_edit)
+            self.icon_edit_name_user = QtGui.QIcon(original)
+            self.icon_edit_name_user.addPixmap(original, QtGui.QIcon.Normal, QtGui.QIcon.On)
+            self.TB_edit_name_user.setIcon(self.icon_edit_name_user)
+            self.LE_password.hide()
+            self.LE_password_new.hide()
+            self.LE_password_rep.hide()
+            self.Asterisk_Password.hide()
+            self.Asterisk_Password_new.hide()
+            self.Asterisk_Password_rep.hide()
+            self.QL_error.setText(_translate("Dialog", ""))
+    def edit_name(self):
+        self.LE_name.setEnabled(True)
 
-        self.resize(380,230)
-        self.buttonBox.setGeometry(QtCore.QRect(120, 190, 151, 32))
-        self.LE_password.show()
-        self.LE_password_new.show()
-        self.LE_password_rep.show()
-
-
-        #self.TB_APersCheckEdit_new.setCheckable(False)
-        #self.TB_APersCheckEdit_new.clicked.connect(self.edit_assessment)
 
 
 
@@ -2046,10 +2197,21 @@ class MainWindow_all_3(QtWidgets.QMainWindow):
 
 
     def change_log(self):
+        _translate = QtCore.QCoreApplication.translate
         nickname=client.get_nick_user()
-        dlg=Deploy_ChangeLogin(self)
-        dlg.LE_name.setText(self._translate("Form", nickname))
-        dlg.exec()
+        dlg_change_login=Deploy_ChangeLogin(self)
+        dlg_change_login.NameUser=nickname
+        dlg_change_login.LE_name.setText(self._translate("Form", nickname))
+        dlg_change_login.exec()
+        massage_box = ImpMassageBox(self)
+        massage_box.PB_OK_Canel.hide()
+        if dlg_change_login.result=='ok_pass':
+            massage_box.Label_message.setText((_translate("Dialog", "Пароль успешно изменен")))
+            massage_box.exec()
+        elif dlg_change_login.result=='ok_login':
+            massage_box.Label_message.setText((_translate("Dialog", "Логин успешно изменен")))
+            massage_box.exec()
+
 
 
     def add_worksapace(self):

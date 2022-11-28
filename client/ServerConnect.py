@@ -75,7 +75,31 @@ class ServerConnector():
 
         return result
 
+    def change_log_pass(self,json_send):
+
+        if json_send["change"]=='pass':
+            result = requests.post(f"{self.url}/furniture/get_salt/",
+                                   cookies=self.coockies)
+
+            if len(json.loads(result.content.decode('utf-8'))['error']) == 0:
+                result = json.loads(result.content.decode('utf-8'))
+                _, password = hash_password(result['salt'], json_send['tables']['users']['password'])
+                json_send['tables']['users']['password'] = password
+
+                result = requests.post(f"{self.url}/furniture/change_log_pass_{self.name_db}/",
+                                       cookies=self.coockies,
+                                       json=json_send)
+            return result
+        elif json_send["change"]=='login':
+            result = requests.post(f"{self.url}/furniture/change_log_pass_{self.name_db}/",
+                                   cookies=self.coockies,
+                                   json=json_send)
+            self.coockies = result.cookies
+            return result
+
+
     def connect_server(self, json_send):
+
         result=requests.post(f"{self.url}/furniture/get_salt/",
                                     cookies=self.coockies,
                                    json=json_send)
