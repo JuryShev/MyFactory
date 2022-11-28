@@ -1,9 +1,7 @@
 import mysql.connector
+import calendar
 from datetime import datetime as dt, timedelta
-
-BD_password = '1234'
-
-
+BD_password='1234'
 def create_database(name_db, path_script):
     with mysql.connector.connect(
             host='127.0.0.1',
@@ -170,47 +168,36 @@ class FurnitureDatabase:
                 connection.commit()
 
     def add_row_v2(self, name_table, name_columns, data):
-        if len(name_columns) != len(data[:]):
-            return
+            if len(name_columns) != len(data[:]):
+                return
+            with mysql.connector.connect(
+                    host=self.host,
+                    user=self.user,
+                    password=self.password,
+                    port=self.port,
+                    database=self.database
+            ) as connection:
+                values = []
+                for d in data:
+                    if not (d == 'NULL' or isinstance(d, int) or isinstance(d, type(dt))):
+                        d = f"'{d}'"
+                    else:
+                        d = str(d)
+                    values.append(d)
+
+                mysql_comand = f'INSERT INTO {name_table} ({", ".join(name_columns)}) VALUES ({", ".join(values)})'
+                # print(mysql_comand)
+                mycursor = connection.cursor()
+                mycursor.execute(mysql_comand)
+                connection.commit()
+
+    def del_row(self, name_table, title_id :tuple, value_id:tuple):
         with mysql.connector.connect(
                 host=self.host,
                 user=self.user,
                 password=self.password,
                 port=self.port,
                 database=self.database
-        ) as connection:
-            values = []
-            for d in data:
-                if not (d == 'NULL' or isinstance(d, int) or isinstance(d, type(dt))):
-                    d = f"'{d}'"
-                else:
-                    d = str(d)
-                values.append(d)
-
-            mysql_comand = f'INSERT INTO {name_table} ({", ".join(name_columns)}) VALUES ({", ".join(values)})'
-            # print(mysql_comand)
-            mycursor = connection.cursor()
-            mycursor.execute(mysql_comand)
-            connection.commit()
-
-    def get_average_value(self, date_: dt, period, id_person, id_criterion):
-        from_, to_ = get_date_range(date_, period)
-        assessments = self.mysql_custom_command(f'''SELECT assessment FROM personal_assessment
-                                    WHERE date >= '{from_}' AND date <= '{to_}' AND id_name_personal = {id_person}
-                                            AND id_criterion = {id_criterion}''')
-        if len(assessments) == 0:
-            return 0
-        average = sum([i[0] for i in assessments]) / len(assessments)
-        return average
-
-
-def del_row(self, name_table, title_id: tuple, value_id: tuple):
-    with mysql.connector.connect(
-            host=self.host,
-            user=self.user,
-            password=self.password,
-            port=self.port,
-            database=self.database
 
     ) as connection:
         mycursor = connection.cursor()
@@ -513,3 +500,18 @@ def search_personal(self, name_table, name_personal):
             for i in range(len(count)):
                 count[i] = dict(zip(field_names, list(count[i])))
         return count
+
+    def get_average_value(self, date_: dt, period, id_person, id_criterion):
+        from_, to_ = get_date_range(date_, period)
+        assessments = self.mysql_castom_command(f'''SELECT assessment FROM personal_assessment
+                                    WHERE date >= '{from_}' AND date <= '{to_}' AND id_name_personal = {id_person}
+                                            AND id_criterion = {id_criterion}''')
+        if len(assessments) == 0:
+            return 0
+        average = sum([i[0] for i in assessments]) / len(assessments)
+        return average
+
+
+
+
+

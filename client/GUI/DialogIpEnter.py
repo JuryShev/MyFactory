@@ -11,13 +11,13 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-class DialogIP(object):
+class DialogEnter(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(393, 155)
+        Dialog.resize(393, 164)
         Dialog.setStyleSheet("background-color: rgb(74, 80, 106);")
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
-        self.buttonBox.setGeometry(QtCore.QRect(120, 110, 151, 32))
+        self.buttonBox.setGeometry(QtCore.QRect(120, 130, 151, 32))
         self.buttonBox.setStyleSheet("background-color: rgb(204, 204, 204);")
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
@@ -90,8 +90,14 @@ class DialogIP(object):
         self.Asterisk_Password.setText("")
         self.Asterisk_Password.setObjectName("Asterisk_FamalyName_3")
         self.Asterisk_Password.hide()
+        self.QL_error = QtWidgets.QLabel(Dialog)
+        self.QL_error.setGeometry(QtCore.QRect(0, 100, 391, 27))
+        self.QL_error.setStyleSheet("color: rgb(255, 129, 112);")
+        self.QL_error.setAlignment(QtCore.Qt.AlignCenter)
+        self.QL_error.setObjectName("label")
+
         self.retranslateUi(Dialog)
-        self.buttonBox.accepted.connect(Dialog.accept)
+
         self.buttonBox.rejected.connect(Dialog.reject)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
@@ -101,4 +107,5 @@ class DialogIP(object):
         self.LE_IP.setPlaceholderText(_translate("Dialog", "IP адрес"))
         self.LE_password.setPlaceholderText(_translate("Dialog", "пароль"))
         self.LE_name.setPlaceholderText(_translate("Dialog", "имя"))
+
 
