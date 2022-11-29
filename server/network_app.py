@@ -11,6 +11,8 @@ from functools import wraps
 import database
 from database import FurnitureDtabase
 
+
+
 def full_check(json_data, stand_comand:dir, name_db):
     my_db = FurnitureDtabase(name_db=name_db)
     ch_headline = check_headline(json_data, stand_comand)
@@ -292,7 +294,7 @@ def create_company(name_db):
     check_error = full_check(json_data=j, stand_comand=stand_comand, name_db=name_db)
     if check_error != 'ok':
         return check_error
-    my_db = FurnitureDatabase(name_db=name_db)
+    my_db = FurnitureDtabase(name_db=name_db)
     ### Отправляться в метод add_row только в конструкции списка множектва (столбец 1, столбец 2)
     ###                                                                     данные 1    данные 2
 
@@ -323,7 +325,7 @@ def add_personal(name_db):
     check_error = full_check(json_data=j, stand_comand=stand_comand, name_db=name_db)
     if check_error != 'ok':
         return check_error
-    my_db = FurnitureDatabase(name_db=name_db)
+    my_db = FurnitureDtabase(name_db=name_db)
     list_tables = j['tables']
     for name_table in list_tables:
         # my_db.clear_table(name_table)
@@ -359,7 +361,7 @@ def get_personal(name_db):
     check_error = full_check(json_data=j, stand_comand=stand_comand, name_db=name_db)
     if check_error != 'ok':
         return check_error
-    my_db = FurnitureDatabase(name_db=name_db)
+    my_db = FurnitureDtabase(name_db=name_db)
     list_tables = j['tables']
     for name_table in list_tables:
         # my_db.clear_table(name_table)
@@ -431,7 +433,7 @@ def set_edit_tables(name_db):
                     'db_comand': 1,
                     }
 
-    my_db = FurnitureDatabase(name_db=name_db)
+    my_db = FurnitureDtabase(name_db=name_db)
     a = request.data
     j = json.loads(a.decode('utf-8'))
     check_error = full_check(json_data=j, stand_comand=stand_comand, name_db=name_db)
@@ -454,7 +456,7 @@ def edit_column_tables(name_db):
                     'db_comand': 1,
                     }
 
-    my_db = FurnitureDatabase(name_db=name_db)
+    my_db = FurnitureDtabase(name_db=name_db)
     a = request.data
     j = json.loads(a.decode('utf-8'))
     check_error = check_headline(j, stand_comand)
@@ -484,7 +486,7 @@ def del_row_tables(name_db):
                     'user': 'admin',
                     'db_comand': 1,
                     }
-    my_db = FurnitureDatabase(name_db=name_db)
+    my_db = FurnitureDtabase(name_db=name_db)
     a = request.data
     j = json.loads(a.decode('utf-8'))
     check_error = full_check(json_data=j, stand_comand=stand_comand, name_db=name_db)
@@ -520,7 +522,7 @@ def del_column_table(name_db):
                     'db_comand': 1,
                     }
 
-    my_db = FurnitureDatabase(name_db=name_db)
+    my_db = FurnitureDtabase(name_db=name_db)
     a = request.data
     j = json.loads(a.decode('utf-8'))
     check_error = check_headline(j, stand_comand)
@@ -550,7 +552,7 @@ def del_associated_file(name_db):
                     'user': 'admin',
                     'db_comand': 1,
                     }
-    my_db = FurnitureDatabase(name_db=name_db)
+    my_db = FurnitureDtabase(name_db=name_db)
     a = request.data
     j = json.loads(a.decode('utf-8'))
     check_error = full_check(json_data=j, stand_comand=stand_comand, name_db=name_db)
@@ -573,7 +575,7 @@ def edit_associated_file(name_db):
                     'user': 'admin',
                     'db_comand': 1,
                     }
-    my_db = FurnitureDatabase(name_db=name_db)
+    my_db = FurnitureDtabase(name_db=name_db)
     a = request.data
     j = json.loads(a.decode('utf-8'))
     check_error = full_check(json_data=j, stand_comand=stand_comand, name_db=name_db)
@@ -598,7 +600,7 @@ def add_row_tables(name_db):
                     'user': 'admin',
                     'db_comand': 1,
                     }
-    my_db = FurnitureDatabase(name_db=name_db)
+    my_db = FurnitureDtabase(name_db=name_db)
     a = request.data
     j = json.loads(a.decode('utf-8'))
     check_error = full_check(json_data=j, stand_comand=stand_comand, name_db=name_db)
@@ -621,7 +623,7 @@ def add_column_table(name_db):
                     'db_comand': 1,
                     }
 
-    my_db = FurnitureDatabase(name_db=name_db)
+    my_db = FurnitureDtabase(name_db=name_db)
     a = request.data
     j = json.loads(a.decode('utf-8'))
     check_error = check_headline(j, stand_comand)
@@ -648,7 +650,7 @@ def get_row_tables(name_db, column_condition):
                     'db_comand': 1,
                     }
     result = {"tables": {}}
-    my_db = FurnitureDatabase(name_db=name_db)
+    my_db = FurnitureDtabase(name_db=name_db)
     a = request.data
     j = json.loads(a.decode('utf-8'))
     check_error = full_check(json_data=j, stand_comand=stand_comand, name_db=name_db)

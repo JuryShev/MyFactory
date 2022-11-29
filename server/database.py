@@ -68,7 +68,7 @@ def get_date_range(date_: dt, period):
     return 0
 
 
-class FurnitureDatabase:
+class FurnitureDtabase:
     def __init__(self, name_db):
         self.host = '127.0.0.1'
         self.user = 'root'
@@ -200,11 +200,11 @@ class FurnitureDatabase:
                 database=self.database
 
     ) as connection:
-        mycursor = connection.cursor()
-        for n in range(len(title_id)):
-            mysql_comand = f"DELETE FROM {name_table} WHERE {title_id[n]} = {value_id[n]}"
-            mycursor.execute(mysql_comand)
-            connection.commit()
+            mycursor = connection.cursor()
+            for n in range(len(title_id)):
+                mysql_comand = f"DELETE FROM {name_table} WHERE {title_id[n]} = {value_id[n]}"
+                mycursor.execute(mysql_comand)
+                connection.commit()
 
 
 def del_column(self, name_table, name_column):
