@@ -12,8 +12,7 @@ import database
 from database import FurnitureDtabase
 
 
-
-def full_check(json_data, stand_comand:dir, name_db):
+def full_check(json_data, stand_comand: dir, name_db):
     my_db = FurnitureDtabase(name_db=name_db)
     ch_headline = check_headline(json_data, stand_comand)
     if ch_headline != True:
@@ -89,10 +88,9 @@ def check_table(data, list_tables):
     check = send_tables <= list_tables
     return check
 
-app=Flask(__name__)
+
+app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z]/'
-
-
 
 
 def requires_access_level(access_level):
@@ -101,8 +99,8 @@ def requires_access_level(access_level):
         def decorated_function(*args, **kwargs):
             my_db = FurnitureDtabase(name_db=session['user'][0]['name_my_db'])
             user_status = my_db.mysql_castom_command(f"SELECT right_user FROM users "
-                                                 f"WHERE nickname = '{session['user'][0]['nickname']}'")[0][0]
-            if user_status=='admin':
+                                                     f"WHERE nickname = '{session['user'][0]['nickname']}'")[0][0]
+            if user_status == 'admin':
                 return f(*args, **kwargs)
             else:
 
@@ -112,12 +110,14 @@ def requires_access_level(access_level):
                 result_message = {'error': ''}
                 for id_right in user_rights:
                     if access_level != id_right[0]:
-                        result_message['error']= 'НЕТ ПРАВ НА ДАННУЮ ОПЕРАЦИЮ'
+                        result_message['error'] = 'НЕТ ПРАВ НА ДАННУЮ ОПЕРАЦИЮ'
                     else:
                         return f(*args, **kwargs)
             json.dumps(result_message)
             return result_message
+
         return decorated_function
+
     return decorator
 
 
@@ -125,74 +125,77 @@ def requires_access_level(access_level):
 def get_nick_user():
     return session['user'][0]['nickname']
 
+
 @app.route('/furniture/get_id_user_<name_db>/', methods=['POST'])
 def get_id_user(name_db):
-
-    result={'rights':[]}
+    result = {'rights': []}
     my_db = FurnitureDtabase(name_db=name_db)
     id_user = my_db.mysql_castom_command(f"SELECT id_users FROM users "
-                                              f"WHERE nickname = '{session['user'][0]['nickname']}'")[0][0]
+                                         f"WHERE nickname = '{session['user'][0]['nickname']}'")[0][0]
 
-    session['user'][0]['id_user_mydb']=id_user
-    session['user'][0]['name_my_db']=name_db
-    if session['right'][0]=='admin':
-        result['rights']=[1,2,3,4,5]
+    session['user'][0]['id_user_mydb'] = id_user
+    session['user'][0]['name_my_db'] = name_db
+    if session['right'][0] == 'admin':
+        result['rights'] = [1, 2, 3, 4, 5]
     else:
-        rights_user=my_db.mysql_castom_command(f"SELECT id_rule FROM access_rule "
-                                                  f"WHERE id_users = {id_user}")
+        rights_user = my_db.mysql_castom_command(f"SELECT id_rule FROM access_rule "
+                                                 f"WHERE id_users = {id_user}")
         for i in range(len(rights_user)):
             result['rights'].append(rights_user[i][0])
-    name=my_db.mysql_castom_command(
+    name = my_db.mysql_castom_command(
         f"SELECT name FROM users INNER JOIN personal ON users.id_personal=personal.id_personal AND"
         f" users.id_users='{id_user}'")[0][0]
-    name=name.split(' ')
-    result['name']=name[0]+' '+name[1]
-    result['user']=session['right'][0]
+    name = name.split(' ')
+    result['name'] = name[0] + ' ' + name[1]
+    result['user'] = session['right'][0]
     session.modified = True
     result = json.dumps(result)
     return result
+
+
 @app.route('/furniture/get_salt/', methods=['POST'])
 def get_salt():
     data = request.data
-    data=json.loads(data.decode('utf-8'))
+    data = json.loads(data.decode('utf-8'))
     admin_db = FurnitureDtabase(name_db='admins_base')
-    result={'salt':'',
-            'right':'',
-            'error':''}
-    salt_user = admin_db.mysql_castom_command(f"SELECT salt_user FROM admin "
-                                           f"WHERE admin_name = '{data['tables']['user']['nickname']}'")
+    result = {'salt': '',
+              'right': '',
+              'error': ''}
+    salt_user = admin_db.mysql_castom_command(f'''SELECT salt_user FROM admins_base.admin 
+                                                WHERE admin_name = '{data['tables']['user']['nickname']}' ''')
     if len(salt_user) > 0:
-        result["salt"]=salt_user[0][0]
+        result["salt"] = salt_user[0][0]
         result["right"] = 'admin'
-        result=json.dumps(result)
+        result = json.dumps(result)
         return result
     salt_user = admin_db.mysql_castom_command(f"SELECT salt_user FROM users "
                                               f"WHERE nickname = '{data['tables']['user']['nickname']}'")
     if len(salt_user) > 0:
-        result["salt"]=salt_user[0][0]
-        result ["right"]='user'
-        result=json.dumps(result)
+        result["salt"] = salt_user[0][0]
+        result["right"] = 'user'
+        result = json.dumps(result)
         return result
-    result['error']='такого пользователя не существует'
+    result['error'] = 'такого пользователя не существует'
     result = json.dumps(result)
     return result
+
 
 @app.route('/furniture/activate_user/', methods=['POST'])
 def activate_user():
     data = request.data
     data = json.loads(data.decode('utf-8'))
     admin_db = FurnitureDtabase(name_db='admins_base')
-    user_key=data['tables']['keys']['name_keys'].replace('-','')
+    user_key = data['tables']['keys']['name_keys'].replace('-', '')
     key = admin_db.mysql_castom_command(f"SELECT * FROM user_keys WHERE name_keys = '{user_key}'")
-    if len(key)==0:
+    if len(key) == 0:
         return 'не существующий ключ'
-    nickname=data['tables']['admin']['nickname']
-    password=data['tables']['admin']['password']
-    salt_user=data['tables']['admin']['salt_user']
+    nickname = data['tables']['admin']['nickname']
+    password = data['tables']['admin']['password']
+    salt_user = data['tables']['admin']['salt_user']
     reg_login = admin_db.mysql_castom_command(f"SELECT * FROM admin "
-                                           f"WHERE admin_name = '{nickname}'")
+                                              f"WHERE admin_name = '{nickname}'")
 
-    if len(reg_login)>0:
+    if len(reg_login) > 0:
         return 'пользователь с таким именем уже существует'
     salt_server = os.urandom(32).hex()
     salt_server = bytes(salt_server, 'utf-8')
@@ -207,20 +210,18 @@ def activate_user():
                         (nickname, 0, password, salt_server, salt_user))
     return "ok"
 
-
-
-
     pass
+
+
 @app.route('/furniture/connect_server/', methods=['POST'])
 def connect_server():
-
     a = request.data
     j = json.loads(a.decode('utf-8'))
     admin_db = FurnitureDtabase(name_db='admins_base')
-    result={
+    result = {
         "error": '',
         "user": '',
-        "right":''
+        "right": ''
     }
     if 'user' not in session:
         session['user'] = []
@@ -228,11 +229,11 @@ def connect_server():
         session['right'] = []
 
     if not session.modified:
-            session.modified = True
+        session.modified = True
 
-    if j['tables']['user']['right']=='admin':
-        salt_server=admin_db.mysql_castom_command(f"SELECT salt_server FROM admin "
-                                              f"WHERE admin_name = '{j['tables']['user']['nickname']}'")[0][0]
+    if j['tables']['user']['right'] == 'admin':
+        salt_server = admin_db.mysql_castom_command(f"SELECT salt_server FROM admin "
+                                                    f"WHERE admin_name = '{j['tables']['user']['nickname']}'")[0][0]
         salt_server = bytes(salt_server, 'utf-8')
         password = argon2.hash_password_raw(time_cost=16, memory_cost=2 ** 15,
                                             parallelism=2, hash_len=32,
@@ -240,25 +241,24 @@ def connect_server():
                                             salt=salt_server,
                                             type=argon2.low_level.Type.ID).hex()
 
-
-        user=admin_db.mysql_castom_command(f"SELECT * FROM admin "
-                                       f"WHERE admin_name = '{j['tables']['user']['nickname']}' AND password='{password}'")
-        if len(user)>0:
+        user = admin_db.mysql_castom_command(f"SELECT * FROM admin "
+                                             f"WHERE admin_name = '{j['tables']['user']['nickname']}' AND password='{password}'")
+        if len(user) > 0:
             session['user'].append({
-                                    'id_user':user[0][0],
-                                    'nickname':j['tables']['user']['nickname'],
-                                    'id_user_mydb':0}
-                                     )
+                'id_user': user[0][0],
+                'nickname': j['tables']['user']['nickname'],
+                'id_user_mydb': 0}
+            )
             session['right'].append('admin')
             result['right'] = 'admin'
-            result['user']=j['tables']['user']['nickname']
+            result['user'] = j['tables']['user']['nickname']
             json.dumps(result)
             return result
         else:
             result['error'] = 'неверный пароль'
             json.dumps(result)
             return result
-    elif j['tables']['user']['right']=='user':
+    elif j['tables']['user']['right'] == 'user':
         salt_server = admin_db.mysql_castom_command(f"SELECT salt_server FROM users "
                                                     f"WHERE nickname = '{j['tables']['user']['nickname']}'")[0][0]
         salt_server = bytes(salt_server, 'utf-8')
@@ -268,10 +268,10 @@ def connect_server():
                                             salt=salt_server,
                                             type=argon2.low_level.Type.ID).hex()
         user = admin_db.mysql_castom_command(f"SELECT * FROM users "
-                                              f"WHERE nickname = '{j['tables']['user']['nickname']}' AND password='{password}'")
-        if len(user)>0:
-            session['user'].append({'id_user':user[0][0],
-                                    'nickname':j['tables']['user']['nickname']})
+                                             f"WHERE nickname = '{j['tables']['user']['nickname']}' AND password='{password}'")
+        if len(user) > 0:
+            session['user'].append({'id_user': user[0][0],
+                                    'nickname': j['tables']['user']['nickname']})
             session['right'].append('user')
             result['right'] = 'user'
             result['user'] = j['tables']['user']['nickname']
@@ -409,7 +409,7 @@ def get_inside_struct(name_db):
                              "bonus_koeficient": [],
                              "posts": []
                              }}
-    temp_data={}
+    temp_data = {}
     my_db = FurnitureDtabase(name_db=name_db)
     for name_table in table_list["tables"]:
         data_table = my_db.get_data_all(name_table)
@@ -667,16 +667,18 @@ def get_row_tables(name_db, column_condition):
 
 @app.route('/furniture/get_databases/', methods=['POST'])
 def get_databases():
-    admin_db=FurnitureDtabase(name_db='admins_base')
+    admin_db = FurnitureDtabase(name_db='admins_base')
     if session['right'][0] == 'admin':
-        list_databases = admin_db.mysql_castom_command(f"SELECT name_factory FROM factory WHERE id_admin = '{session['user'][0]['id_user']}'")
+        list_databases = admin_db.mysql_castom_command(
+            f"SELECT name_factory FROM factory WHERE id_admin = '{session['user'][0]['id_user']}'")
     else:
         list_databases = admin_db.mysql_castom_command(
             f"SELECT name_factory FROM access_factory INNER JOIN factory ON access_factory.id_user='{session['user'][0]['id_user']}'")
 
-#select name_factory  from admins_base.access_factory inner join admins_base.factory on access_factory.id_factory=factory.id_factory;
+    # select name_factory  from admins_base.access_factory inner join admins_base.factory on access_factory.id_factory=factory.id_factory;
     json_send = json.dumps(list_databases)
     return json_send
+
 
 @app.route('/furniture/get_persons_for_assessment_<name_db>/', methods=['POST'])
 @requires_access_level(5)
@@ -691,9 +693,10 @@ def get_persons_for_assessment(name_db):
     count_criteria = f.mysql_castom_command("SELECT COUNT(*) FROM conf_criterion")[0][0]
     day, month, year = map(int, data['date'].split('-'))
     cur_date = dt(year, month, day)
-    date_today=dt.today().date()
+    date_today = dt.today().date()
 
-    if (cur_date.date() -date_today).days<0:# проверка, если пользователь захочет поставить оценку по старой несуществующей дате
+    if (
+            cur_date.date() - date_today).days < 0:  # проверка, если пользователь захочет поставить оценку по старой несуществующей дате
         count_next_date = f.mysql_castom_command(f'''SELECT COUNT(date) FROM personal_assessment
                                                         WHERE date = '{cur_date}' ''')[0][0]
         if count_next_date == 0:
@@ -704,10 +707,12 @@ def get_persons_for_assessment(name_db):
     prev_date = f.mysql_castom_command(f"SELECT date FROM personal_assessment "
                                        f"WHERE date < '{cur_date}' ORDER BY date DESC LIMIT 1")
     # print(prev_date)
-    if len(prev_date) != 0 and data["flag_previous_day"]==0:  # проверка на законченность предыдущей оценки
-        count_assessments = f.mysql_castom_command(f"SELECT COUNT(*) FROM personal_assessment INNER JOIN personal ON personal_assessment.id_name_personal=personal.id_personal  AND personal.id_department={id_department} AND personal_assessment.date = '{prev_date[0][0]}'")[0][0]
+    if len(prev_date) != 0 and data["flag_previous_day"] == 0:  # проверка на законченность предыдущей оценки
+        count_assessments = f.mysql_castom_command(
+            f"SELECT COUNT(*) FROM personal_assessment INNER JOIN personal ON personal_assessment.id_name_personal=personal.id_personal  AND personal.id_department={id_department} AND personal_assessment.date = '{prev_date[0][0]}'")[
+            0][0]
 
-        if count_personal * count_criteria != count_assessments :
+        if count_personal * count_criteria != count_assessments:
             year = prev_date[0][0].year
             month = prev_date[0][0].month
             day = prev_date[0][0].day
@@ -715,11 +720,11 @@ def get_persons_for_assessment(name_db):
                       "prev_date": f"{day}-{month}-{year}"}
             json_send = json.dumps(result)
             return json_send
-    elif len(prev_date) != 0 and data["flag_previous_day"]==2:
+    elif len(prev_date) != 0 and data["flag_previous_day"] == 2:
         year = prev_date[0][0].year
         month = prev_date[0][0].month
         day = prev_date[0][0].day
-        cur_date=dt(year, month, day)
+        cur_date = dt(year, month, day)
     # pprint(data)
 
     assessment_list = {"tables": {"personal": []}}
@@ -754,7 +759,7 @@ def get_persons_for_assessment(name_db):
             person["edit_data"][criterion[1]] = "admin" if len(exist_assessment) != 0 else ""
             if "period_mean" in data:
                 person["average_value"][criterion[1]] = f.get_average_value(cur_date, data["period_mean"],
-                                                                        person["id_person"], criterion[0])
+                                                                            person["id_person"], criterion[0])
 
         # with open(persons[i][2], "rb") as open_file:
         #     assessment_list["tables"]["personal"][i]["avatar"] = pickle.load(open_file)
@@ -764,6 +769,7 @@ def get_persons_for_assessment(name_db):
     # pprint(assessment_list)
     return json_send
 
+
 @app.route('/furniture/send_assessment_<name_db>/', methods=['POST'])
 @requires_access_level(5)
 def send_assessments(name_db):
@@ -771,7 +777,7 @@ def send_assessments(name_db):
     data = json.loads(request.data.decode('utf-8'))
     day, month, year = map(int, data['date'].split('-'))
     cur_date = dt(year, month, day)
-    #user=session[]
+    # user=session[]
     f = database.FurnitureDtabase(name_db)
     for person in data['tables']['personal']:
         for criterion, value in dict(person['id_assessment']).items():
@@ -787,7 +793,8 @@ def send_assessments(name_db):
                                  ('date', 'id_name_personal', 'id_title_project', 'comments',
                                   'id_criterion', 'id_drop_criterion', 'user_add', 'user_edit', 'assessment'),
                                  (cur_date, person['id_person'], 'NULL', person['comments'][criterion],
-                                  id_criterion, 'NULL', session['user'][0]['id_user_mydb'], 'NULL', person['assessment'][criterion]
+                                  id_criterion, 'NULL', session['user'][0]['id_user_mydb'], 'NULL',
+                                  person['assessment'][criterion]
                                   ))
                     #  таблицы проекты и персонал будут связаны через битрикс
                 else:  # редактируем
@@ -808,56 +815,63 @@ def send_assessments(name_db):
 
     return "ok"
 
+@app.route('/furniture/calculate_salary_<name_db>/', methods=['POST'])
+@requires_access_level(1)
+def calculate_salary():
+
+
+    return 0
+
 @app.route('/furniture/register_<name_db>/', methods=['POST'])
 @requires_access_level(1)
 def register(name_db):
-    #Проверить на имя сотрудника
-    #Проверить на логин
+    # Проверить на имя сотрудника
+    # Проверить на логин
 
     data = json.loads(request.data.decode('utf-8'))
     my_db = database.FurnitureDtabase(name_db)
     admin_db = FurnitureDtabase(name_db='admins_base')
-    user=data['tables']['users']
+    user = data['tables']['users']
     access_rules = data['tables']["access_rule"]
-    id_personal=user["id_personal"]
-    nickname=user["nickname"]
-    password=user["password"]
-    salt_user=data['tables']['users']["salt_user"]
+    id_personal = user["id_personal"]
+    nickname = user["nickname"]
+    password = user["password"]
+    salt_user = data['tables']['users']["salt_user"]
     salt_server = os.urandom(32).hex()
     salt_server = bytes(salt_server, 'utf-8')
     password = argon2.hash_password_raw(time_cost=16, memory_cost=2 ** 15,
-                                                parallelism=2, hash_len=32,
-                                                password=bytes(password, 'utf-8'),
-                                                salt=salt_server,
-                                                type=argon2.low_level.Type.ID).hex()
-    salt_server=salt_server.decode()
+                                        parallelism=2, hash_len=32,
+                                        password=bytes(password, 'utf-8'),
+                                        salt=salt_server,
+                                        type=argon2.low_level.Type.ID).hex()
+    salt_server = salt_server.decode()
 
     reg_users = my_db.mysql_castom_command(f"SELECT * FROM users "
-                                       f"WHERE id_personal = '{id_personal}'")
+                                           f"WHERE id_personal = '{id_personal}'")
     reg_login = my_db.mysql_castom_command(f"SELECT * FROM users "
-                                       f"WHERE nickname = '{nickname}'")
+                                           f"WHERE nickname = '{nickname}'")
 
-    if len(reg_users)>0:
+    if len(reg_users) > 0:
         result = {"error": "personal_is_registered",
                   }
         json_send = json.dumps(result)
         return json_send
-    elif len(reg_login)>0:
+    elif len(reg_login) > 0:
         result = {"error": "name_taken",
                   }
         json_send = json.dumps(result)
         return json_send
 
     my_db.add_row_v2('users',
-                     ('id_personal', 'nickname', 'password', 'salt_server', 'salt_user','right_user'),
+                     ('id_personal', 'nickname', 'password', 'salt_server', 'salt_user', 'right_user'),
                      (user['id_personal'], nickname, password, salt_server, salt_user, 'user'))
     admin_db.add_row_v2('users',
                         ('nickname', 'password', 'salt_server', 'salt_user', 'id_admin'),
                         (nickname, password, salt_server, salt_user, session['user'][0]['id_user']))
 
-    id_user =  admin_db.get_last_row("users", "id_users")[0][0]
+    id_user = admin_db.get_last_row("users", "id_users")[0][0]
     id_factory = admin_db.mysql_castom_command(f"SELECT id_factory FROM factory "
-                                       f"WHERE name_factory = '{name_db}'")[0][0]
+                                               f"WHERE name_factory = '{name_db}'")[0][0]
     admin_db.add_row_v2("access_factory",
                         ("id_user", "id_factory"),
                         (id_user, id_factory))
@@ -871,6 +885,8 @@ def register(name_db):
                              (id_user, id_rule))
 
     return 'ok'
+
+
 @app.route('/furniture/appoint_admin_<name_db>/', methods=['POST'])
 @requires_access_level(1)
 def appoint_admin(name_db):
@@ -879,8 +895,10 @@ def appoint_admin(name_db):
     admin_db = FurnitureDtabase(name_db='admins_base')
     my_db = FurnitureDtabase(name_db=name_db)
 
-    id_user=session['user'][0]['id_user']
-    nickname=session['user'][0]['nickname']
+    id_user = session['user'][0]['id_user']
+    nickname = session['user'][0]['nickname']
+
+
 def is_all_employers_rated(db, prev_date: dt, id_department):
     count_assessments = db.mysql_custom_command(
         f'''SELECT COUNT(*) FROM personal_assessment 
@@ -901,90 +919,89 @@ def is_date_avaible(db, date):
     return not (count_exist_rows == 0 and count_rows_next_dates > 0)
 
 
-@app.route('/furniture/get_persons_for_assessment/', methods=['POST'])
-def get_persons_for_assessment():
-    db = database.FurnitureDatabase("new_factory_6")
-    data = json.loads(request.data.decode('utf-8'))
-    department = data["tables"]["department"]
-    id_department = db.mysql_custom_command(f'''SELECT id_department 
-                                                FROM department WHERE title = '{department}' ''')[0][0]
+# @app.route('/furniture/get_persons_for_assessment/', methods=['POST'])
+# def get_persons_for_assessment():
+#     my_db = database.FurnitureDatabase("new_factory_6")
+#     admin_db = FurnitureDtabase(name_db='admins_base')
+#     data = json.loads(request.data.decode('utf-8'))
+#     department = data["tables"]["department"]
+#     id_department = my_db.mysql_custom_command(f'''SELECT id_department
+#                                                 FROM department WHERE title = '{department}' ''')[0][0]
+#
+#     cur_date = dt(*reversed(list(map(int, data['date'].split('-')))))
+#     # print('cur_date', cur_date)
+#     if not is_date_avaible(my_db, cur_date):
+#         result = {"error": "Bad date"}
+#         json_send = json.dumps(result)
+#         return json_send
+#
+#     prev_date = my_db.mysql_custom_command(f'''SELECT date FROM personal_assessment
+#                                             WHERE date < '{cur_date}' ORDER BY date DESC LIMIT 1 ''')
+#     print('prev_date', prev_date)
+#
+#     id_user_to_admin=data['tables']['personal'][0]["id_personal"]
+#     admin=my_db.mysql_castom_command(f"SELECT * FROM users WHERE right_user = 'admin'")
+#     if len(admin)==0:
+#        admin=admin_db.mysql_castom_command(f"SELECT * FROM admin WHERE id_admin = '{id_user}'")
+#        my_db.add_row_v2('users',
+#                         ('id_personal', 'nickname', 'password', 'salt_server', 'salt_user', 'right_user'),
+#                         (id_user_to_admin,admin[0][1], admin[0][3],admin[0][4], admin[0][5], 'admin'))
+#        return 'ok_add'
+#     if len(prev_date) != 0 and not is_all_employers_rated(my_db, prev_date[0][0], id_department):
+#         result = {"error": "Не все сотрудники были оценены в прошлый раз"}
+#         json_send = json.dumps(result)
+#         return json_send
+#
+#     user = my_db.mysql_castom_command(f"SELECT * FROM users WHERE id_personal = '{id_user_to_admin}'")
+#     if len(user)>0:
+#         my_db.del_row('users', tuple(['id_personal']), tuple([id_user_to_admin]))
+#
+#     cur_id_admin = my_db.mysql_castom_command(f"SELECT id_personal FROM users WHERE nickname = '{nickname}'")[0][0]
+#     my_db.edit_row('users', ('id_personal', 'id_personal'), (cur_id_admin, id_user_to_admin))
+#     return 'ok_edd'
+#
 
-    cur_date = dt(*reversed(list(map(int, data['date'].split('-')))))
-    # print('cur_date', cur_date)
-    if not is_date_avaible(db, cur_date):
-        result = {"error": "Bad date"}
-        json_send = json.dumps(result)
-        return json_send
 
-    prev_date = db.mysql_custom_command(f'''SELECT date FROM personal_assessment 
-                                            WHERE date < '{cur_date}' ORDER BY date DESC LIMIT 1 ''')
-    print('prev_date', prev_date)
-
-    id_user_to_admin=data['tables']['personal'][0]["id_personal"]
-    admin=my_db.mysql_castom_command(f"SELECT * FROM users WHERE right_user = 'admin'")
-    if len(admin)==0:
-       admin=admin_db.mysql_castom_command(f"SELECT * FROM admin WHERE id_admin = '{id_user}'")
-       my_db.add_row_v2('users',
-                        ('id_personal', 'nickname', 'password', 'salt_server', 'salt_user', 'right_user'),
-                        (id_user_to_admin,admin[0][1], admin[0][3],admin[0][4], admin[0][5], 'admin'))
-       return 'ok_add'
-    if len(prev_date) != 0 and not is_all_employers_rated(db, prev_date[0][0], id_department):
-        result = {"error": "Не все сотрудники были оценены в прошлый раз"}
-        json_send = json.dumps(result)
-        return json_send
-
-    user = my_db.mysql_castom_command(f"SELECT * FROM users WHERE id_personal = '{id_user_to_admin}'")
-    if len(user)>0:
-        my_db.del_row('users', tuple(['id_personal']), tuple([id_user_to_admin]))
-
-    cur_id_admin = my_db.mysql_castom_command(f"SELECT id_personal FROM users WHERE nickname = '{nickname}'")[0][0]
-    my_db.edit_row('users', ('id_personal', 'id_personal'), (cur_id_admin, id_user_to_admin))
-    return 'ok_edd'
-
-
-
-
-#name taken
-
-@app.route('/furniture/send_assessment/', methods=['POST'])
-def send_assessments():
-    # print(type(request.data)) # <class 'bytes'>
-    data = json.loads(request.data.decode('utf-8'))
-    db = database.FurnitureDatabase("new_factory_6")
-    for person in data['tables']['personal']:
-        for criterion, value in dict(person['id_assessment']).items():
-            id_row, command = value
-            if command == 0:  # ничего не делаем
-                pass
-            elif command == 1:
-                if id_row == 0:  # добавляем новую оценку
-                    # print('add')
-                    id_criterion = db.mysql_custom_command(
-                        f"SELECT id_conf_criterion FROM conf_criterion WHERE title_criterion = '{criterion}'")[0][0]
-                    db.add_row_v2('personal_assessment',
-                                  ('date', 'id_name_personal', 'id_title_project', 'comments',
-                                   'id_criterion', 'id_drop_criterion', 'user_add', 'user_edit', 'assessment'),
-                                  (dt.today(), person['id_person'], 'NULL', person['comments'][criterion],
-                                   id_criterion, 'NULL', 'admin', 'NULL', person['assessment'][criterion]
-                                   ))
-                    #  таблицы проекты и персонал будут связаны через битрикс
-                else:  # редактируем
-                    # print('edit')
-                    db.mysql_custom_command(f'''UPDATE personal_assessment
-                                                    SET
-                                                        assessment = {person['assessment'][criterion]},
-                                                        comments = '{person['comments'][criterion]}',
-                                                        user_edit = '{person['edit_data'][criterion]}'
-                                                    WHERE id_assessment = {id_row};''', 0)
-
-                    print(db.mysql_custom_command(
-                        f'''SELECT * FROM personal_assessment WHERE id_assessment = {id_row}'''))
-
-            elif command == -1:  # удаляем
-                print('delete')
-                db.mysql_custom_command(f"DELETE FROM personal_assessment WHERE id_assessment = {id_row}", 0)
-
-    return "200"
+# name taken
+# @app.route('/furniture/send_assessment/', methods=['POST'])
+# def send_assessments():
+#     # print(type(request.data)) # <class 'bytes'>
+#     data = json.loads(request.data.decode('utf-8'))
+#     db = database.FurnitureDatabase("new_factory_6")
+#     for person in data['tables']['personal']:
+#         for criterion, value in dict(person['id_assessment']).items():
+#             id_row, command = value
+#             if command == 0:  # ничего не делаем
+#                 pass
+#             elif command == 1:
+#                 if id_row == 0:  # добавляем новую оценку
+#                     # print('add')
+#                     id_criterion = db.mysql_custom_command(
+#                         f"SELECT id_conf_criterion FROM conf_criterion WHERE title_criterion = '{criterion}'")[0][0]
+#                     db.add_row_v2('personal_assessment',
+#                                   ('date', 'id_name_personal', 'id_title_project', 'comments',
+#                                    'id_criterion', 'id_drop_criterion', 'user_add', 'user_edit', 'assessment'),
+#                                   (dt.today(), person['id_person'], 'NULL', person['comments'][criterion],
+#                                    id_criterion, 'NULL', 'admin', 'NULL', person['assessment'][criterion]
+#                                    ))
+#                     #  таблицы проекты и персонал будут связаны через битрикс
+#                 else:  # редактируем
+#                     # print('edit')
+#                     db.mysql_custom_command(f'''UPDATE personal_assessment
+#                                                     SET
+#                                                         assessment = {person['assessment'][criterion]},
+#                                                         comments = '{person['comments'][criterion]}',
+#                                                         user_edit = '{person['edit_data'][criterion]}'
+#                                                     WHERE id_assessment = {id_row};''', 0)
+#
+#                     print(db.mysql_custom_command(
+#                         f'''SELECT * FROM personal_assessment WHERE id_assessment = {id_row}'''))
+#
+#             elif command == -1:  # удаляем
+#                 print('delete')
+#                 db.mysql_custom_command(f"DELETE FROM personal_assessment WHERE id_assessment = {id_row}", 0)
+#
+#     return "200"
 
 
 # list_tables = db.get_tables()
@@ -1031,6 +1048,6 @@ def send_assessments():
 #             return f'department named {check_value[:-1]} already exists'
 """***********************************************"""
 if __name__ == '__main__':
-    #app.debug=True
+    # app.debug=True
 
     app.run(host="0.0.0.0", port=5000)

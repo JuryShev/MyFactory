@@ -76,7 +76,7 @@ class FurnitureDtabase:
         self.port = '3306'
         self.database = name_db
 
-    def mysql_custom_command(self, mysql_comand, GET=1):
+    def mysql_castom_command(self, mysql_comand, GET=1):
         with mysql.connector.connect(
                 host=self.host,
                 user=self.user,
@@ -207,299 +207,299 @@ class FurnitureDtabase:
                 connection.commit()
 
 
-def del_column(self, name_table, name_column):
-    with mysql.connector.connect(
-            host=self.host,
-            user=self.user,
-            password=self.password,
-            port=self.port,
-            database=self.database
+    def del_column(self, name_table, name_column):
+        with mysql.connector.connect(
+                host=self.host,
+                user=self.user,
+                password=self.password,
+                port=self.port,
+                database=self.database
 
-    ) as connection:
-        mysql_comand = f"ALTER TABLE {name_table} DROP COLUMN {name_column}"
-        mycursor = connection.cursor()
-        mycursor.execute(mysql_comand)
-
-
-def get_type(self, name_table, orig_t=1):
-    with mysql.connector.connect(
-            host=self.host,
-            user=self.user,
-            password=self.password,
-            port=self.port,
-            database=self.database
-
-    ) as connection:
-        mycursor = connection.cursor()
-        mysql_comand = (f'SHOW COLUMNS FROM {self.database}.{name_table}')
-        mycursor.execute(mysql_comand)
-        show_columns = mycursor.fetchall()
-        column = []
-        column_type = []
-        for i in enumerate(show_columns):
-            column.append(i[1][0])
-            column_type.append(i[1][1])
-            column_type[i[0]] = column_type[i[0]].decode("utf-8")
-
-        if orig_t == 0:
-            type_columns = dict(zip(column, column_type))
-            return type_columns
-        else:
-            for i in enumerate(column_type):
-                if i[1].startswith('varchar'):
-                    column_type[i[0]] = str
-                elif i[1].startswith('int'):
-                    column_type[i[0]] = int
-                elif i[1].startswith('decimal'):
-                    column_type[i[0]] = float
-
-            type_columns = dict(zip(column, column_type))
-
-            return type_columns
-
-
-def get_tables(self):
-    with mysql.connector.connect(
-            host=self.host,
-            user=self.user,
-            password=self.password,
-            port=self.port,
-            database=self.database
-
-    ) as connection:
-        list_table_ = []
-        mycursor = connection.cursor()
-        mysql_comand = (f'SHOW TABLES FROM {self.database}')
-        mycursor.execute(mysql_comand)
-        list_table = mycursor.fetchall()
-        for i in list_table:
-            list_table_.append(i[0])
-
-        print(list_table_)
-    return list_table_
-
-
-def check_value(self, name_table, name_column_out, name_column, data):
-    """
-    Проверяет значение на схожесть.
-    MySQL запрос: SELECT column FROM table WHERE column LIKE "%text%"
-    (для полной схожести название значения отправлять полностью)
-
-    :param name_table: str
-    :param name_columns: str
-    :param data: str
-    :return: True or result str
-    """
-
-    with mysql.connector.connect(
-            host=self.host,
-            user=self.user,
-            password=self.password,
-            port=self.port,
-            database=self.database
-
-    ) as connection:
-        mycursor = connection.cursor()
-        if type(data) == str:
-
-            mysql_comand_full = '{0}{1}{2}{3}{4}{5}{6}{7}'.format('SELECT ', name_column, ' FROM ',
-                                                                  name_table, ' WHERE ', name_column, ' LIKE ',
-                                                                  f' "%{data}%" ')
-            mysql_comand_partial = '{0}{1}{2}{3}{4}{5}{6}{7}'.format('SELECT ', name_column, ' FROM ',
-                                                                     name_table, ' WHERE ', name_column, ' LIKE ',
-                                                                     f' "%{data[:-1]}%" ')
-            mycursor.execute(mysql_comand_full)
-            full_match = mycursor.fetchall()
-            mycursor.execute(mysql_comand_partial)
-            partial_match = mycursor.fetchall()
-
-        elif type(data) == int:
-            mysql_comand = f'SELECT {name_column_out} FROM {name_table} WHERE {name_column}={data}'
+        ) as connection:
+            mysql_comand = f"ALTER TABLE {name_table} DROP COLUMN {name_column}"
+            mycursor = connection.cursor()
             mycursor.execute(mysql_comand)
-            full_match = mycursor.fetchall()
-        else:
-            pass
-        if len(full_match) > 0:
-            return full_match
-
-    return 'False'
 
 
-def count_row(self, name_table):
-    """
-    :param name_table str:
-    :return count row:
-    Comand MySQL:SELECT COUNT(1) FROM name_table
-    """
-    with mysql.connector.connect(
-            host=self.host,
-            user=self.user,
-            password=self.password,
-            port=self.port,
-            database=self.database
+    def get_type(self, name_table, orig_t=1):
+        with mysql.connector.connect(
+                host=self.host,
+                user=self.user,
+                password=self.password,
+                port=self.port,
+                database=self.database
 
-    ) as connection:
-        mycursor = connection.cursor()
-        mysql_comand = 'SELECT COUNT(1) FROM ' + name_table
-        mycursor.execute(mysql_comand)
-        count = mycursor.fetchall()
-    return count
+        ) as connection:
+            mycursor = connection.cursor()
+            mysql_comand = (f'SHOW COLUMNS FROM {self.database}.{name_table}')
+            mycursor.execute(mysql_comand)
+            show_columns = mycursor.fetchall()
+            column = []
+            column_type = []
+            for i in enumerate(show_columns):
+                column.append(i[1][0])
+                column_type.append(i[1][1])
+                column_type[i[0]] = column_type[i[0]].decode("utf-8")
 
+            if orig_t == 0:
+                type_columns = dict(zip(column, column_type))
+                return type_columns
+            else:
+                for i in enumerate(column_type):
+                    if i[1].startswith('varchar'):
+                        column_type[i[0]] = str
+                    elif i[1].startswith('int'):
+                        column_type[i[0]] = int
+                    elif i[1].startswith('decimal'):
+                        column_type[i[0]] = float
 
-def clear_table(self, name_table):
-    """
+                type_columns = dict(zip(column, column_type))
 
-    :param name_table:
-    :return: None
-    """
-    with mysql.connector.connect(
-            host=self.host,
-            user=self.user,
-            password=self.password,
-            port=self.port,
-            database=self.database
-
-    ) as connection:
-        mycursor = connection.cursor()
-        on_update = 'SET SQL_SAFE_UPDATES = 0'
-        cl_table = f'DELETE FROM {name_table}'
-        off_update = 'SET SQL_SAFE_UPDATES = 1'
-        mycursor.execute(on_update)
-        mycursor.execute(cl_table)
-        mycursor.execute(off_update)
-        connection.commit()
-
-    return None
+                return type_columns
 
 
-def get_data_all(self, name_table):
-    with mysql.connector.connect(
-            host=self.host,
-            user=self.user,
-            password=self.password,
-            port=self.port,
-            database=self.database
+    def get_tables(self):
+        with mysql.connector.connect(
+                host=self.host,
+                user=self.user,
+                password=self.password,
+                port=self.port,
+                database=self.database
 
-    ) as connection:
-        mycursor = connection.cursor()
-        mysql_comand = f'SELECT * from {name_table}'
-        mycursor.execute(mysql_comand)
-        data = mycursor.fetchall()
+        ) as connection:
+            list_table_ = []
+            mycursor = connection.cursor()
+            mysql_comand = (f'SHOW TABLES FROM {self.database}')
+            mycursor.execute(mysql_comand)
+            list_table = mycursor.fetchall()
+            for i in list_table:
+                list_table_.append(i[0])
 
-    return data
-
-
-def get_name_column(self, name_table, format_result='all'):
-    with mysql.connector.connect(
-            host=self.host,
-            user=self.user,
-            password=self.password,
-            port=self.port,
-            database=self.database
-
-    ) as connection:
-        field_names = None
-        mycursor = connection.cursor()
-        mysql_comand = f'SHOW COLUMNS from {name_table}'
-        mycursor.execute(mysql_comand)
-        name_column = mycursor.fetchall()
-
-        if format_result == 'all':
-            field_names = name_column
-        elif format_result == 'names':
-            field_names = [i[0] for i in name_column]
-
-    return field_names
+            print(list_table_)
+        return list_table_
 
 
-##############доделать###############################################
-def get_row(self, name_db, name_table, name_row, name_condition):
-    with mysql.connector.connect(
-            host=self.host,
-            user=self.user,
-            password=self.password,
-            port=self.port,
-            database=self.database
+    def check_value(self, name_table, name_column_out, name_column, data):
+        """
+        Проверяет значение на схожесть.
+        MySQL запрос: SELECT column FROM table WHERE column LIKE "%text%"
+        (для полной схожести название значения отправлять полностью)
 
-    ) as connection:
-        mycursor = connection.cursor()
-        mysql_comand = "SELECT * " \
-                       f" FROM {name_db}.{name_table}" \
-                       f" WHERE {name_table}.{name_row} = '{name_condition}'"
+        :param name_table: str
+        :param name_columns: str
+        :param data: str
+        :return: True or result str
+        """
 
-        mycursor.execute(mysql_comand)
-        count = mycursor.fetchall()
-        if len(count) > 0:
-            field_names = [i[0] for i in mycursor.description]
-            for i in range(len(count)):
-                count[i] = dict(zip(field_names, list(count[i])))
+        with mysql.connector.connect(
+                host=self.host,
+                user=self.user,
+                password=self.password,
+                port=self.port,
+                database=self.database
+
+        ) as connection:
+            mycursor = connection.cursor()
+            if type(data) == str:
+
+                mysql_comand_full = '{0}{1}{2}{3}{4}{5}{6}{7}'.format('SELECT ', name_column, ' FROM ',
+                                                                      name_table, ' WHERE ', name_column, ' LIKE ',
+                                                                      f' "%{data}%" ')
+                mysql_comand_partial = '{0}{1}{2}{3}{4}{5}{6}{7}'.format('SELECT ', name_column, ' FROM ',
+                                                                         name_table, ' WHERE ', name_column, ' LIKE ',
+                                                                         f' "%{data[:-1]}%" ')
+                mycursor.execute(mysql_comand_full)
+                full_match = mycursor.fetchall()
+                mycursor.execute(mysql_comand_partial)
+                partial_match = mycursor.fetchall()
+
+            elif type(data) == int:
+                mysql_comand = f'SELECT {name_column_out} FROM {name_table} WHERE {name_column}={data}'
+                mycursor.execute(mysql_comand)
+                full_match = mycursor.fetchall()
+            else:
+                pass
+            if len(full_match) > 0:
+                return full_match
+
+        return 'False'
+
+
+    def count_row(self, name_table):
+        """
+        :param name_table str:
+        :return count row:
+        Comand MySQL:SELECT COUNT(1) FROM name_table
+        """
+        with mysql.connector.connect(
+                host=self.host,
+                user=self.user,
+                password=self.password,
+                port=self.port,
+                database=self.database
+
+        ) as connection:
+            mycursor = connection.cursor()
+            mysql_comand = 'SELECT COUNT(1) FROM ' + name_table
+            mycursor.execute(mysql_comand)
+            count = mycursor.fetchall()
         return count
 
 
-#############################################################################
+    def clear_table(self, name_table):
+        """
 
-def edit_row(self, name_table, title: tuple, value: tuple):
-    with mysql.connector.connect(
-            host=self.host,
-            user=self.user,
-            password=self.password,
-            port=self.port,
-            database=self.database
+        :param name_table:
+        :return: None
+        """
+        with mysql.connector.connect(
+                host=self.host,
+                user=self.user,
+                password=self.password,
+                port=self.port,
+                database=self.database
 
-    ) as connection:
-        mycursor = connection.cursor()
-        for n in range(1, len(title)):
-            if type(value[n]) == str:
-                mysql_comand = f"UPDATE {name_table} SET {title[n]} = '{value[n]}' WHERE {title[0]} = {value[0]}"
-            else:
-                mysql_comand = f"UPDATE {name_table} SET {title[n]} = {value[n]} WHERE {title[0]} = {value[0]}"
-            mycursor.execute(mysql_comand)
+        ) as connection:
+            mycursor = connection.cursor()
+            on_update = 'SET SQL_SAFE_UPDATES = 0'
+            cl_table = f'DELETE FROM {name_table}'
+            off_update = 'SET SQL_SAFE_UPDATES = 1'
+            mycursor.execute(on_update)
+            mycursor.execute(cl_table)
+            mycursor.execute(off_update)
             connection.commit()
 
-
-def edit_column(self, name_table, old_name, new_name):
-    with mysql.connector.connect(
-            host=self.host,
-            user=self.user,
-            password=self.password,
-            port=self.port,
-            database=self.database
-
-    ) as connection:
-        mysql_comand = f"ALTER TABLE {name_table} CHANGE {old_name} {new_name} INT"
-        mycursor = connection.cursor()
-        mycursor.execute(mysql_comand)
+        return None
 
 
-def search_personal(self, name_table, name_personal):
-    with mysql.connector.connect(
-            host=self.host,
-            user=self.user,
-            password=self.password,
-            port=self.port,
-            database=self.database
+    def get_data_all(self, name_table):
+        with mysql.connector.connect(
+                host=self.host,
+                user=self.user,
+                password=self.password,
+                port=self.port,
+                database=self.database
 
-    ) as connection:
-        mycursor = connection.cursor()
-        name_personal_compile = ''
-        for n in name_personal:
-            name_personal_compile = name_personal_compile + " " + n
-        name_personal_compile = name_personal_compile[1:]
+        ) as connection:
+            mycursor = connection.cursor()
+            mysql_comand = f'SELECT * from {name_table}'
+            mycursor.execute(mysql_comand)
+            data = mycursor.fetchall()
 
-        mysql_comand = "SELECT id_personal, name, education, number, certification, salaryl, bonus, birthday, created_pers, dir_avatar, " \
-                       " title as 'id_department', label_post as 'id_posts'" \
-                       f" FROM {name_table}.personal" \
-                       f" INNER JOIN {name_table}.department ON department.id_department = personal.id_department" \
-                       f" INNER JOIN {name_table}.posts ON posts.id_posts = personal.id_posts" \
-                       f" WHERE personal.name LIKE '%{name_personal_compile}%' or '{name_personal_compile}%'"
+        return data
 
-        mycursor.execute(mysql_comand)
-        count = mycursor.fetchall()
-        if len(count) > 0:
-            field_names = [i[0] for i in mycursor.description]
-            for i in range(len(count)):
-                count[i] = dict(zip(field_names, list(count[i])))
-        return count
+
+    def get_name_column(self, name_table, format_result='all'):
+        with mysql.connector.connect(
+                host=self.host,
+                user=self.user,
+                password=self.password,
+                port=self.port,
+                database=self.database
+
+        ) as connection:
+            field_names = None
+            mycursor = connection.cursor()
+            mysql_comand = f'SHOW COLUMNS from {name_table}'
+            mycursor.execute(mysql_comand)
+            name_column = mycursor.fetchall()
+
+            if format_result == 'all':
+                field_names = name_column
+            elif format_result == 'names':
+                field_names = [i[0] for i in name_column]
+
+        return field_names
+
+
+    ##############доделать###############################################
+    def get_row(self, name_db, name_table, name_row, name_condition):
+        with mysql.connector.connect(
+                host=self.host,
+                user=self.user,
+                password=self.password,
+                port=self.port,
+                database=self.database
+
+        ) as connection:
+            mycursor = connection.cursor()
+            mysql_comand = "SELECT * " \
+                           f" FROM {name_db}.{name_table}" \
+                           f" WHERE {name_table}.{name_row} = '{name_condition}'"
+
+            mycursor.execute(mysql_comand)
+            count = mycursor.fetchall()
+            if len(count) > 0:
+                field_names = [i[0] for i in mycursor.description]
+                for i in range(len(count)):
+                    count[i] = dict(zip(field_names, list(count[i])))
+            return count
+
+
+    #############################################################################
+
+    def edit_row(self, name_table, title: tuple, value: tuple):
+        with mysql.connector.connect(
+                host=self.host,
+                user=self.user,
+                password=self.password,
+                port=self.port,
+                database=self.database
+
+        ) as connection:
+            mycursor = connection.cursor()
+            for n in range(1, len(title)):
+                if type(value[n]) == str:
+                    mysql_comand = f"UPDATE {name_table} SET {title[n]} = '{value[n]}' WHERE {title[0]} = {value[0]}"
+                else:
+                    mysql_comand = f"UPDATE {name_table} SET {title[n]} = {value[n]} WHERE {title[0]} = {value[0]}"
+                mycursor.execute(mysql_comand)
+                connection.commit()
+
+
+    def edit_column(self, name_table, old_name, new_name):
+        with mysql.connector.connect(
+                host=self.host,
+                user=self.user,
+                password=self.password,
+                port=self.port,
+                database=self.database
+
+        ) as connection:
+            mysql_comand = f"ALTER TABLE {name_table} CHANGE {old_name} {new_name} INT"
+            mycursor = connection.cursor()
+            mycursor.execute(mysql_comand)
+
+
+    def search_personal(self, name_table, name_personal):
+        with mysql.connector.connect(
+                host=self.host,
+                user=self.user,
+                password=self.password,
+                port=self.port,
+                database=self.database
+
+        ) as connection:
+            mycursor = connection.cursor()
+            name_personal_compile = ''
+            for n in name_personal:
+                name_personal_compile = name_personal_compile + " " + n
+            name_personal_compile = name_personal_compile[1:]
+
+            mysql_comand = "SELECT id_personal, name, education, number, certification, salaryl, bonus, birthday, created_pers, dir_avatar, " \
+                           " title as 'id_department', label_post as 'id_posts'" \
+                           f" FROM {name_table}.personal" \
+                           f" INNER JOIN {name_table}.department ON department.id_department = personal.id_department" \
+                           f" INNER JOIN {name_table}.posts ON posts.id_posts = personal.id_posts" \
+                           f" WHERE personal.name LIKE '%{name_personal_compile}%' or '{name_personal_compile}%'"
+
+            mycursor.execute(mysql_comand)
+            count = mycursor.fetchall()
+            if len(count) > 0:
+                field_names = [i[0] for i in mycursor.description]
+                for i in range(len(count)):
+                    count[i] = dict(zip(field_names, list(count[i])))
+            return count
 
     def get_average_value(self, date_: dt, period, id_person, id_criterion):
         from_, to_ = get_date_range(date_, period)
