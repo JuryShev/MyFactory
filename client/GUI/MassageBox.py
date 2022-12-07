@@ -52,7 +52,7 @@ class MassageBox(object):
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
-        self.Label_message.setText(_translate("Dialog", "Подтвердить изменения профиля?\n jgjgjgjgjgjgj"))
+        self.Label_message.setText(_translate("Dialog", "Подтвердить изменения профиля?"))
         self.PB_OK_second.setText(_translate("Dialog", "OK"))
 
 

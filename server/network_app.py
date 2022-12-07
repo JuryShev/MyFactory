@@ -120,6 +120,61 @@ def requires_access_level(access_level):
 
     return decorator
 
+@app.route('/furniture/change_log_pass_<name_db>/', methods=['POST'])
+def change_log_pass(name_db):
+    data = request.data
+    data = json.loads(data.decode('utf-8'))
+    admin_db = FurnitureDtabase(name_db='admins_base')
+    my_db=FurnitureDtabase(name_db=name_db)
+    values = [session['user'][0]['id_user_mydb']]
+    if data["change"]=='pass':
+        salt_server=admin_db.mysql_castom_command(f"SELECT salt_server FROM admin "
+                                              f"WHERE nickname = '{session['user'][0]['nickname']}'")[0][0]
+        salt_server = bytes(salt_server, 'utf-8')
+        password=argon2.hash_password_raw(time_cost=16, memory_cost=2 ** 15,
+                                 parallelism=2, hash_len=32,
+                                 password=bytes(data['tables']['users']['password'], 'utf-8'),
+                                 salt=salt_server,
+                                 type=argon2.low_level.Type.ID).hex()
+
+        user = my_db.mysql_castom_command(f"SELECT * FROM users "
+                                             f"WHERE nickname = '{session['user'][0]['nickname']}' AND password='{password}'")
+        if len(user)>0:
+            data['password_new'] = argon2.hash_password_raw(time_cost=16, memory_cost=2 ** 15,
+                                                parallelism=2, hash_len=32,
+                                                password=bytes(data['password_new'], 'utf-8'),
+                                                salt=salt_server,
+                                                type=argon2.low_level.Type.ID).hex()
+            values.extend(  [data['password_new'],
+                            data['salt_user_new']]),
+        else :
+            return 'Неверный пароль'
+
+    elif data["change"]=='login':
+        reg_login = admin_db.mysql_castom_command(f"SELECT * FROM admin "
+                                                  f"WHERE nickname = '{data['tables']['users']['nickname']}'")
+        if len(reg_login) > 0:
+            return 'пользователь с таким именем уже существует'
+        session['user'][0]['nickname']= data['tables']['users']['nickname']
+        session.modified = True
+
+    rows = ['id_users']
+    list_tables = data['tables']
+    for name_table in list_tables:
+        list_rows = list_tables[name_table]
+        for row in list_rows:
+            rows.append(row)
+            if data["change"] == 'login':
+                values.append(list_rows[row])
+
+    my_db.edit_row('users', tuple(rows), tuple(values))
+    values[0] = session['user'][0]['id_user']
+    if session['right'][0] == 'user':
+        admin_db.edit_row('users', tuple(rows), tuple(values))
+    elif session['right'][0] == 'admin':
+        rows[0] = 'id_admin'
+        admin_db.edit_row('admin', tuple(rows), tuple(values))
+    return 'ok'
 
 @app.route('/furniture/get_nick_user/', methods=['POST'])
 def get_nick_user():
@@ -155,21 +210,26 @@ def get_id_user(name_db):
 
 @app.route('/furniture/get_salt/', methods=['POST'])
 def get_salt():
-    data = request.data
-    data = json.loads(data.decode('utf-8'))
+
+    if 'user' in session:
+        nickname=session['user'][0]['nickname']
+    else:
+        data = request.data
+        data = json.loads(data.decode('utf-8'))
+        nickname=data['tables']['user']['nickname']
     admin_db = FurnitureDtabase(name_db='admins_base')
     result = {'salt': '',
               'right': '',
               'error': ''}
     salt_user = admin_db.mysql_castom_command(f'''SELECT salt_user FROM admins_base.admin 
-                                                WHERE admin_name = '{data['tables']['user']['nickname']}' ''')
+                                                WHERE nickname = '{nickname}' ''')
     if len(salt_user) > 0:
         result["salt"] = salt_user[0][0]
         result["right"] = 'admin'
         result = json.dumps(result)
         return result
     salt_user = admin_db.mysql_castom_command(f"SELECT salt_user FROM users "
-                                              f"WHERE nickname = '{data['tables']['user']['nickname']}'")
+                                              f"WHERE nickname = '{nickname}'")
     if len(salt_user) > 0:
         result["salt"] = salt_user[0][0]
         result["right"] = 'user'
@@ -193,7 +253,7 @@ def activate_user():
     password = data['tables']['admin']['password']
     salt_user = data['tables']['admin']['salt_user']
     reg_login = admin_db.mysql_castom_command(f"SELECT * FROM admin "
-                                              f"WHERE admin_name = '{nickname}'")
+                                              f"WHERE nickname = '{nickname}'")
 
     if len(reg_login) > 0:
         return 'пользователь с таким именем уже существует'
@@ -206,7 +266,7 @@ def activate_user():
                                         type=argon2.low_level.Type.ID).hex()
     salt_server = salt_server.decode()
     admin_db.add_row_v2('admin',
-                        ('admin_name', 'number_factory', 'password', 'salt_server', 'salt_user'),
+                        ('nickname', 'number_factory', 'password', 'salt_server', 'salt_user'),
                         (nickname, 0, password, salt_server, salt_user))
     return "ok"
 
@@ -233,7 +293,7 @@ def connect_server():
 
     if j['tables']['user']['right'] == 'admin':
         salt_server = admin_db.mysql_castom_command(f"SELECT salt_server FROM admin "
-                                                    f"WHERE admin_name = '{j['tables']['user']['nickname']}'")[0][0]
+                                                    f"WHERE nickname = '{j['tables']['user']['nickname']}'")[0][0]
         salt_server = bytes(salt_server, 'utf-8')
         password = argon2.hash_password_raw(time_cost=16, memory_cost=2 ** 15,
                                             parallelism=2, hash_len=32,
@@ -242,7 +302,7 @@ def connect_server():
                                             type=argon2.low_level.Type.ID).hex()
 
         user = admin_db.mysql_castom_command(f"SELECT * FROM admin "
-                                             f"WHERE admin_name = '{j['tables']['user']['nickname']}' AND password='{password}'")
+                                             f"WHERE nickname = '{j['tables']['user']['nickname']}' AND password='{password}'")
         if len(user) > 0:
             session['user'].append({
                 'id_user': user[0][0],
@@ -255,6 +315,7 @@ def connect_server():
             json.dumps(result)
             return result
         else:
+            session.pop('user')
             result['error'] = 'неверный пароль'
             json.dumps(result)
             return result
@@ -278,6 +339,7 @@ def connect_server():
             json.dumps(result)
             return result
         else:
+            session.pop('user')
             result['error'] = 'неверный пароль'
             json.dumps(result)
             return result
