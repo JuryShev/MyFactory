@@ -9,7 +9,7 @@ class GUIPersonalWidget (QtWidgets.QWidget):
         super(GUIPersonalWidget, self).__init__(parent)
         self.id = id_widget
         ##################################
-        self.comment_icon = "C:\\Users\\Yura\\PycharmProjects\\pythonProject\\my_project\\furniture_factory\\GUI_designer\\icon/comment 4.png"
+        self.comment_icon = "./GUI/icon/comment.png"
         icon4 = QtGui.QIcon()
         icon4.addPixmap(QtGui.QPixmap(self.comment_icon), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self)
@@ -143,12 +143,12 @@ class GUIPersonalWidget_2 (QtWidgets.QWidget):
     def __init__(self, id_widget, path_icon_edit, parent=None):
         super(GUIPersonalWidget_2, self).__init__(parent)
         self.id = id_widget
-        self.comment_icon = "C:\\Users\\Yura\\PycharmProjects\\pythonProject\\my_project\\furniture_factory\\GUI_designer\\icon/comment 4.png"
-        self.comment_icon = "C:\\Users\\Yura\\PycharmProjects\\pythonProject\\my_project\\furniture_factory\\GUI_designer\\icon/comment 4.png"
+        self.comment_icon = "./GUI/icon/comment.png"
+        self.give_assessment_icon = "./GUI/icon/give_assessment.png"
         icon4 = QtGui.QIcon()
         icon4.addPixmap(QtGui.QPixmap(self.comment_icon), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap(self.comment_icon), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon5.addPixmap(QtGui.QPixmap(self.give_assessment_icon), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.horizontalFrame = QtWidgets.QFrame(self)
         self.horizontalFrame.setGeometry(QtCore.QRect(260, 80, 511, 91))
         self.horizontalFrame.setStyleSheet("background-color: rgb(217, 217, 217);")
@@ -202,6 +202,22 @@ class GUIPersonalWidget_2 (QtWidgets.QWidget):
         self.Label_LPersName.setAlignment(QtCore.Qt.AlignCenter)
         self.Label_LPersName.setObjectName("Label_LPersName_3")
         self.verticalLayout_10.addWidget(self.Label_LPersName)
+        ############################################################
+        self.Label_LpersDate_cr = QtWidgets.QLabel(self.VLay_Name_LPers)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.Label_LpersDate_cr.sizePolicy().hasHeightForWidth())
+        self.Label_LpersDate_cr.setSizePolicy(sizePolicy)
+        font = QtGui.QFont()
+        font.setFamily("Roboto")
+        font.setPointSize(8)
+        self.Label_LpersDate_cr.setFont(font)
+        self.Label_LpersDate_cr.setStyleSheet("background-color: rgb(217, 217, 217);")
+        self.Label_LpersDate_cr.setAlignment(QtCore.Qt.AlignCenter)
+        self.Label_LpersDate_cr.setObjectName("Label_LpersDate_cr")
+        self.verticalLayout_10.addWidget(self.Label_LpersDate_cr)
+        ############################################################
         self.horizontalLayout_5.addWidget(self.VLay_Name_LPers)
         spacerItem13 = QtWidgets.QSpacerItem(7, 40, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_5.addItem(spacerItem13)
@@ -308,7 +324,7 @@ class GUIPersonalWidgetScroll (QtWidgets.QWidget):
 
         self.TB_APersCommentAssessment_new = QtWidgets.QToolButton(self.Pers_new)
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("C:\\Users\\Yura\\PycharmProjects\\pythonProject\\my_project\\furniture_factory\\GUI_designer\\icon/comment 4.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon1.addPixmap(QtGui.QPixmap("./GUI/icon/comment.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.TB_APersCommentAssessment_new=self.config_button(self.TB_APersCommentAssessment_new,
                                                               QtCore.QRect(530, 40, 51, 41), stylesheet="\n""border:none\\n",
                                                               icon=icon1, icon_size=QtCore.QSize(35, 35), name="Label_APersCommentAssessment_3"
@@ -354,7 +370,7 @@ class GUIPersonalWidgetScroll (QtWidgets.QWidget):
         self.Label_APersCheckAssessment_new = QtWidgets.QLabel(self.Pers_new)
         self.Label_APersCheckAssessment_new=self.config_label(self.Label_APersCheckAssessment_new,
                                                               rect=QtCore.QRect(479, 10, 21, 21),
-                                                              stylesheet="border-image: url(C:\\Users\\Yura\\PycharmProjects\\pythonProject\\my_project\\furniture_factory\\GUI_designer\\icon/comment 4.png);",
+                                                              stylesheet="border-image: url(./GUI/icon/comment.png);",
                                                               name="Label_APersCheckAssessment_3")
 
     def config_pers_frame(self):

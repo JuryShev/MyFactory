@@ -42,6 +42,7 @@ from PyQt5.QtCore import QThread, pyqtSignal, QObject, pyqtSlot, QRunnable, QThr
 
 from datetime import date
 
+_translate = QtCore.QCoreApplication.translate
 
 
 def getGrayed(src):
@@ -60,6 +61,7 @@ def getGrayed(src):
             dest.setPixelColor(x, y, pixel)
     return QtGui.QPixmap.fromImage(dest)
 
+
 def start_process(progress_bar, self=None):
     thread_funct = COF.Worker_2(self.load_struct)
     thread_funct.signals.finished.connect(self.finish)
@@ -74,6 +76,28 @@ def start_process(progress_bar, self=None):
 
     progress_bar.setWindowModality(QtCore.Qt.ApplicationModal)
     progress_bar.show()
+
+
+def view_massage(obj, massage_text, icon, name_dialog='Dialog', point_size=8, button=0):
+    massage_box = ImpMassageBox(obj)
+    font = QtGui.QFont()
+    font.setFamily("Roboto")
+    font.setPointSize(point_size)
+    font.setBold(True)
+    font.setWeight(75)
+    dict_icon = {'question': "image: url(./GUI/icon/question [#1444].png);",
+                 'warning': "image: url(./GUI/icon/caution.png);",
+                 'ok': "image: url(./GUI/icon/done_mini [#1484].png);",
+                 'not_found': "image: url(./GUI/icon/emoji_sad_circle [#541]);"}
+    if button == 0:
+        massage_box.PB_OK_second.hide()
+    else:
+        massage_box.PB_OK_Canel.hide()
+    massage_box.Label_message.setText((_translate(f"{name_dialog}", f"{massage_text}")))
+    massage_box.label_2.setStyleSheet(dict_icon[icon])
+    massage_box.exec()
+
+    return massage_box.flag_choose
 
 
 class DeployDialogComment(QDialog, DialogComment):
@@ -100,7 +124,8 @@ class DeployDialogComment(QDialog, DialogComment):
     def cancel(self):
         self.close()
 
-class Deploy_ChangeLogin(QDialog,DialogEnter):
+
+class Deploy_ChangeLogin(QDialog, DialogEnter):
     def __init__(self, parent):
         super().__init__(parent)
         _translate = QtCore.QCoreApplication.translate
@@ -113,9 +138,9 @@ class Deploy_ChangeLogin(QDialog,DialogEnter):
         self.NameUser_new = ''
         self.PasswordUser = ''
         self.flag_connect = 0
-        self.result=''
-        self.path_icon_edit='./GUI/icon/pen [#1320].png'
-        self.path_icon_edit_inactive='./GUI/icon/pen_inactive [#1320].png'
+        self.result = ''
+        self.path_icon_edit = './GUI/icon/pen [#1320].png'
+        self.path_icon_edit_inactive = './GUI/icon/pen_inactive [#1320].png'
         self.LE_name.setGeometry(QtCore.QRect(60, 20, 271, 20))
         self.buttonBox.setGeometry(QtCore.QRect(120, 70, 151, 32))
         self.LE_name.setEnabled(False)
@@ -126,11 +151,11 @@ class Deploy_ChangeLogin(QDialog,DialogEnter):
         font.setPointSize(10)
         self.LE_password_new.setFont(font)
         self.LE_password_new.setStyleSheet("border:none;\n"
-                                       "border-bottom: 1px solid rgb(16,240,207);\n"
-                                       "padding_bottom: 7px;\n"
-                                       "background-color: rgb(255, 255,255);\n"
-                                       "border-radius: 5px;\n"
-                                       "")
+                                           "border-bottom: 1px solid rgb(16,240,207);\n"
+                                           "padding_bottom: 7px;\n"
+                                           "background-color: rgb(255, 255,255);\n"
+                                           "border-radius: 5px;\n"
+                                           "")
         self.LE_password_new.setObjectName("LE_password_new")
         self.LE_password_new.setPlaceholderText(_translate("Dialog", "новый пароль"))
         regular_ex = QtCore.QRegExp("[A-Za-z\d@$!%*?&]{20}")  # №\\b^.*(?=.{8,})(?=.*\d)(?=.*[a-z]).*$\\b
@@ -139,7 +164,7 @@ class Deploy_ChangeLogin(QDialog,DialogEnter):
         self.LE_password_new.hide()
 
         self.LE_password_rep = QtWidgets.QLineEdit(self)
-        self.LE_password_rep.setGeometry(QtCore.QRect(60,125, 271, 20))
+        self.LE_password_rep.setGeometry(QtCore.QRect(60, 125, 271, 20))
         font = QtGui.QFont()
         font.setFamily("Roboto")
         font.setPointSize(10)
@@ -159,7 +184,7 @@ class Deploy_ChangeLogin(QDialog,DialogEnter):
         self.TB_edit_name_user = QtWidgets.QToolButton(self)
         self.icon_edit_name_user = QtGui.QIcon()
         self.icon_edit_name_user.addPixmap(QtGui.QPixmap(self.path_icon_edit),
-                                               QtGui.QIcon.Normal, QtGui.QIcon.On)
+                                           QtGui.QIcon.Normal, QtGui.QIcon.On)
         self.TB_edit_name_user.setGeometry(QtCore.QRect(340, 21, 17, 17))
         self.TB_edit_name_user.setStyleSheet("\n""border:none\\n")
         self.TB_edit_name_user.setIcon(self.icon_edit_name_user)
@@ -214,7 +239,6 @@ class Deploy_ChangeLogin(QDialog,DialogEnter):
 
         self.buttonBox.accepted.connect(self.change_)
         self.PB_edit_pass.clicked.connect(self.edit_pass)
-
 
     def check_change_pass(self):
         _translate = QtCore.QCoreApplication.translate
@@ -275,8 +299,6 @@ class Deploy_ChangeLogin(QDialog,DialogEnter):
             self.Asterisk_Password_rep.hide()
         return flag_list
 
-
-
     def check_change_name(self):
         _translate = QtCore.QCoreApplication.translate
         flag_list = []
@@ -299,19 +321,20 @@ class Deploy_ChangeLogin(QDialog,DialogEnter):
             flag_list.append(1)
             self.Asterisk_Name.hide()
         return flag_list
+
     def change_(self):
         _translate = QtCore.QCoreApplication.translate
-        result=''
-        log_pass=''
-        dlg=ImpMassageBox(self)
+        result = ''
+        log_pass = ''
+        dlg = ImpMassageBox(self)
         dlg.PB_OK_second.hide()
         if self.LE_password.isHidden() and self.LE_name.isEnabled():
-            check_list=self.check_change_name()
+            check_list = self.check_change_name()
             if 0 not in check_list:
-                log_pass='_login'
+                log_pass = '_login'
                 dlg.Label_message.setText((_translate("Dialog", "Подтверждаете изменение логина?")))
                 dlg.exec()
-                if dlg.flag_choose=='ok':
+                if dlg.flag_choose == 'ok':
                     change_ = {
                         "change": "login",
                         "tables": {
@@ -320,27 +343,26 @@ class Deploy_ChangeLogin(QDialog,DialogEnter):
                             }
                         }
                     }
-                    result=client.change_log_pass(change_).content.decode('utf-8')
+                    result = client.change_log_pass(change_).content.decode('utf-8')
 
 
         else:
             check_list = self.check_change_pass()
             if 0 not in check_list:
-                log_pass='_pass'
+                log_pass = '_pass'
                 salt_user_new = os.urandom(32).hex()
                 salt_user_new = bytes(salt_user_new, 'utf-8')
                 self.PasswordUser_new = argon2.hash_password_raw(time_cost=16, memory_cost=2 ** 15,
-                                                             parallelism=2, hash_len=32,
-                                                             password=bytes(self.PasswordUser_new, 'utf-8'),
-                                                             salt=salt_user_new,
-                                                             type=argon2.low_level.Type.ID)
-
+                                                                 parallelism=2, hash_len=32,
+                                                                 password=bytes(self.PasswordUser_new, 'utf-8'),
+                                                                 salt=salt_user_new,
+                                                                 type=argon2.low_level.Type.ID)
 
                 print(self.PasswordUser)
                 change_ = {
-                    "change":"pass",
-                    "password_new":self.PasswordUser_new.hex(),
-                    "salt_user_new":salt_user_new.decode(),
+                    "change": "pass",
+                    "password_new": self.PasswordUser_new.hex(),
+                    "salt_user_new": salt_user_new.decode(),
                     "tables": {
                         "users": {
                             "password": self.PasswordUser,
@@ -349,20 +371,17 @@ class Deploy_ChangeLogin(QDialog,DialogEnter):
 
                     }
                 }
-                result=client.change_log_pass(change_).content.decode('utf-8')
-        if result=='ok':
-            self.result=result+log_pass
+                result = client.change_log_pass(change_).content.decode('utf-8')
+        if result == 'ok':
+            self.result = result + log_pass
             self.close()
         else:
             self.QL_error.setText(_translate("Dialog", "неверный пароль"))
 
-
-
-
     def edit_pass(self):
         _translate = QtCore.QCoreApplication.translate
         if self.LE_password.isHidden():
-            self.resize(380,230)
+            self.resize(380, 230)
             self.QL_error.setGeometry(QtCore.QRect(0, 145, 391, 27))
             self.buttonBox.setGeometry(QtCore.QRect(120, 190, 151, 32))
             self.LE_name.setEnabled(False)
@@ -392,28 +411,32 @@ class Deploy_ChangeLogin(QDialog,DialogEnter):
             self.Asterisk_Password_new.hide()
             self.Asterisk_Password_rep.hide()
             self.QL_error.setText(_translate("Dialog", ""))
+
     def edit_name(self):
         self.LE_name.setEnabled(True)
-
-
 
 
 class PersonalWidget(GUIPersonalWidget_2):
     def __init__(self, id_widget, path_icon_edit):
         super(PersonalWidget, self).__init__(id_widget, path_icon_edit)
         self.comment = ''
+        self.name_add = ''
+        self.name_edit = ''
         self.retraslateUI()
         self.dlg = DeployDialogComment(self)
         self.dlg.PB_SaveComment.hide()
         self.dlg.PB_CancelComment.hide()
         self.dlg.TextSpace.setEnabled(False)
         self.TB_LPersCommentAssessment.clicked.connect(self.comment_button)
+        self.TB_LPersUserAssessment.clicked.connect(self.give_assessment)
 
     def retraslateUI(self):
         _translate = QtCore.QCoreApplication.translate
         self.label_name_Lastval.setText(_translate("MainWindow", "посл.знач."))
         self.label_name_Meanval.setText(_translate("MainWindow", "ср. знач."))
 
+    def highlight_line(self):
+        self.Label_LpersDate_cr.setStyleSheet("background-color: rgba(135, 154, 169, 80);")
     def setName(self, name, last_name):
         self.Label_LPersName.setText(name)
         self.Label_LPersLastName.setText(last_name)
@@ -424,6 +447,25 @@ class PersonalWidget(GUIPersonalWidget_2):
 
     def setComment(self, comment):
         self.comment = comment
+
+    def set_name_assessment(self, name_add, name_edit):
+        self.name_add = name_add.split(" ")
+
+        self.name_add = f"{self.name_add[1]} {self.name_add[2]} {self.name_add[0].replace('$', '(архив)')}"
+        if len(name_edit) > 0:
+            self.name_edit = name_edit.split(" ")
+            self.name_edit = f"{self.name_edit[1]} {self.name_edit[2]} {self.name_edit[0].replace('$', '(архив)')}"
+
+    def give_assessment(self):
+        massage_box = ImpMassageBox(self)
+        massage_box.PB_OK_Canel.hide()
+
+        if len(self.name_edit) > 0:
+            massage_box.Label_message.setText(_translate("MainWindow", f"Оценил {self.name_add} \n"
+                                                                       f" Ред. {self.name_edit}"))
+        else:
+            massage_box.Label_message.setText(_translate("MainWindow", f"Оценил {self.name_add}"))
+        massage_box.exec()
 
     def comment_button(self):
         self.dlg.CommentPersonal = self.comment
@@ -540,6 +582,15 @@ class ListPersonal_(GUIListPersonal):
                 personal_wd.label_Meanval.setText(str(person["average_value"][self.current_Crit_LPers]))
             if len(person["comments"][self.current_Crit_LPers]) > 0:
                 personal_wd.comment = person["comments"][self.current_Crit_LPers]
+            if len(person["add_data"][self.current_Crit_LPers]):
+                personal_wd.set_name_assessment(person["add_data"][self.current_Crit_LPers],
+                                                person["edit_data"][self.current_Crit_LPers])
+            if len(person["date_created_pers"])>0:
+                personal_wd.highlight_line()
+                personal_wd.Label_LpersDate_cr.setText(_translate("MainWindow",
+                                                           f"сотрудник зачислен с {person['date_created_pers']}"))
+
+
 
             personal_wd.setName(self._translate("MainWindow", f"{name} {father_name}"),
                                 self._translate("MainWindow", last_name))
@@ -928,9 +979,10 @@ class PersonalAssessment(GUIAssessment):
             self.scroll_personal.Label_NumLastList.setText(_translate("MainWindow", f"...{num}"))
         elif self.scroll_personal.step_list_w >= len(
                 self.scroll_personal.PersonalDataAssessment["tables"]["personal"]) > 0:
-            self.finish_list_w = [len(self.scroll_personal.PersonalDataAssessment["tables"]["personal"])]
+            self.scroll_personal.finish_list_w = [
+                len(self.scroll_personal.PersonalDataAssessment["tables"]["personal"])]
             self.scroll_personal.start_list_w = [0]
-            self.Label_NumLastList.setText(_translate("MainWindow", f"...{1}"))
+            self.scroll_personal.Label_NumLastList.setText(_translate("MainWindow", f"...{1}"))
         self.scroll_personal.current_Crit_APers = self.ComboBox_Crit_APers.currentText()
         self.scroll_personal.fill_scroll(self.scroll_personal.PersonalDataAssessment["tables"]["personal"][
                                          self.scroll_personal.start_list_w[self.scroll_personal.count_list_w]
@@ -1041,12 +1093,11 @@ class PersonalAssessment(GUIAssessment):
                 }
             )
         answer = self.client.assessment_personal(PersonalDataAssessment_send, 'send').content.decode('utf-8')
-        if answer=='ok':
+        if answer == 'ok':
             massage.Label_message.setText(_translate("Dialog", "Оценки успешно добавлены"))
         else:
             massage.Label_message.setText(_translate("Dialog", "Что то пошло не так"))
         massage.exec_()
-
 
 
 class PersonInteraction(GUIPersonInteraction):
@@ -1075,6 +1126,38 @@ class PersonInteraction(GUIPersonInteraction):
                    border-color: rgb(12, 156, 180);
                    border-radius: 5px; color: white;
                 }"""
+        self.stile_button_rights = """QPushButton{
+                                         background-color: rgb(151, 156, 180);
+                                         color: rgb(0, 0, 0);
+                                         border-style: solid;
+                                         border-width: 0.5px;
+                                         border-color: rgb(151, 156, 180);
+                                         border-bottom-color: rgb(146, 255, 140);
+                                         border-radius: 5px;}
+
+                                         QPushButton:hover {
+                                         background-color: rgb(140, 148, 180);}
+                                        
+                                         QPushButton:pressed {
+                                         border-style: inset;
+                                         background-color: rgb(24, 33, 69);
+                                         color: rgb(250, 250, 250)}"""
+        self.stile_button_not_rights = """QPushButton{
+                                         background-color: rgb(151, 156, 180);
+                                         color: rgb(0, 0, 0);
+                                         border-style: solid;
+                                         border-width: 0.5px;
+                                         border-color: rgb(151, 156, 180);
+                                         border-radius: 5px;}
+
+                                         QPushButton:hover {
+                                         background-color: rgb(140, 148, 180);}
+                                        
+                                         QPushButton:pressed {
+                                         border-style: inset;
+                                         background-color: rgb(24, 33, 69);
+                                         color: rgb(250, 250, 250)}"""
+
         self.list_personal = ListPersonal_(self.frame_loadList, (0, 70), (150, 150), style_list)
         self.verticalLayout_5.insertWidget(1, self.list_personal.scrollArea_ListPersonal)
         self.retranslateUi()
@@ -1083,6 +1166,7 @@ class PersonInteraction(GUIPersonInteraction):
         self.TB_EditPersonal.setEnabled(False)
         self.TB_RemovePersonal.setEnabled(False)
         self.PB_right_user.setEnabled(False)
+        self.PB_right_admin.setEnabled(False)
         self.PersonalDataSend = {
             "comand": 2001,
             "user": "admin",
@@ -1100,6 +1184,7 @@ class PersonInteraction(GUIPersonInteraction):
         self.client = cl
         self.flag_get_personal = -1
         self.list_personal.LoadPersonFromList.connect(self.search_personal)
+        self.pers_inter_user = ''
 
     def connect_button(self):
         self.PB_serch_personalList.clicked.connect(self.fill_scroll_slot)
@@ -1115,26 +1200,28 @@ class PersonInteraction(GUIPersonInteraction):
 
     def new_admin(self):
         _translate = QtCore.QCoreApplication.translate
-        answer=client.appoint_admin(self.PersonalDataGet).content.decode('utf-8')
-        name_personal=f"{self.PersonalDataGet['tables']['personal'][0]['name'].split(' ')[0]}" \
-                      f" {self.PersonalDataGet['tables']['personal'][0]['name'].split(' ')[1]}"
-        massage_box=ImpMassageBox(self)
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        massage_box.Label_message.setFont(font)
-        massage_box.PB_OK_Canel.hide()
-        if answer=='ok_add' or answer=='ok_edd':
-            massage_box.Label_message.setText(_translate("Dialog", f"Сотрудник {name_personal} \n "
-                                                                   f"назначен администратором "))
-            massage_box.label_2.setStyleSheet("image: url(./GUI/icon/done_mini [#1484].png);")
-            massage_box.exec()
-
-        elif answer=='ok_edit':
-            massage_box.Label_message.setText(_translate("Dialog", "   Администратор успешно заменен"))
-            massage_box.label_2.setStyleSheet("image: url(./GUI/icon/done_mini [#1484].png);")
-            massage_box.exec()
-
-
+        right_user=self.PersonalDataGet['tables']['personal'][0]['right_user']
+        if self.pers_inter_user == 'user' and right_user == 'admin':
+            answer = 'Данный сорудник является \n администратором'
+            view_massage(self, answer, 'ok', button=1)
+        elif self.pers_inter_user == 'user' and (right_user == '' or right_user=='user'):
+            answer = 'Нет прав назначить сотрудника \n администратором'
+            view_massage(self, answer, 'warning', button=1)
+        elif self.pers_inter_user == 'admin' and right_user == 'admin':
+            answer = 'Вы являетесь \n администратором'
+            view_massage(self, answer, 'ok', button=1)
+        else:
+            answer = 'Назначить этого сотрудника \n администратором'
+            if view_massage(self, answer, 'question', button=1)=='ok':
+                answer = client.appoint_admin(self.PersonalDataGet).content.decode('utf-8')
+                name_personal = f"{self.PersonalDataGet['tables']['personal'][0]['name'].split(' ')[0]}" \
+                                f" {self.PersonalDataGet['tables']['personal'][0]['name'].split(' ')[1]}"
+                if answer == 'ok_add':
+                    answer=f"Сотрудник {name_personal}\nназначен администратором"
+                    view_massage(self, answer, 'ok', point_size=10, button=1)
+                elif answer == 'ok_edit':
+                    answer = f"Администратор успешно заменен"
+                    view_massage(self, answer, 'ok', point_size=10, button=1)
 
     def set_params_personal(self):
         _translate = QtCore.QCoreApplication.translate
@@ -1288,7 +1375,6 @@ class PersonInteraction(GUIPersonInteraction):
         self.label_AllPersonal.setText(_translate("MainWindow", "всего в отделе - сотрудников"))
         self.PB_right_admin.setText(_translate("MainWindow", "администратор"))
 
-
     def fill_scroll_slot(self):
         massage = ImpMassageBox(self)
         massage.Label_message.setGeometry(QtCore.QRect(10, 20, 460, 40))
@@ -1298,18 +1384,18 @@ class PersonInteraction(GUIPersonInteraction):
         massage.resize(450, 98)
         massage.PB_OK_second.hide()
         _translate = QtCore.QCoreApplication.translate
-        if self.ComboBox_Meanval_LPers.currentText()=='За месяц':
-            period_mean='month'
-        elif self.ComboBox_Meanval_LPers.currentText()=='За квартал':
-            period_mean='quarter'
+        if self.ComboBox_Meanval_LPers.currentText() == 'За месяц':
+            period_mean = 'month'
+        elif self.ComboBox_Meanval_LPers.currentText() == 'За квартал':
+            period_mean = 'quarter'
         elif self.ComboBox_Meanval_LPers.currentText() == 'За год':
             period_mean = 'year'
         request_send = {
             "date": self.date,
-            "tables":{"department": self.ComboBox_Dep_LPers.currentText()},
+            "tables": {"department": self.ComboBox_Dep_LPers.currentText()},
             "flag_previous_day": 2,
             "period_mean": period_mean}
-        list_person=self.client.assessment_personal(request_send).content.decode('utf-8')
+        list_person = self.client.assessment_personal(request_send).content.decode('utf-8')
         self.list_personal.PersonalDataAssessment = json.loads(list_person)
         if self.list_personal.PersonalDataAssessment["error"] == 'Bad date':
             massage.Label_message.setText(_translate("Dialog", "За выбранную дату нет оценок"))
@@ -1317,7 +1403,7 @@ class PersonInteraction(GUIPersonInteraction):
             massage.PB_OK_Canel.hide()
             massage.exec()
             return
-        cur_date=self.list_personal.PersonalDataAssessment['date'].replace('-', '.')
+        cur_date = self.list_personal.PersonalDataAssessment['date'].replace('-', '.')
         self.label_date_assessment.setText(_translate("MainWindow", f"загружено от {cur_date}"))
         for i in range(len(self.list_personal.PersonalDataAssessment["tables"]["personal"])):
             self.list_personal.PersonalDataAssessment["tables"]["personal"][i]['id_main_list'] = i
@@ -1375,7 +1461,6 @@ class PersonInteraction(GUIPersonInteraction):
 
     def remove_personal(self):
         _translate = QtCore.QCoreApplication.translate
-        names_column_file = {'personal': 'dir_avatar'}
         massage = ImpMassageBox(self)
         massage.PB_OK_second.hide()
         massage.Label_message.setText(_translate("Dialog", "Действительно хотите удалить профиль?"))
@@ -1385,7 +1470,7 @@ class PersonInteraction(GUIPersonInteraction):
             self.PersonalDataGet['tables']['personal'].clear()
             self.PersonalDataGet['tables']['personal'].append(person_remove)
             self.PersonalDataGet["comand"] = 1110
-            answer_server = self.client.del_person(self.PersonalDataGet, names_column_file=names_column_file).content
+            answer_server = self.client.del_person(self.PersonalDataGet).content
             answer_server = answer_server.decode('utf-8')
             print("remove_personal=", answer_server)
             if answer_server == 'ok':
@@ -1687,23 +1772,42 @@ class PersonInteraction(GUIPersonInteraction):
                 QtGui.QIcon.Normal, QtGui.QIcon.Off)
             self.TB_RemovePersonal.setIcon(icon2)
             self.TB_RemovePersonal.setEnabled(True)
+            self.PB_right_user.setEnabled(True)
+            self.PB_right_admin.setEnabled(True)
             self.PersonalDataGet['tables']['personal'].clear()
             self.PersonalDataGet["tables"]["personal"].append(person)
-            self.PB_right_user.setEnabled(True)
+            if 'rules' in person:
+                self.PB_right_user.setStyleSheet(self.stile_button_rights)
+                if person['right_user'] == 'admin':
+                    self.PB_right_admin.setStyleSheet(self.stile_button_rights)
+                else:
+                    self.PB_right_admin.setStyleSheet(self.stile_button_not_rights)
+            else:
+                self.PB_right_user.setStyleSheet(self.stile_button_not_rights)
+                self.PB_right_admin.setStyleSheet(self.stile_button_not_rights)
 
     def rule_user_(self):
-        print('ok')
         _translate = QtCore.QCoreApplication.translate
-
+        massage_box = ImpMassageBox(self)
+        massage_box.PB_OK_second.hide()
         login_personal = transliterate.translit(self.label_surname.text() + self.label_name.text().split(' ')[0],
                                                 reversed=True)
         rule_user = ImpDialogUserRule()
         rule_user.lay_reg.LE_Name.setText(_translate("Form", login_personal))
-        rule_user.VL_Build.addWidget(rule_user.lay_reg.registr_frame)
+        if 'rules' in self.PersonalDataGet['tables']['personal'][0]:
+            rule_user.get_right = self.PersonalDataGet['tables']['personal'][0]['rules']
+            if self.PersonalDataGet['tables']['personal'][0]['right_user'] == 'admin':
+                rule_user.set_CheckBox(blocked=1)
+            else:
+                rule_user.set_CheckBox()
+        else:
+            rule_user.VL_Build.addWidget(rule_user.lay_reg.registr_frame)
+
         rule_user.VL_Build.addWidget(rule_user.lay_rule.rule_frame)
         rule_user.exec()
         if rule_user.flag_successful_register == 1:
             json_reg = {
+                "status": 'register',
                 "tables": {
                     "users": {
                         "id_personal": self.PersonalDataGet['tables']['personal'][0]['id_personal'],
@@ -1712,12 +1816,60 @@ class PersonInteraction(GUIPersonInteraction):
                         "salt_user": rule_user.salt_user.decode()
                     },
 
-                    "access_rule": rule_user.rule_inform
+                    "access_rule": rule_user.rule_inform,
 
                 }
             }
-            client.register(json_reg)
-        print('ok')
+
+            result = client.register(json_reg).content.decode("utf-8")
+            if result == 'ok':
+                massage_box.Label_message.setText(_translate("UserRule", "Пользователь успешно зарегистрирован"))
+            else:
+                massage_box.Label_message.setText(_translate("UserRule", "что то пошло не так"))
+            massage_box.exec()
+
+        elif rule_user.flag_register_user == 0 and rule_user.flag_change_right == 1:
+            json_reg = {
+                "status": 'change',
+                "tables": {
+
+                    "users": {
+                        "id_personal": self.PersonalDataGet['tables']['personal'][0]['id_personal']
+                    },
+
+                    "access_rule": {"add_right": list(rule_user.add_right),
+                                    "del_right": list(rule_user.del_right)}
+
+                }
+            }
+            result = client.register(json_reg).content.decode("utf-8")
+            if result == 'ok':
+                massage_box.Label_message.setText(_translate("UserRule", "Права пользователя успешно изменены"))
+
+            else:
+                massage_box.Label_message.setText(_translate("UserRule", "что то пошло не так"))
+            massage_box.exec()
+
+
+        elif rule_user.flag_del_user == 1:
+            json_reg = {
+                "status": 'del_user',
+                "tables": {
+
+                    "users": {
+                        "id_personal": self.PersonalDataGet['tables']['personal'][0]['id_personal']
+                    },
+
+                    "access_rule": {}
+                }
+            }
+            result = client.register(json_reg).content.decode("utf-8")
+
+            if result == 'ok':
+                massage_box.Label_message.setText(_translate("UserRule", "Пользователь успешно удален"))
+            else:
+                massage_box.Label_message.setText(_translate("UserRule", "что то пошло не так"))
+            massage_box.exec()
 
 
 class ImpDialogCalendar(QDialog, DialogCalendar):
@@ -1970,6 +2122,8 @@ class ImpMassageBox(QDialog, MassageBox):
         self.flag_choose = 'ok'
         self.close()
 
+        pass
+
 
 class ImpDialogUserRule(DialogUserRule):
     def __init__(self):
@@ -1986,7 +2140,7 @@ class ImpDialogUserRule(DialogUserRule):
         regular_ex = QtCore.QRegExp("[a-zA-Z0-9_]{30}")
         input_validator = QtGui.QRegExpValidator(regular_ex, self.lay_reg.LE_Name)
         self.lay_reg.LE_Name.setValidator(input_validator)
-        regular_ex = QtCore.QRegExp("[A-Za-z\d@$!%*?&]{20}")#№\\b^.*(?=.{8,})(?=.*\d)(?=.*[a-z]).*$\\b
+        regular_ex = QtCore.QRegExp("[A-Za-z\d@$!%*?&]{20}")  # №\\b^.*(?=.{8,})(?=.*\d)(?=.*[a-z]).*$\\b
         input_validator = QtGui.QRegExpValidator(regular_ex, self.lay_reg.LE_Password)
         self.lay_reg.LE_Password.setValidator(input_validator)
         input_validator = QtGui.QRegExpValidator(regular_ex, self.lay_reg.LE_Password_rep)
@@ -2000,27 +2154,53 @@ class ImpDialogUserRule(DialogUserRule):
         self.buttonBox_ONOFF.accepted.connect(self.accept)
         self.flag_successful_register = 0
         self.flag_register_user = 1
+        self.flag_change_right = 0
+        self.flag_del_user = 0
 
         self.login = ''
         self.password = ''
         self.salt_user = ''
-        self.rule_inform={}
+        self.rule_inform = {}
 
-
+        self.check_boxes = {1: self.lay_rule.checkBox_personal,
+                            2: self.lay_rule.checkBox_analytics,
+                            3: self.lay_rule.checkBox_project,
+                            4: self.lay_rule.checkBox_struct,
+                            5: self.lay_rule.checkBox_assessment}
+        self.get_right = []
+        self.cur_right = []
+        self.add_right = []
+        self.del_right = []
 
     def reject_(self):
         print("close")
         self.close()
 
     def accept(self):
-        if self.flag_register_user==1:
+        print('ok')
+        if self.flag_register_user == 1:
             reg_inform = self.get_reg_inform()
-            rule_ch=self.get_rule_inform()
-            if type(reg_inform) == tuple and rule_ch==True:
+            rule_ch = self.get_rule_inform()
+            if type(reg_inform) == tuple and rule_ch == True:
                 self.login, self.password, self.salt_user = reg_inform[0], reg_inform[1], reg_inform[2]
                 print(f'login={self.login}, pass={self.password}, salt={self.salt_user}')
                 self.flag_successful_register = 1
-                self.close()
+        else:
+            self.add_right, self.del_right, residue_right = list(self.check_change_CheckBox())
+            _translate = QtCore.QCoreApplication.translate
+            massage_box = ImpMassageBox(self)
+            massage_box.PB_OK_second.hide()
+            if len(self.add_right) > 0 or (len(self.del_right) > 0 and len(residue_right) > 0):
+                massage_box.Label_message.setText(_translate("UserRule", "Вы хотите изменить права?"))
+                massage_box.exec()
+                if massage_box.flag_choose == 'ok':
+                    self.flag_change_right = 1
+            elif len(self.add_right) == 0 and len(residue_right) == 0 and len(self.del_right) > 0:
+                massage_box.Label_message.setText(_translate("UserRule", "Вы хотите удалить пользователя?"))
+                massage_box.exec()
+                if massage_box.flag_choose == 'ok':
+                    self.flag_del_user = 1
+        self.close()
 
     def check_reg(self):
         regular_pass = "^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
@@ -2049,8 +2229,25 @@ class ImpDialogUserRule(DialogUserRule):
         else:
             return True
 
+    def set_CheckBox(self, blocked=0):
+        self.flag_register_user = 0
+        for i in self.get_right:
+            self.check_boxes[i].setChecked(True)
+            if blocked == 1:
+                self.check_boxes[i].setEnabled(False)
 
+    def check_change_CheckBox(self):
+        for ch_key in self.check_boxes:
+            ch_condition = self.check_boxes[ch_key].isChecked()
+            if ch_condition:
+                self.cur_right.append(ch_key)
+        self.cur_right = set(self.cur_right)
+        self.get_right = set(self.get_right)
 
+        add_right = self.cur_right - self.get_right
+        del_right = self.get_right - self.cur_right
+        residue_right = self.get_right - del_right
+        return add_right, del_right, residue_right
 
     def get_reg_inform(self):
         ch = self.check_reg()
@@ -2058,7 +2255,7 @@ class ImpDialogUserRule(DialogUserRule):
             return False
         else:
             salt_user = os.urandom(32).hex()
-            salt_user=bytes(salt_user, 'utf-8')
+            salt_user = bytes(salt_user, 'utf-8')
             password = argon2.hash_password_raw(time_cost=16, memory_cost=2 ** 15,
                                                 parallelism=2, hash_len=32,
                                                 password=bytes(self.lay_reg.LE_Password.text(), 'utf-8'),
@@ -2070,17 +2267,15 @@ class ImpDialogUserRule(DialogUserRule):
 
     def get_rule_inform(self):
 
-
-        self.rule_inform = {"analytics": 1 if self.lay_rule.checkBox_analytics.isChecked()==True else 0,
-                       "assessment_personall": 1 if self.lay_rule.checkBox_assessment.isChecked()==True else 0,
-                       "project": 1 if self.lay_rule.checkBox_project.isChecked()==True else 0,
-                       "interaction_personall": 1 if self.lay_rule.checkBox_personal.isChecked()==True else 0,
-                       "inside_struct": 1 if self.lay_rule.checkBox_struct.isChecked()==True else 0,
-                       }
-        ch=self.check_rule()
+        self.rule_inform = {"analytics": 1 if self.lay_rule.checkBox_analytics.isChecked() == True else 0,
+                            "assessment_personall": 1 if self.lay_rule.checkBox_assessment.isChecked() == True else 0,
+                            "project": 1 if self.lay_rule.checkBox_project.isChecked() == True else 0,
+                            "interaction_personall": 1 if self.lay_rule.checkBox_personal.isChecked() == True else 0,
+                            "inside_struct": 1 if self.lay_rule.checkBox_struct.isChecked() == True else 0,
+                            }
+        ch = self.check_rule()
 
         return ch
-
 
     def set_rule(self):
         pass
@@ -2181,6 +2376,7 @@ class MainWindow_all_3(QtWidgets.QMainWindow):
         self.MassageBox_ = ''
         self.flag_personal = 0
         self.flag_assessment = 0
+        self.user = ''
 
         # self.menubar = QtWidgets.QMenuBar(MW)
         # self.menubar.setGeometry(QtCore.QRect(0, 0, 1274, 21))
@@ -2195,24 +2391,21 @@ class MainWindow_all_3(QtWidgets.QMainWindow):
         # MW.setWindowFlags(MW.windowFlags()| QtCore.Qt.MSWindowsFixedSizeDialogHint)
         QtCore.QMetaObject.connectSlotsByName(self)
 
-
     def change_log(self):
         _translate = QtCore.QCoreApplication.translate
-        nickname=client.get_nick_user()
-        dlg_change_login=Deploy_ChangeLogin(self)
-        dlg_change_login.NameUser=nickname
+        nickname = client.get_nick_user()
+        dlg_change_login = Deploy_ChangeLogin(self)
+        dlg_change_login.NameUser = nickname
         dlg_change_login.LE_name.setText(self._translate("Form", nickname))
         dlg_change_login.exec()
         massage_box = ImpMassageBox(self)
         massage_box.PB_OK_Canel.hide()
-        if dlg_change_login.result=='ok_pass':
+        if dlg_change_login.result == 'ok_pass':
             massage_box.Label_message.setText((_translate("Dialog", "Пароль успешно изменен")))
             massage_box.exec()
-        elif dlg_change_login.result=='ok_login':
+        elif dlg_change_login.result == 'ok_login':
             massage_box.Label_message.setText((_translate("Dialog", "Логин успешно изменен")))
             massage_box.exec()
-
-
 
     def add_worksapace(self):
         self.GlobalstackedWidget.addWidget(self.WorkWindow.centralwidget)
@@ -2270,6 +2463,8 @@ class MainWindow_all_3(QtWidgets.QMainWindow):
     def set_params_start_win(self):
         if self.WorkWindow.stackedWidget.currentIndex() == 0:
             self.pers_inter.set_params_personal()
+            self.pers_inter.pers_inter_user = self.user
+
         elif self.WorkWindow.stackedWidget.currentIndex() == 4:
             self.pers_assessment.load_combobox_assessment()
 
@@ -2292,7 +2487,7 @@ class MainWindow_all_3(QtWidgets.QMainWindow):
 
     def assessment(self):
 
-        if self.flag_assessment==0:
+        if self.flag_assessment == 0:
             self.pers_assessment.load_combobox_assessment()
             self.flag_assessment = 1
             print("4")

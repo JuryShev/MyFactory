@@ -1101,6 +1101,7 @@ class mywindow(QtWidgets.QMainWindow):
                 block.setEnabled(True)
             self.MainWindowAll.WorkWindow.PB_name_user.setText(_translate("MainWindow",
                                                                           f"{dlg.name_person} ({dlg.user})"))
+            self.MainWindowAll.user=dlg.user
             min_id_right=min(dlg.rights_user)
             self.MainWindowAll.WorkWindow.stackedWidget.setCurrentIndex(min_id_right-1)
             self.start_win.emit()

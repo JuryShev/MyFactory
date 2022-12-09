@@ -200,14 +200,11 @@ class ServerConnector():
 
 
 
-    def del_person(self, data_send, names_column_file:dir ):
+    def del_person(self, data_send ):
 
-        data_send['names_column_file']=names_column_file
-        result=self.del_associated_file( data_send).content
-        result = result.decode('utf-8')
-        if result=='ok':
-            data_send.pop('names_column_file')
-            result=self.del_row_table(data_send)
+        result = requests.post(f"{self.url}/furniture/del_person_{self.name_db}/",
+                               cookies=self.coockies,
+                               json=data_send)
         return result
 
     def get_row_table(self, data_send, name_row_condition):
@@ -281,10 +278,16 @@ class ServerConnector():
         return result
 
     def register(self, data_send):
-        result = requests.post(f"{self.url}/furniture/register_{self.name_db}/",
-                               cookies=self.coockies,
-                               json=data_send)
-
+        if data_send['status']=='del_user':
+            result = requests.post(f"{self.url}/furniture/del_user_{self.name_db}/",
+                                   cookies=self.coockies,
+                                   json=data_send)
+        elif data_send['status']=='change' or data_send['status']=='register':
+            result = requests.post(f"{self.url}/furniture/register_{self.name_db}/",
+                                   cookies=self.coockies,
+                                   json=data_send)
+        else:
+            result=None
         return result
 
     def activate_user(self, data_send):

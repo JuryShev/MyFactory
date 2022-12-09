@@ -328,28 +328,22 @@ class GUIPersonInteraction(QtWidgets.QWidget):
         font.setUnderline(False)
         font.setWeight(50)
         self.PB_right_user.setFont(font)
-        self.PB_right_user.setStyleSheet("QPushButton{\n"
-                                         "background-color: rgb(151, 156, 180);\n"
-                                         "    color: rgb(0, 0, 0);\n"
-                                         "border-style: solid;\n"
-                                         "border-width: 0.5px;\n"
-                                         "    border-color: rgb(151, 156, 180);\n"
-                                         "border-radius: 5px;\n"
-                                         "\n"
-                                         "}\n"
-                                         "\n"
-                                         "QPushButton:hover {\n"
-                                         "background-color: rgb(140, 148, 180);\n"
-                                         "}\n"
-                                         "\n"
-                                         "QPushButton:pressed {\n"
-                                         "border-style: inset;\n"
-                                         "\n"
-                                         "    \n"
-                                         "    background-color: rgb(24, 33, 69);\n"
-                                         "color: rgb(250, 250, 250);\n"
-                                         "\n"
-                                         "}color: rgb(0, 0, 0);")
+        self.PB_right_user.setStyleSheet("""QPushButton{
+                                         background-color: rgb(151, 156, 180);
+                                         color: rgb(0, 0, 0);
+                                         border-style: solid;
+                                         border-width: 0.5px;
+                                         border-color: rgb(151, 156, 180);
+                                         border-radius: 5px;}
+
+                                         QPushButton:hover {
+                                         background-color: rgb(140, 148, 180);}
+                                        
+                                         QPushButton:pressed {
+                                         border-style: inset;
+                                         background-color: rgb(24, 33, 69);
+                                         color: rgb(250, 250, 250)}""")
+
         self.PB_right_user.setObjectName("PB_right_user")
         self.HLay_right_button.addWidget(self.PB_right_user)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
