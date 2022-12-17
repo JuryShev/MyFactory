@@ -13,13 +13,13 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 class Ui_MainWindow(object):
     def __init__(self):
-        self.x_start = 140
-        self.y_start = 80
-        self.WinOpenSizeWidth = 0
-        self.WinOpenSizeHeight = 0
+        self.x_start=140
+        self.y_start=80
+        self.WinOpenSizeWidth=0
+        self.WinOpenSizeHeight=0
         # self.w = self.width()
         # self.h = self.height()
-        self.RelationWidth = 0.8
+        self.RelationWidth=0.8
         self.RelationHeight = 0.8
 
     def setupUi(self, MainWindow):
