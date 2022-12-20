@@ -879,36 +879,67 @@ def send_assessments(name_db):
     return "ok"
 
 
+def calculate_bonus_for_person(person, data, db):
+    month = int(data['date'].split('-')[1])
+    all_salaries = db.mysql_castom_command(f'''SELECT SUM(salaryl) FROM personal''')[0][0]
+    old_bonus = db.mysql_castom_command(f'''SELECT id_bonus, bonus FROM personal_bonus
+                                                    INNER JOIN personal
+                                                    ON personal_bonus.id_personal = personal.id_personal
+                                                    WHERE MONTH(date) = '{month}' AND name = '{person["name"]}' ''')
+    if len(old_bonus) > 0:
+        return old_bonus[0]
+
+    department_salary = db.mysql_castom_command(f'''SELECT SUM(salaryl) FROM personal
+                                                INNER JOIN department ON personal.id_department = department.id_department
+                                                WHERE title = '{person['department']}' ''')[0][0]
+    part_per_employee = person['salaryl'] / department_salary
+    part_per_department = department_salary / all_salaries
+    month_profit, profit_part = db.mysql_castom_command(f'''SELECT profit, bonus_part FROM profit_per_month 
+                                                                ORDER BY id DESC
+                                                                LIMIT 1''')[0]
+    bonus_part = month_profit * profit_part
+    department_bonus = part_per_department * bonus_part
+    full_bonus = part_per_employee * department_bonus
+    criteria_data = db.mysql_castom_command(f'''SELECT assessment, max_coef, w_coef FROM personal_assessment
+                                            INNER JOIN conf_criterion 
+                                            ON personal_assessment.id_criterion = conf_criterion.id_conf_criterion
+                                            INNER JOIN personal
+                                            ON personal_assessment.id_name_personal = personal.id_personal
+
+                                            WHERE name = '{person["name"]}' ''')
+    employee_goodness = 0
+    for assessment, max_coef, w_coef in criteria_data:
+        employee_goodness += assessment * w_coef / max_coef
+    return 0, full_bonus * employee_goodness
+
+
 # Lana
 @app.route('/furniture/calculate_bonus_<name_db>/', methods=['POST'])
 def calculate_bonus(name_db):
     data = json.loads(request.data.decode('utf-8'))
     db = database.FurnitureDtabase(name_db)
     # from_, to_ = database.get_date_range(data['date'], data['period'])
-    department_salary = db.mysql_castom_command(f'''SELECT SUM(salaryl) FROM personal
-                                            INNER JOIN department ON personal.id_department = department.id_department
-                                            WHERE title = '{data['tables']['personal'][0]['department']}' ''')[0][0]
-    part_per_employee = data['tables']['personal'][0]['salaryl'] / department_salary
-    all_salaries = db.mysql_castom_command(f'''SELECT SUM(salaryl) FROM personal''')[0][0]
-    part_per_department = department_salary / all_salaries
-    month_profit, profit_part = db.mysql_castom_command(f'''SELECT profit, bonus_part FROM profit_per_month 
-                                    ORDER BY id DESC
-                                    LIMIT 1''')[0]
-    bonus_part = month_profit * profit_part
-    department_bonus = part_per_department * bonus_part
-    full_bonus = part_per_employee * department_bonus
-    criteria_data = db.mysql_castom_command(f'''SELECT assessment, max_coef, w_coef FROM personal_assessment
-                                        INNER JOIN conf_criterion 
-                                        ON personal_assessment.id_criterion = conf_criterion.id_conf_criterion
-                                        INNER JOIN personal
-                                        ON personal_assessment.id_name_personal = personal.id_personal
-                                        
-                                        WHERE name = '{data["tables"]["personal"][0]["name"]}' ''')
-    employee_goodness = 0
-    for assessment, max_coef, w_coef in criteria_data:
-        employee_goodness += assessment * w_coef / max_coef
-    salary = data["tables"]["personal"][0]["salaryl"] + full_bonus * employee_goodness
-    return "200"
+    result = []
+    if data['calculate'] == 'person':
+        for person in data['tables']['personal']:
+            id_bonus, bonus = calculate_bonus_for_person(person, data, db)
+            if data['flag_calculate'] == 'add':
+                if id_bonus != 0:
+                    result.append(f"bonus exist for person: {person['name']}")
+                try:
+                    id_person = db.mysql_castom_command(f'''SELECT id_personal FROM personal
+                                                        INNER JOIN department
+                                                        ON personal.id_department = department.id_department
+                                                        WHERE name = '{person['name']}' and title = '{person['department']}' 
+                                                        ''')[0][0]
+                    date1 = '-'.join(reversed(data['date'].split('-')))
+                    db.add_row_v2('personal_bonus', ('id_personal', 'bonus', 'date'), (id_person, bonus, date1))
+                    result.append(f"bonus added for person: {person['name']}")
+                except:
+                    result.append(f"no such person: {person['name']}")
+            salary = person["salaryl"] + bonus
+
+    return result
 
 
 @app.route('/furniture/register_<name_db>/', methods=['POST'])
