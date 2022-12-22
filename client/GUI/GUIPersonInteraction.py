@@ -550,7 +550,7 @@ class GUIPersonInteraction(QtWidgets.QWidget):
                                          "border:none\\n")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(
-            "C:\\Users\\Yura\\PycharmProjects\\pythonProject\\my_project\\furniture_factory\\GUI_designer\\icon/calendar.png"),
+            "./GUI/icon/calendar.png"),
             QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.TB_Date_LPers.setIcon(icon)
         self.TB_Date_LPers.setIconSize(QtCore.QSize(25, 25))
@@ -627,7 +627,7 @@ class GUIPersonInteraction(QtWidgets.QWidget):
         self.TB_Left_LPers.setText("")
         icon2 = QtGui.QIcon()
         icon2.addPixmap(QtGui.QPixmap(
-            "C:\\Users\\Yura\\PycharmProjects\\pythonProject\\my_project\\furniture_factory\\GUI_designer\\icon/arrow_left [#336].png"),
+            "./GUI/icon/arrow_left [#336].png"),
             QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.TB_Left_LPers.setIcon(icon2)
         self.TB_Left_LPers.setObjectName("TB_Left_LPers")
@@ -656,7 +656,7 @@ class GUIPersonInteraction(QtWidgets.QWidget):
         self.TB_Right_LPers.setText("")
         icon3 = QtGui.QIcon()
         icon3.addPixmap(QtGui.QPixmap(
-            "C:\\Users\\Yura\\PycharmProjects\\pythonProject\\my_project\\furniture_factory\\GUI_designer\\icon/arrow_right [#336].png"),
+            "./GUI/icon/arrow_right [#336].png"),
             QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.TB_Right_LPers.setIcon(icon3)
         self.TB_Right_LPers.setObjectName("TB_Right_LPers")
@@ -696,7 +696,7 @@ class GUIPersonInteraction(QtWidgets.QWidget):
                                           "border:none\\n")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(
-            "C:\\Users\\Yura\\PycharmProjects\\pythonProject\\my_project\\furniture_factory\\GUI_designer\\icon/plus_mini [#1523].png"),
+            "./GUI/icon/plus_mini [#1523].png"),
             QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.TB_AddPersonal.setIcon(icon)
         self.TB_AddPersonal.setIconSize(QtCore.QSize(19, 19))
@@ -707,7 +707,7 @@ class GUIPersonInteraction(QtWidgets.QWidget):
                                            "border:none\\n")
         icon1 = QtGui.QIcon()
         icon1.addPixmap(QtGui.QPixmap(
-            "C:\\Users\\Yura\\PycharmProjects\\pythonProject\\my_project\\furniture_factory\\GUI_designer\\icon/pen [#1320].png"),
+            "./GUI/icon/pen [#1320].png"),
             QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.TB_EditPersonal.setIcon(icon1)
         self.TB_EditPersonal.setIconSize(QtCore.QSize(19, 19))
@@ -718,7 +718,7 @@ class GUIPersonInteraction(QtWidgets.QWidget):
                                              "border:none\\n")
         icon2 = QtGui.QIcon()
         icon2.addPixmap(QtGui.QPixmap(
-            "C:\\Users\\Yura\\PycharmProjects\\pythonProject\\my_project\\furniture_factory\\GUI_designer\\icon/icons8-удалить-96.png"),
+            "./GUI/icon/icons8-удалить-96.png"),
             QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.TB_RemovePersonal.setIcon(icon2)
         self.TB_RemovePersonal.setIconSize(QtCore.QSize(20, 20))

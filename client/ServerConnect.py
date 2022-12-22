@@ -167,6 +167,11 @@ class ServerConnector():
                                cookies=self.coockies,
                                json=data_send)
         return result
+    def del_row_struct(self, data_send):
+        result = requests.post(f"{self.url}/furniture/delete_row_struct_{self.name_db}/",
+                               cookies=self.coockies,
+                               json=data_send)
+        return result
 
     def del_column_table(self, data_send):
         result = requests.post(f"{self.url}/furniture/delete_column_{self.name_db}/",
@@ -301,5 +306,9 @@ class ServerConnector():
                                cookies=self.coockies,
                                json=data_send)
         return result
+
+    def clear_cookies(self):
+        self.coockies=None
+        print('ok')
 
 

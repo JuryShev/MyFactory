@@ -109,8 +109,9 @@ def requires_access_level(access_level):
 
                 result_message = {'error': ''}
                 for id_right in user_rights:
-                    if id_right[0] not in access_level:
-                        result_message['error'] = 'НЕТ ПРАВ НА ДАННУЮ ОПЕРАЦИЮ'
+                    access=set(access_level) - set(id_right)
+                    if len(access) == len(access_level):
+                        result_message['error'] = 'Нет прав на данную операцию'
                     else:
                         return f(*args, **kwargs)
             json.dumps(result_message)
@@ -119,7 +120,6 @@ def requires_access_level(access_level):
         return decorated_function
 
     return decorator
-
 
 @app.route('/furniture/change_log_pass_<name_db>/', methods=['POST'])
 def change_log_pass(name_db):
@@ -479,6 +479,7 @@ def add_factory(comand=1111):
 
 
 @app.route('/furniture/get_inside_struct_<name_db>/', methods=['POST'])
+@requires_access_level([4])
 def get_inside_struct(name_db):
     table_list = {"tables": {"conf_criterion": [],
                              "department": [],
@@ -503,6 +504,7 @@ def get_inside_struct(name_db):
 
 
 @app.route('/furniture/edit_tables_<name_db>/', methods=['POST'])
+@requires_access_level([4])
 def set_edit_tables(name_db):
     stand_comand = {'comand': 1110,
                     'user': 'admin',
@@ -625,6 +627,7 @@ def del_associated_file(data, db):
 
 
 @app.route('/furniture/del_person_<name_db>/', methods=['POST'])
+@requires_access_level([1])
 def del_person(name_db):
     data = request.data
     data = json.loads(data.decode('utf-8'))
@@ -658,27 +661,31 @@ def del_person(name_db):
         if del_associated_file(data, my_db) == 'ok':
             data.pop('names_column_file')
         result = del_row_tables(data, my_db)
-
-
-
-
     return result
 
 
-@app.route('/furniture/delete_row_struct<name_db>/', methods=['POST'])
+@app.route('/furniture/delete_row_struct_<name_db>/', methods=['POST'])
+@requires_access_level([4])
 def del_row_struct(name_db):
     my_db = FurnitureDtabase(name_db=name_db)
     a = request.data
     data = json.loads(a.decode('utf-8'))
-    if 'department' in data['tables']:
-        for department in data['tables']['department']:
-            my_db.mysql_castom_command(
-                f"SELECT  FROM factory WHERE id_admin = '{session['user'][0]['id_user']}'"
+
+    for tables in data['tables']:
+        if tables=='department' or tables=='posts':
+            id_title= data['tables'][tables][0][f'id_{tables}']
+            person=my_db.mysql_castom_command(
+                f"SELECT * FROM personal WHERE id_{tables} ={id_title};"
             )
+            if len(person)>0 and tables == 'department':
+                return 'department'
+            elif len(person)>0 and tables == 'posts':
+                return 'posts'
     return del_row_tables(data, my_db)
 
 
 @app.route('/furniture/edit_associated_file_<name_db>/', methods=['POST'])
+@requires_access_level([1])
 def edit_associated_file(name_db):
     stand_comand = {'comand': 1110,
                     'user': 'admin',
@@ -704,6 +711,7 @@ def edit_associated_file(name_db):
 
 
 @app.route('/furniture/add_row_<name_db>/', methods=['POST'])
+@requires_access_level([4])
 def add_row_tables(name_db):
     stand_comand = {'comand': 1110,
                     'user': 'admin',
@@ -790,7 +798,7 @@ def get_databases():
 
 
 @app.route('/furniture/get_persons_for_assessment_<name_db>/', methods=['POST'])
-#@requires_access_level([1, 5])
+@requires_access_level([1, 5])
 def get_persons_for_assessment(name_db):
     f = database.FurnitureDtabase(name_db)
     data = json.loads(request.data.decode('utf-8'))
@@ -929,7 +937,7 @@ def get_persons_for_assessment(name_db):
 
 
 @app.route('/furniture/send_assessment_<name_db>/', methods=['POST'])
-#@requires_access_level(5)
+@requires_access_level([5])
 def send_assessments(name_db):
     # print(type(request.data)) # <class 'bytes'>
     data = json.loads(request.data.decode('utf-8'))
@@ -973,10 +981,8 @@ def send_assessments(name_db):
 
     return "ok"
 
-def add_right_user(db, id_user, id_right):
-    pass
 @app.route('/furniture/register_<name_db>/', methods=['POST'])
-@requires_access_level(1)
+@requires_access_level([1])
 def register(name_db):
     # Проверить на имя сотрудника
     # Проверить на логин
@@ -1051,7 +1057,7 @@ def register(name_db):
     return 'ok'
 
 @app.route('/furniture/del_user_<name_db>/', methods=['POST'])
-@requires_access_level(1)
+@requires_access_level([1])
 def del_user(name_db):
     data = json.loads(request.data.decode('utf-8'))
     my_db = database.FurnitureDtabase(name_db)
@@ -1066,7 +1072,7 @@ def del_user(name_db):
 
     return 'ok'
 @app.route('/furniture/appoint_admin_<name_db>/', methods=['POST'])
-@requires_access_level(1)
+@requires_access_level([0])
 def appoint_admin(name_db):
     data = request.data
     data = json.loads(data.decode('utf-8'))
@@ -1075,7 +1081,8 @@ def appoint_admin(name_db):
 
     id_user = session['user'][0]['id_user']
     nickname = session['user'][0]['nickname']
-
+    result={"result":'',
+            "error":''}
     id_user_to_admin = data['tables']['personal'][0]["id_personal"]
     admin = my_db.mysql_castom_command(f"SELECT * FROM users WHERE right_user = 'admin'")
     if len(admin) == 0:
@@ -1083,7 +1090,8 @@ def appoint_admin(name_db):
         my_db.add_row_v2('users',
                          ('id_personal', 'nickname', 'password', 'salt_server', 'salt_user', 'right_user'),
                          (id_user_to_admin, admin[0][1], admin[0][3], admin[0][4], admin[0][5], 'admin'))
-        return 'ok_add'
+        result['result'] = 'ok_add'
+        return result
 
     user = my_db.mysql_castom_command(f"SELECT * FROM users WHERE id_personal = '{id_user_to_admin}'")
     if len(user) > 0:
@@ -1091,7 +1099,8 @@ def appoint_admin(name_db):
 
     cur_id_admin = my_db.mysql_castom_command(f"SELECT id_personal FROM users WHERE nickname = '{nickname}'")[0][0]
     my_db.edit_row('users', ('id_personal', 'id_personal'), (cur_id_admin, id_user_to_admin))
-    return 'ok_edit'
+    result['result'] = 'ok_edit'
+    return result
 
 
 # name taken

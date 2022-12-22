@@ -412,73 +412,214 @@ class Ui_MainWindow(object):
         # self.stackedWidget.addWidget(self.page_3)
 
 
-        self.verticalLayoutWidget_3 = QtWidgets.QWidget(self.centralwidget)
-        self.verticalLayoutWidget_3.setGeometry(QtCore.QRect(20, 200, 81, 611))
-        self.verticalLayoutWidget_3.setObjectName("verticalLayoutWidget_3")
-        self.VLay_main_button = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_3)
-        self.VLay_main_button.setContentsMargins(0, 0, 0, 0)
-        self.VLay_main_button.setObjectName("VLay_main_button")
-        spacerItem8 = QtWidgets.QSpacerItem(20, 30, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
-        self.VLay_main_button.addItem(spacerItem8)
-        self.TB_search_personal = QtWidgets.QToolButton(self.verticalLayoutWidget_3)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        # self.verticalLayoutWidget_3 = QtWidgets.QWidget(self.centralwidget)
+        # self.verticalLayoutWidget_3.setGeometry(QtCore.QRect(20, 200, 81, 611))
+        # self.verticalLayoutWidget_3.setObjectName("verticalLayoutWidget_3")
+        # self.VLay_main_button = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_3)
+        # self.VLay_main_button.setContentsMargins(0, 0, 0, 0)
+        # self.VLay_main_button.setObjectName("VLay_main_button")
+        # spacerItem8 = QtWidgets.QSpacerItem(20, 30, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        # self.VLay_main_button.addItem(spacerItem8)
+        #####menu frame#################
+        self.MenuFrame = QtWidgets.QFrame(self.centralwidget)
+        self.MenuFrame.setGeometry(QtCore.QRect(0, 20, 81, 851))
+        self.MenuFrame.setStyleSheet("background-color: rgb(88, 96, 127);")
+        self.MenuFrame.setObjectName("MenuFrame")
+        self.gridLayout_4 = QtWidgets.QGridLayout(self.MenuFrame)
+        self.gridLayout_4.setContentsMargins(0, 9, -1, -1)
+        self.gridLayout_4.setObjectName("gridLayout_4")
+        spacerItem14 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        self.gridLayout_4.addItem(spacerItem14, 2, 0, 1, 1)
+        style_menu_button="""QToolButton{
+                                              background-color: rgb(88, 96, 127);
+                                              color: rgb(0, 0, 0);
+                                              border-style: solid;
+                                              border-width: 1.5px;
+                                              border-color: rgb(88, 96, 127);
+                                              border-radius: 20px;  }
+                                              
+                                                QToolButton:checked {
+                                              border-style: solid;
+                                              border-bottom-color: rgb(88, 96, 127);
+                                              }
+                                              
+                                                QToolButton:hover {
+                                              background-color: rgb(140, 148, 180); }"""
+        ################################
+        self.TB_search_personal = QtWidgets.QToolButton(self.MenuFrame)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        self.TB_search_personal.setStyleSheet(
-            "color: rgb(255, 255,255);\n"
-        )
         sizePolicy.setHeightForWidth(self.TB_search_personal.sizePolicy().hasHeightForWidth())
         self.TB_search_personal.setSizePolicy(sizePolicy)
+        font = QtGui.QFont()
+        font.setFamily("MS Shell Dlg 2")
+        font.setPointSize(9)
+        font.setBold(False)
+        font.setWeight(50)
+        font.setStyleStrategy(QtGui.QFont.NoAntialias)
+        self.TB_search_personal.setFont(font)
+        self.TB_search_personal.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.TB_search_personal.setStyleSheet(style_menu_button)
+        self.TB_search_personal.setText("")
+        icon8 = QtGui.QIcon()
+        icon8.addPixmap(QtGui.QPixmap(
+                "./GUI/icon/personal_2.png"),
+                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.TB_search_personal.setIcon(icon8)
+        self.TB_search_personal.setIconSize(QtCore.QSize(35, 35))
+        self.TB_search_personal.setCheckable(True)
+        self.TB_search_personal.setAutoExclusive(True)
+        self.TB_search_personal.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
         self.TB_search_personal.setObjectName("TB_search_personal")
-        self.VLay_main_button.addWidget(self.TB_search_personal)
+        self.gridLayout_4.addWidget(self.TB_search_personal, 1, 0, 1, 1)
 
-        self.TB_analytics = QtWidgets.QToolButton(self.verticalLayoutWidget_3)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        self.TB_analytics = QtWidgets.QToolButton(self.MenuFrame)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.TB_analytics.sizePolicy().hasHeightForWidth())
         self.TB_analytics.setSizePolicy(sizePolicy)
+        font = QtGui.QFont()
+        font.setPointSize(9)
+        self.TB_analytics.setFont(font)
+        self.TB_analytics.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.TB_analytics.setStyleSheet(style_menu_button)
+        self.TB_analytics.setText("")
+        icon9 = QtGui.QIcon()
+        icon9.addPixmap(QtGui.QPixmap(
+                "./GUI/icon/analytics2.png"),
+                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.TB_analytics.setIcon(icon9)
+        self.TB_analytics.setIconSize(QtCore.QSize(25, 25))
+        self.TB_analytics.setCheckable(True)
+        self.TB_analytics.setAutoExclusive(True)
+        self.TB_analytics.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
         self.TB_analytics.setObjectName("TB_analytics")
-        self.TB_analytics.setStyleSheet(
-                                   "color: rgb(255, 255,255);\n"
-                                  )
-        self.VLay_main_button.addWidget(self.TB_analytics)
 
-        self.TB_project = QtWidgets.QToolButton(self.verticalLayoutWidget_3)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        self.gridLayout_4.addWidget(self.TB_analytics, 3, 0, 1, 1)
+        spacerItem15 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        self.gridLayout_4.addItem(spacerItem15, 6, 0, 1, 1)
+        spacerItem16 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        self.gridLayout_4.addItem(spacerItem16, 4, 0, 1, 1)
+
+        self.TB_project = QtWidgets.QToolButton(self.MenuFrame)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.TB_project.sizePolicy().hasHeightForWidth())
-        self.TB_project.setStyleSheet(
-            "color: rgb(255, 255,255);\n"
-        )
         self.TB_project.setSizePolicy(sizePolicy)
+        self.TB_project.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.TB_project.setStyleSheet(style_menu_button)
+        self.TB_project.setText("")
+        icon10 = QtGui.QIcon()
+        icon10.addPixmap(QtGui.QPixmap(
+                "./GUI/icon/project.png"),
+                         QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.TB_project.setIcon(icon10)
+        self.TB_project.setIconSize(QtCore.QSize(30, 30))
+        self.TB_project.setCheckable(True)
+        self.TB_project.setAutoExclusive(True)
         self.TB_project.setObjectName("TB_project")
-        self.VLay_main_button.addWidget(self.TB_project)
-        self.TB_structure = QtWidgets.QToolButton(self.verticalLayoutWidget_3)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        self.gridLayout_4.addWidget(self.TB_project, 5, 0, 1, 1)
+
+        self.line_search_personal = QtWidgets.QFrame(self.MenuFrame)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.line_search_personal.sizePolicy().hasHeightForWidth())
+        self.line_search_personal.setSizePolicy(sizePolicy)
+        self.line_search_personal.setMaximumSize(QtCore.QSize(16777215, 30))
+        self.line_search_personal.setStyleSheet("\n"
+                                                "background-color: rgb(85, 255, 255);")
+        self.line_search_personal.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line_search_personal.setLineWidth(0)
+        self.line_search_personal.setFrameShape(QtWidgets.QFrame.VLine)
+        self.line_search_personal.setObjectName("line_search_personal")
+        self.gridLayout_4.addWidget(self.line_search_personal, 1, 1, 1, 1)
+
+        self.TB_structure = QtWidgets.QToolButton(self.MenuFrame)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.TB_structure.sizePolicy().hasHeightForWidth())
-        self.TB_structure.setStyleSheet(
-            "color: rgb(255, 255,255);\n"
-        )
         self.TB_structure.setSizePolicy(sizePolicy)
+        self.TB_structure.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.TB_structure.setStyleSheet(style_menu_button)
+        self.TB_structure.setText("")
+        icon11 = QtGui.QIcon()
+        icon11.addPixmap(QtGui.QPixmap(
+            "./GUI/icon/structure.png"),
+                         QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.TB_structure.setIcon(icon11)
+        self.TB_structure.setIconSize(QtCore.QSize(30, 30))
+        self.TB_structure.setCheckable(True)
+        self.TB_structure.setAutoExclusive(True)
         self.TB_structure.setObjectName("TB_structure")
-        self.VLay_main_button.addWidget(self.TB_structure)
-        self.TB_assessment = QtWidgets.QToolButton(self.verticalLayoutWidget_3)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        self.gridLayout_4.addWidget(self.TB_structure, 7, 0, 1, 1)
+
+        self.line_project = QtWidgets.QFrame(self.MenuFrame)
+        self.line_project.setMaximumSize(QtCore.QSize(16777215, 30))
+        self.line_project.setStyleSheet("\n"
+                                        "background-color: rgb(85, 255, 255);")
+        self.line_project.setLineWidth(0)
+        self.line_project.setFrameShape(QtWidgets.QFrame.VLine)
+        self.line_project.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line_project.setObjectName("line_project")
+        self.gridLayout_4.addWidget(self.line_project, 5, 1, 1, 1)
+        self.line_analytics = QtWidgets.QFrame(self.MenuFrame)
+        self.line_analytics.setMaximumSize(QtCore.QSize(16777215, 30))
+        self.line_analytics.setStyleSheet("\n"
+                                          "background-color: rgb(85, 255, 255);")
+        self.line_analytics.setLineWidth(0)
+        self.line_analytics.setFrameShape(QtWidgets.QFrame.VLine)
+        self.line_analytics.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line_analytics.setObjectName("line_analytics")
+        self.gridLayout_4.addWidget(self.line_analytics, 3, 1, 1, 1)
+        spacerItem17 = QtWidgets.QSpacerItem(20, 200, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        self.gridLayout_4.addItem(spacerItem17, 10, 0, 1, 1)
+        spacerItem18 = QtWidgets.QSpacerItem(20, 200, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        self.gridLayout_4.addItem(spacerItem18, 0, 0, 1, 1)
+        self.TB_assessment = QtWidgets.QToolButton(self.MenuFrame)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.TB_assessment.sizePolicy().hasHeightForWidth())
-        self.TB_assessment.setStyleSheet(
-            "color: rgb(255, 255,255);\n"
-        )
+
         self.TB_assessment.setSizePolicy(sizePolicy)
+        self.TB_assessment.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.TB_assessment.setStyleSheet(style_menu_button)
+        self.TB_assessment.setText("")
+        icon12 = QtGui.QIcon()
+        icon12.addPixmap(QtGui.QPixmap(
+            "./GUI/icon/assessment.png"),
+                         QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.TB_assessment.setIcon(icon12)
+        self.TB_assessment.setIconSize(QtCore.QSize(30, 30))
+        self.TB_assessment.setCheckable(True)
+        self.TB_assessment.setAutoExclusive(True)
         self.TB_assessment.setObjectName("TB_assessment")
-        self.VLay_main_button.addWidget(self.TB_assessment)
-        spacerItem9 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
-        self.VLay_main_button.addItem(spacerItem9)
+        self.gridLayout_4.addWidget(self.TB_assessment, 9, 0, 1, 1)
+        self.line_assessment = QtWidgets.QFrame(self.MenuFrame)
+        self.line_assessment.setMaximumSize(QtCore.QSize(16777215, 30))
+        self.line_assessment.setStyleSheet("\n"
+                                           "background-color: rgb(85, 255, 255);")
+        self.line_assessment.setLineWidth(0)
+        self.line_assessment.setFrameShape(QtWidgets.QFrame.VLine)
+        self.line_assessment.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line_assessment.setObjectName("line_assessment")
+        self.gridLayout_4.addWidget(self.line_assessment, 9, 1, 1, 1)
+        self.line_structure = QtWidgets.QFrame(self.MenuFrame)
+        self.line_structure.setMaximumSize(QtCore.QSize(16777215, 30))
+        self.line_structure.setStyleSheet("\n"
+                                          "background-color: rgb(85, 255, 255);")
+        self.line_structure.setLineWidth(0)
+        self.line_structure.setFrameShape(QtWidgets.QFrame.VLine)
+        self.line_structure.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line_structure.setObjectName("line_structure")
+        self.gridLayout_4.addWidget(self.line_structure, 7, 1, 1, 1)
+        spacerItem19 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        self.gridLayout_4.addItem(spacerItem19, 8, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         ##################################################
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -612,11 +753,20 @@ class Ui_MainWindow(object):
         self.Struct.setTitle(_translate("MainWindow", "Структура"))
         self.Assessment.setTitle(_translate("MainWindow", "Оценка"))
         self.calc_salaryl.setText(_translate("MainWindow", "Расчитать зар. плату"))
-        self.TB_search_personal.setEnabled(False)
-        self.TB_analytics.setEnabled(False)
-        self.TB_project.setEnabled(False)
-        self.TB_structure.setEnabled(False)
-        self.TB_assessment.setEnabled(False)
+        self.reset_menu_frame()
+
+    def reset_menu_frame(self):
+            self.TB_search_personal.setEnabled(False)
+            self.TB_analytics.setEnabled(False)
+            self.TB_project.setEnabled(False)
+            self.TB_structure.setEnabled(False)
+            self.TB_assessment.setEnabled(False)
+            self.line_project.hide()
+            self.line_structure.hide()
+            self.line_search_personal.hide()
+            self.line_analytics.hide()
+            self.line_assessment.hide()
+
 
 
 ############################динамический список для нескольких сотрудников##############

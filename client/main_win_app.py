@@ -437,6 +437,7 @@ class PersonalWidget(GUIPersonalWidget_2):
 
     def highlight_line(self):
         self.Label_LpersDate_cr.setStyleSheet("background-color: rgba(135, 154, 169, 80);")
+
     def setName(self, name, last_name):
         self.Label_LPersName.setText(name)
         self.Label_LPersLastName.setText(last_name)
@@ -519,7 +520,7 @@ class PersonalWidgetScroll(GUIPersonalWidgetScroll):
                 self.dlg.TextSpace.setEnabled(True)
             self.icon_APersCheckEdit_new = QtGui.QIcon()
             self.icon_APersCheckEdit_new.addPixmap(QtGui.QPixmap(
-                "C:\\Users\\Yura\\PycharmProjects\\pythonProject\\my_project\\furniture_factory\\GUI_designer\\icon/pen y4.png"),
+                "./GUI/icon/pen y4.png"),
                 QtGui.QIcon.Normal, QtGui.QIcon.Off)
             self.TB_APersCheckEdit_new = self.config_button(self.TB_APersCheckEdit_new,
                                                             QtCore.QRect(503, 4, 21, 31),
@@ -543,6 +544,9 @@ class ListPersonal_(GUIListPersonal):
         super(ListPersonal_, self).__init__(frame_loadList, minimum_size, base_size, style)
         self._translate = QtCore.QCoreApplication.translate
         self.scrollArea_ListPersonal.itemDoubleClicked.connect(self.extract_index)
+        self.set_default_list()
+
+    def set_default_list(self):
         self.start_list_w = []
         self.finish_list_w = []
         self.list_person_widgets = []
@@ -572,9 +576,9 @@ class ListPersonal_(GUIListPersonal):
         for id, person in enumerate(data_person):
             last_name, name, father_name = person['name'].split(" ")
             if len(person['edit_data'][self.current_Crit_LPers]) > 0:
-                path_icon_edit = "C:\\Users\\Yura\\PycharmProjects\\pythonProject\\my_project\\furniture_factory\\GUI_designer\\icon\\pen y4.png"
+                path_icon_edit = "./GUI/icon/pen y4.png"
             else:
-                path_icon_edit = "C:\\Users\\Yura\\PycharmProjects\\pythonProject\\my_project\\furniture_factory\\GUI_designer\\icon\\pen [#1321].png"
+                path_icon_edit = "./GUI/icon/pen [#1321].png"
             personal_wd = PersonalWidget(id + self.start_list_w[self.count_list_w], path_icon_edit=path_icon_edit)
             if person["assessment"][self.current_Crit_LPers] > 0:
                 personal_wd.label_Lastval.setText(str(person["assessment"][self.current_Crit_LPers]))
@@ -585,12 +589,10 @@ class ListPersonal_(GUIListPersonal):
             if len(person["add_data"][self.current_Crit_LPers]):
                 personal_wd.set_name_assessment(person["add_data"][self.current_Crit_LPers],
                                                 person["edit_data"][self.current_Crit_LPers])
-            if len(person["date_created_pers"])>0:
+            if len(person["date_created_pers"]) > 0:
                 personal_wd.highlight_line()
                 personal_wd.Label_LpersDate_cr.setText(_translate("MainWindow",
-                                                           f"сотрудник зачислен с {person['date_created_pers']}"))
-
-
+                                                                  f"сотрудник зачислен с {person['date_created_pers']}"))
 
             personal_wd.setName(self._translate("MainWindow", f"{name} {father_name}"),
                                 self._translate("MainWindow", last_name))
@@ -650,9 +652,16 @@ class ListPersonal_(GUIListPersonal):
 class ScrollPersonal(GUIScrollPersonal):
     def __init__(self, frame_loadList, base_size):
         super(ScrollPersonal, self).__init__(frame_loadList, base_size)
+        self.verticalLayout_scrollArea = QtWidgets.QVBoxLayout(self.scrollArea_AListPersonal_)
+        self.set_default_scroll()
+        self.retranslateUi()
+        self.connect_button()
+
+    def connect_button(self):
         self.TB_Left_APers.clicked.connect(self.next_left)
         self.TB_Right_APers.clicked.connect(self.next_right)
-        self.verticalLayout_scrollArea = QtWidgets.QVBoxLayout(self.scrollArea_AListPersonal_)
+
+    def set_default_scroll(self):
         self.start_list_w = []
         self.finish_list_w = []
         self.count_list_w = 0
@@ -664,11 +673,6 @@ class ScrollPersonal(GUIScrollPersonal):
         self.PersonalDataAssessment = None
         self.PersonalDataAssessment_filter = {"tables": {"personal": []}}
         self.CheckBox_SingleAssesm = None
-        self.retranslateUi()
-
-    def connect_button(self):
-        self.TB_Left_APers.clicked.connect(self.next_left)
-        self.TB_Right_APers.clicked.connect(self.next_right)
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
@@ -756,9 +760,9 @@ class ScrollPersonal(GUIScrollPersonal):
         for id, person in enumerate(data_person):
             last_name, name, father_name = person['name'].split(" ")
             if len(person['edit_data'][self.current_Crit_APers]) > 0:
-                path_icon_edit = "C:\\Users\\Yura\\PycharmProjects\\pythonProject\\my_project\\furniture_factory\\GUI_designer\\icon\\pen y4.png"
+                path_icon_edit = "./GUI/icon/pen y4.png"
             else:
-                path_icon_edit = "C:\\Users\\Yura\\PycharmProjects\\pythonProject\\my_project\\furniture_factory\\GUI_designer\\icon\\pen [#1321].png"
+                path_icon_edit = "./GUI/icon/pen [#1321].png"
             personal_wd = PersonalWidgetScroll(id + self.start_list_w[self.count_list_w], path_icon_edit=path_icon_edit)
             for i in range(1, max_coef + 1):
                 personal_wd.ComboBox_SelectAssessment_new.addItem("")
@@ -869,6 +873,12 @@ class PersonalAssessment(GUIAssessment):
         self.PB_Save_APers.clicked.connect(self.save_data)
         self.ComboBox_Crit_APers.currentTextChanged.connect(self.ComboBox_Crit_APers_changed)
         self.ComboBox_Sorting_APers.currentTextChanged.connect(self.ComboBox_Sorting_APers_changed_slot)
+
+    def reset_win(self):
+        self.scroll_personal.clear_scroll_assessment()
+        self.scroll_personal.set_default_scroll()
+        self.ComboBox_Crit_APers.clear()
+        self.ComboBox_Dep_APers.clear()
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
@@ -1186,6 +1196,46 @@ class PersonInteraction(GUIPersonInteraction):
         self.list_personal.LoadPersonFromList.connect(self.search_personal)
         self.pers_inter_user = ''
 
+    def clear_frame_personal(self):
+        self.label_surname.setText(_translate("MainWindow", ''))
+        self.label_name.setText(_translate("MainWindow", ''))
+        self.label_number.setText(_translate("MainWindow", ''))
+        self.label_name_depart.setText(_translate("MainWindow", ''))
+        self.label_name_post.setText(_translate("MainWindow", ''))
+        self.label_salaryl.setText(_translate("MainWindow", ''))
+        self.label_asses_certification.setText(_translate("MainWindow", ''))
+        self.label_asses_bonus.setText(_translate("MainWindow", ''))
+        self.label_birthDate.setText(_translate("MainWindow", ''))
+        self.label_old.setText(_translate("MainWindow", 'Возраст: '))
+        self.label_workExp.setText(_translate("MainWindow", ''))
+        face = cv2.imread('./GUI/icon/silhouette_icon128x128.png')
+        height, width, channel = face.shape
+        bytesPerLine = 3 * width
+        qFace = QtGui.QImage(face.data, width, height, bytesPerLine, QtGui.QImage.Format_BGR888)
+        pixmap = QtGui.QPixmap(qFace)
+        self.label_avatar.setPixmap(pixmap)
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap("./GUI/icon/pen_inactive [#1320].png"),
+            QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.TB_EditPersonal.setIcon(icon1)
+        self.TB_EditPersonal.setEnabled(False)
+        self.TB_RemovePersonal.setEnabled(False)
+        self.PB_right_admin.setStyleSheet(self.stile_button_not_rights)
+        self.PB_right_user.setStyleSheet(self.stile_button_not_rights)
+
+
+    def clear_list_personal(self):
+        pass
+
+    def reset_win(self):
+        self.clear_frame_personal()
+        self.list_personal.clear_scroll_assessment()
+        self.list_personal.set_default_list()
+        self.ComboBox_Crit_LPers.clear()
+        self.ComboBox_Dep_LPers.clear()
+        self.label_date_assessment.setText(_translate("MainWindow", f""))
+
+
     def connect_button(self):
         self.PB_serch_personalList.clicked.connect(self.fill_scroll_slot)
         self.PB_right_user.clicked.connect(self.rule_user_)
@@ -1200,11 +1250,11 @@ class PersonInteraction(GUIPersonInteraction):
 
     def new_admin(self):
         _translate = QtCore.QCoreApplication.translate
-        right_user=self.PersonalDataGet['tables']['personal'][0]['right_user']
+        right_user = self.PersonalDataGet['tables']['personal'][0]['right_user']
         if self.pers_inter_user == 'user' and right_user == 'admin':
             answer = 'Данный сорудник является \n администратором'
             view_massage(self, answer, 'ok', button=1)
-        elif self.pers_inter_user == 'user' and (right_user == '' or right_user=='user'):
+        elif self.pers_inter_user == 'user' and (right_user == '' or right_user == 'user'):
             answer = 'Нет прав назначить сотрудника \n администратором'
             view_massage(self, answer, 'warning', button=1)
         elif self.pers_inter_user == 'admin' and right_user == 'admin':
@@ -1212,16 +1262,19 @@ class PersonInteraction(GUIPersonInteraction):
             view_massage(self, answer, 'ok', button=1)
         else:
             answer = 'Назначить этого сотрудника \n администратором'
-            if view_massage(self, answer, 'question', button=1)=='ok':
+            if view_massage(self, answer, 'question', button=1) == 'ok':
                 answer = client.appoint_admin(self.PersonalDataGet).content.decode('utf-8')
+                answer = json.loads(answer)
                 name_personal = f"{self.PersonalDataGet['tables']['personal'][0]['name'].split(' ')[0]}" \
                                 f" {self.PersonalDataGet['tables']['personal'][0]['name'].split(' ')[1]}"
-                if answer == 'ok_add':
-                    answer=f"Сотрудник {name_personal}\nназначен администратором"
-                    view_massage(self, answer, 'ok', point_size=10, button=1)
-                elif answer == 'ok_edit':
+                if len(answer['error'])>0:
+                    view_massage(self, answer['error'], 'warning', point_size=10, button=1)
+                elif answer['result'] == 'ok_add':
+                    answer = f"Сотрудник {name_personal}\nназначен администратором"
+                    view_massage(self, answer['result'], 'ok', point_size=10, button=1)
+                elif answer['result'] == 'ok_edit':
                     answer = f"Администратор успешно заменен"
-                    view_massage(self, answer, 'ok', point_size=10, button=1)
+                    view_massage(self, answer['result'], 'ok', point_size=10, button=1)
 
     def set_params_personal(self):
         _translate = QtCore.QCoreApplication.translate
@@ -1479,30 +1532,7 @@ class PersonInteraction(GUIPersonInteraction):
                 massage.Label_message.setText(_translate("Dialog", "Профиль успешно удален"))
                 massage.label_2.setStyleSheet("image: url(./GUI/icon/done_mini [#1484].png);")
                 massage.exec()
-                self.label_surname.setText(_translate("MainWindow", ''))
-                self.label_name.setText(_translate("MainWindow", ''))
-                self.label_number.setText(_translate("MainWindow", ''))
-                self.label_name_depart.setText(_translate("MainWindow", ''))
-                self.label_name_post.setText(_translate("MainWindow", ''))
-                self.label_salaryl.setText(_translate("MainWindow", ''))
-                self.label_asses_certification.setText(_translate("MainWindow", ''))
-                self.label_asses_bonus.setText(_translate("MainWindow", ''))
-                self.label_birthDate.setText(_translate("MainWindow", ''))
-                self.label_old.setText(_translate("MainWindow", 'Возраст: '))
-                self.label_workExp.setText(_translate("MainWindow", ''))
-                face = cv2.imread('./GUI/icon/silhouette_icon128x128.png')
-                height, width, channel = face.shape
-                bytesPerLine = 3 * width
-                qFace = QtGui.QImage(face.data, width, height, bytesPerLine, QtGui.QImage.Format_BGR888)
-                pixmap = QtGui.QPixmap(qFace)
-                self.label_avatar.setPixmap(pixmap)
-                icon1 = QtGui.QIcon()
-                icon1.addPixmap(QtGui.QPixmap(
-                    "./GUI/icon/1800 Icon Pack [20x20]/PNG@2_white_icons/pen_inactive [#1320].png"),
-                    QtGui.QIcon.Normal, QtGui.QIcon.Off)
-                self.TB_EditPersonal.setIcon(icon1)
-                self.TB_EditPersonal.setEnabled(False)
-                self.TB_RemovePersonal.setEnabled(False)
+                self.clear_frame_personal()
 
     def add_personal(self, server):
         print("addpersonal")
@@ -1566,7 +1596,9 @@ class PersonInteraction(GUIPersonInteraction):
                                      "salaryl": 50000,
                                      "bonus": 0,
                                      "dir_avatar": self.PersonalDataGet["tables"]["personal"][0]["dir_avatar"],
-                                     "birthday": ''}]
+                                     "birthday": '',
+                                     "right_user": '',
+                                     "rules": []}]
                        }}
         answer_server = ''
         name_column_file = {'personal': 'dir_avatar'}
@@ -2377,6 +2409,13 @@ class MainWindow_all_3(QtWidgets.QMainWindow):
         self.flag_personal = 0
         self.flag_assessment = 0
         self.user = ''
+        self.dir_line_button = {
+            1: self.WorkWindow.line_search_personal,
+            2: self.WorkWindow.line_analytics,
+            3: self.WorkWindow.line_project,
+            4: self.WorkWindow.line_structure,
+            5: self.WorkWindow.line_assessment
+        }
 
         # self.menubar = QtWidgets.QMenuBar(MW)
         # self.menubar.setGeometry(QtCore.QRect(0, 0, 1274, 21))
@@ -2390,6 +2429,32 @@ class MainWindow_all_3(QtWidgets.QMainWindow):
 
         # MW.setWindowFlags(MW.windowFlags()| QtCore.Qt.MSWindowsFixedSizeDialogHint)
         QtCore.QMetaObject.connectSlotsByName(self)
+        self.WorkWindow.PB_esc.clicked.connect(self.sign_out)
+
+    def hide_line_button(self, id_button):
+
+        self.dir_line_button[id_button].show()
+        for id in self.dir_line_button:
+            if id != id_button:
+                self.dir_line_button[id].hide()
+
+    def sign_out(self):
+        massage = 'Выйти из аккаунта?'
+        if view_massage(self, massage, 'question') == 'ok':
+            client.clear_cookies()
+            self.WorkWindow.reset_menu_frame()
+            self.pers_inter.reset_win()
+            self.struct.reset_drop_row()
+            self.struct.drop_all_row()
+            self.flag_one_load_struct = 0
+            self.pers_assessment.reset_win()
+            start_w_width = 784
+            start_w_height = 545
+            self.GlobalstackedWidget.setCurrentIndex(0)
+            self.resize(start_w_width, start_w_height)
+            self.setMaximumWidth(start_w_width)
+            self.setMaximumHeight(start_w_height)
+            start_w.reset_win()
 
     def change_log(self):
         _translate = QtCore.QCoreApplication.translate
@@ -2464,46 +2529,54 @@ class MainWindow_all_3(QtWidgets.QMainWindow):
         if self.WorkWindow.stackedWidget.currentIndex() == 0:
             self.pers_inter.set_params_personal()
             self.pers_inter.pers_inter_user = self.user
+            self.flag_personal = 1
 
         elif self.WorkWindow.stackedWidget.currentIndex() == 4:
             self.pers_assessment.load_combobox_assessment()
+            self.flag_assessment = 1
 
     def personal(self):
         if self.flag_personal == 0:
             self.pers_inter.set_params_personal()
             self.flag_personal = 1
+        self.hide_line_button(1)
         self.WorkWindow.stackedWidget.setCurrentIndex(0)
         print(0)
 
     def analytics(self):
         print("1")
+        self.hide_line_button(2)
         self.WorkWindow.stackedWidget.setCurrentIndex(1)
         pass
 
     def projects(self):
         print("2")
+        self.hide_line_button(3)
         self.WorkWindow.stackedWidget.setCurrentIndex(2)
         pass
 
     def assessment(self):
-
         if self.flag_assessment == 0:
             self.pers_assessment.load_combobox_assessment()
             self.flag_assessment = 1
             print("4")
+        self.hide_line_button(5)
         self.WorkWindow.stackedWidget.setCurrentIndex(4)
 
     def inside_structure(self):
         self.WorkWindow.stackedWidget.setCurrentIndex(3)
+        self.struct.reset_drop_row()
         if self.flag_one_load_struct == 0:
             start_process(self.progress_bar, self=self)
             self.progress_bar.status_ = 'on'
             self.flag_one_load_struct = 1
+        self.hide_line_button(4)
 
     def refresh_inside_structure(self):
         start_process(self.progress_bar, self=self)
         self.progress_bar.status_ = 'on'
         self.flag_one_load_struct = 1
+        self.struct.reset_drop_row()
 
     def resizeEvent(self, event):
         self.resized.emit()

@@ -167,8 +167,6 @@ class DeployDialogIP(QDialog, DialogEnter):
                 self.close()
 
 
-            print("ok")
-
     def activ_dialog(self):
         self.flag_activate_user = 0
         self.resize(393, 230)
@@ -596,6 +594,12 @@ class Table_start_(QWidget, Table_start_v2):
         self.department={"title": "Отдел_1"}
         self.bonus_koeficient={"percentage_of_profits":2.0}
         self.posts={"label_post": "Инженер"}
+        self.drop_row_dict={
+            "conf_criterion": {'indexes': []},
+            "department":  {'indexes': []},
+            "posts":  {'indexes': []},
+            "bonus_koeficient":{'indexes': []}
+        }
         self.flag_send_data=0
         self.flag_edit_mode=0
         self.flag_receive_data=0
@@ -631,22 +635,58 @@ class Table_start_(QWidget, Table_start_v2):
         self.table_conf_criterion.setRowCount(self.table_conf_criterion.rowCount()+1)
 
     def drop_row_criterion(self):
-        if self.table_conf_criterion.rowCount()>1:
-            self.table_conf_criterion.setRowCount(self.table_conf_criterion.rowCount()-1)
+        if self.table_conf_criterion.rowCount()>1 and len(self.table_conf_criterion.selectedItems())==0:
+            self.drop_row_dict['conf_criterion']['indexes'].append(self.table_conf_criterion.rowCount()-1)
+            self.table_conf_criterion.setRowCount(self.table_conf_criterion_posts.rowCount()-1)
+        elif self.table_conf_criterion.rowCount() > 1 and len(self.table_conf_criterion.selectedItems())> 0:
+            select_items=self.table_conf_criterion.selectedItems()
+            for it in select_items:
+                drop_index=it.row()
+                self.drop_row_dict['conf_criterion']['indexes'].append(drop_index)
+                self.table_conf_criterion.removeRow(drop_index)
 
     def add_row_department(self):
         self.table_department.setRowCount(self.table_department.rowCount()+1)
 
     def drop_row_department(self):
-        if self.table_department.rowCount()>1:
+        print('ok')
+        if self.table_department.rowCount()>1 and len(self.table_department.selectedItems())==0:
+            self.drop_row_dict['department']['indexes'].append(self.table_department.rowCount()-1)
             self.table_department.setRowCount(self.table_department.rowCount()-1)
+        elif self.table_department.rowCount() > 1 and len(self.table_department.selectedItems())> 0:
+            select_items=self.table_department.selectedItems()
+            for it in select_items:
+                drop_index=it.row()
+                self.drop_row_dict['department']['indexes'].append(drop_index)
+                self.table_department.removeRow(drop_index)
 
     def add_row_post(self):
         self.table_posts.setRowCount(self.table_posts.rowCount()+1)
 
     def drop_row_post(self):
-        if self.table_posts.rowCount()>1:
+
+        if self.table_posts.rowCount()>1 and len(self.table_posts.selectedItems())==0:
+            self.drop_row_dict['posts']['indexes'].append(self.table_posts.rowCount()-1)
             self.table_posts.setRowCount(self.table_posts.rowCount()-1)
+        elif self.table_posts.rowCount() > 1 and len(self.table_posts.selectedItems())> 0:
+            select_items=self.table_posts.selectedItems()
+            for it in select_items:
+                drop_index=it.row()
+                self.drop_row_dict['posts']['indexes'].append(drop_index)
+                self.table_posts.removeRow(drop_index)
+
+    def reset_drop_row(self):
+        self.drop_row_dict = {
+            "conf_criterion": {'indexes': []},
+            "department": {'indexes': []},
+            "posts": {'indexes': []},
+            "bonus_koeficient": {'indexes': []}
+        }
+    def drop_all_row(self):
+        self.table_conf_criterion.setRowCount(0)
+        self.table_posts.setRowCount(0)
+        self.table_department.setRowCount(0)
+        self.table_bonus_koeficient.setRowCount(0)
 
     def all_check(self):
         check_massage = {'conf_criterion': '',
@@ -879,23 +919,25 @@ class Table_start_(QWidget, Table_start_v2):
             for table in self.data_load["tables"]:
                 id_dict = {}
                 id_list = []
-                value_list_copy = self.data_edit["tables"][table]
-                value_list = self.data_load["tables"][table]
-                count_del_row = len(value_list) - len(value_list_copy)
-                if count_del_row > 0:
-                    value_list = self.data_load["tables"][table][-count_del_row:]
-                    id_key = list(value_list[0].keys())[0]
-                    for value_dict in value_list:
-                        id_dict[id_key] = value_dict[id_key]
-                        id_list.append(id_dict.copy())
+                ##########################to indexes######################
+                for i in self.drop_row_dict[table]['indexes']:
+                    value_dict=self.data_load["tables"][table][i]
+                    id_key = list(value_dict.keys())[0]
+                    id_dict[id_key] = value_dict[id_key]
+                    id_list.append(id_dict.copy())
                     self.data_send["tables"][table] = id_list
+                ##########################################################
             if len(self.data_send["tables"]) > 0:
-                answer_server_row = client.del_row_table(data_send=self.data_send).content.decode("utf-8")
+                answer_server_row = client.del_row_struct(data_send=self.data_send).content.decode("utf-8")
                 self.data_send["tables"].clear()
                 print(answer_server_row)
                 if answer_server_row == 'ok':
                     self.data_load = client.get_struct().content  # загрузка обновленых таблиц
                     self.data_load = json.loads(self.data_load.decode('utf-8'))
+                elif answer_server_row=='department':
+                    answer_server_row='невозмлжно удалить отдел с сотрудниками'
+                elif answer_server_row == 'posts':
+                    answer_server_row='невозможно удалить должность с сотрудниками'
             ######################################################################
 
             ###############add row #####################################################
@@ -1015,6 +1057,7 @@ class mywindow(QtWidgets.QMainWindow):
         #MainWindowAll.setMaximumSize(784, 545)
         #self.MainWindowAll.setFixedSize(self.MainWindowAll.width(), self.MainWindowAll.height())
         self.count_crit=NextWidget
+        self.right=''
 
         #self.maxres()
 
@@ -1042,19 +1085,43 @@ class mywindow(QtWidgets.QMainWindow):
         self.flagServerChange.emit(value)
 
     def btn_Active(self):
-        dlg = DeployDialogIP(self)
-        dlg.activ_user()
-        dlg.exec()
+        dlg_ip = DeployDialogIP(self)
+        dlg_ip.activ_user()
+        dlg_ip.exec()
         pass
+
+    def reset_win(self):
+        self.ui.pushButton_Open.setEnabled(False)
+        self.ui.pushButton_Creat.setEnabled(False)
+        self.ui.TB_ActiveUser.setEnabled(True)
+        self.ui.TB_IPEnter.setEnabled(True)
+        self.ui.TB_IPEnter.setStyleSheet(" border-width: 1px;\n"
+                                      " border-style: solid;\n"
+                                      " border-color:  rgb(158, 158, 158);\n"
+                                      "background-color: rgb(96, 105, 138);\n"
+                                      "border-radius: 5px;")
+
     def btn_IPEnter(self):
-        dlg=DeployDialogIP(self)
-        dlg.buttonBox.accepted.connect(dlg.accept)
-        dlg.exec()
+
+
+        dlg_ip = DeployDialogIP(self)
+        dlg_ip.buttonBox.accepted.connect(dlg_ip.accept)
+        dlg_ip.exec()
+
         result='False'
-        if dlg.flag_connect==1 and dlg.right=='admin':
+        if dlg_ip.flag_connect==1 and dlg_ip.right=='admin':
             self.ui.pushButton_Open.setEnabled(True)
             self.ui.pushButton_Creat.setEnabled(True)
-        elif dlg.flag_connect==1 and dlg.right=='user':
+            self.ui.TB_ActiveUser.setEnabled(False)
+            self.right=dlg_ip.right
+            self.ui.TB_IPEnter.setStyleSheet(" border-width: 1px;\n"
+                                          " border-style: solid;\n"
+                                          " border-color: rgb(146, 255, 140);\n"
+                                          "background-color: rgb(96, 105, 138);\n"
+                                          "border-radius: 5px;")
+            self.ui.TB_IPEnter.setEnabled(False)
+
+        elif dlg_ip.flag_connect==1 and dlg_ip.right=='user':
             self.ui.pushButton_Open.setEnabled(True)
             # client.adress=dlg.IPadress
             # client.password=dlg.PasswordUser
@@ -1104,6 +1171,7 @@ class mywindow(QtWidgets.QMainWindow):
             self.MainWindowAll.user=dlg.user
             min_id_right=min(dlg.rights_user)
             self.MainWindowAll.WorkWindow.stackedWidget.setCurrentIndex(min_id_right-1)
+            self.MainWindowAll.hide_line_button(min_id_right)
             self.start_win.emit()
 
 

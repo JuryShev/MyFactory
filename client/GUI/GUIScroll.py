@@ -56,7 +56,7 @@ class GUIScrollPersonal():
         self.TB_Left_APers.setText("")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(
-            "C:\\Users\\Yura\\PycharmProjects\\pythonProject\\my_project\\furniture_factory\\GUI_designer\\icon/arrow_left [#336].png"),
+            "./GUI/icon/arrow_left [#336].png"),
                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.TB_Left_APers.setIcon(icon)
         self.TB_Left_APers.setObjectName("TB_Left_APers")
@@ -66,7 +66,7 @@ class GUIScrollPersonal():
         self.TB_Right_APers.setText("")
         icon1 = QtGui.QIcon()
         icon1.addPixmap(QtGui.QPixmap(
-            "C:\\Users\\Yura\\PycharmProjects\\pythonProject\\my_project\\furniture_factory\\GUI_designer\\icon/arrow_right [#336].png"),
+            "./GUI/icon/arrow_right [#336].png"),
                         QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.TB_Right_APers.setIcon(icon1)
         self.TB_Right_APers.setObjectName("TB_Right_APers")
