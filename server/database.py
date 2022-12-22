@@ -1,4 +1,6 @@
 import mysql.connector
+import calendar
+from datetime import datetime as dt, timedelta
 BD_password='1234'
 def create_database(name_db, path_script):
     with mysql.connector.connect(
@@ -50,6 +52,17 @@ def get_databases():
             if i[0] not in forbidden_set:
                 list_databases.append(i[0])
         return list_databases
+
+
+def get_date_range(date_: dt, period):
+        if period == "month":
+            return dt(date_.year, date_.month, 1), dt(date_.year, date_.month + 1, 1) - timedelta(days=1)
+        if period == "quarter":
+            return dt(date_.year, (date_.month - 1) // 3 * 3 + 1, 1), \
+                   dt(date_.year, (date_.month - 1) // 3 * 3 + 3, calendar.monthrange(date_.year, date_.month)[1])
+        if period == "year":
+            return dt(date_.year, 1, 1), dt(date_.year, 12, 31)
+        return 0
 
 
 
@@ -153,7 +166,31 @@ class FurnitureDtabase:
                 mycursor.execute(mysql_comand, data)
                 connection.commit()
 
-    def del_row(self, name_table, title_id :tuple, value_id:tuple):
+    def add_row_v2(self, name_table, name_columns, data):
+            if len(name_columns) != len(data[:]):
+                return
+            with mysql.connector.connect(
+                    host=self.host,
+                    user=self.user,
+                    password=self.password,
+                    port=self.port,
+                    database=self.database
+            ) as connection:
+                values = []
+                for d in data:
+                    if not (d == 'NULL' or isinstance(d, int) or isinstance(d, type(dt))):
+                        d = f"'{d}'"
+                    else:
+                        d = str(d)
+                    values.append(d)
+
+                mysql_comand = f'INSERT INTO {name_table} ({", ".join(name_columns)}) VALUES ({", ".join(values)})'
+                # print(mysql_comand)
+                mycursor = connection.cursor()
+                mycursor.execute(mysql_comand)
+                connection.commit()
+
+    def del_row(self, name_table, title_id, value_id):
         with mysql.connector.connect(
                 host=self.host,
                 user=self.user,
@@ -163,10 +200,17 @@ class FurnitureDtabase:
 
         ) as connection:
             mycursor = connection.cursor()
-            for n in range(len(title_id)):
-                mysql_comand = f"DELETE FROM {name_table} WHERE {title_id[n]} = {value_id[n]}"
+            if type(title_id)==tuple:
+                for n in range(len(title_id)):
+                    mysql_comand = f"DELETE FROM {name_table} WHERE {title_id[n]} = {value_id[n]}"
+                    mycursor.execute(mysql_comand)
+                    connection.commit()
+            else:
+                pass
+                mysql_comand = f"DELETE FROM {name_table} WHERE {title_id} = '{value_id}'"
                 mycursor.execute(mysql_comand)
                 connection.commit()
+
 
     def del_column(self, name_table, name_column):
         with mysql.connector.connect(
@@ -449,6 +493,16 @@ class FurnitureDtabase:
                 for i  in range(len(count)):
                     count[i]=dict(zip(field_names, list(count[i])))
             return count
+
+    def get_average_value(self, date_: dt, period, id_person, id_criterion):
+        from_, to_ = get_date_range(date_, period)
+        assessments = self.mysql_castom_command(f'''SELECT assessment FROM personal_assessment
+                                    WHERE date >= '{from_}' AND date <= '{to_}' AND id_name_personal = {id_person}
+                                            AND id_criterion = {id_criterion}''')
+        if len(assessments) == 0:
+            return 0
+        average = sum([i[0] for i in assessments]) / len(assessments)
+        return average
 
 
 

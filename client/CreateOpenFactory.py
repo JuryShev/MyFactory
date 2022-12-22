@@ -1,10 +1,12 @@
 import transliterate
 import time
 import json
+import os
+import argon2
 import sys
 import traceback
 from functools import partial
-
+import re
 from PyQt5.QtWidgets import QDialog, QAction
 from PyQt5.QtWidgets import QWidget, QPushButton, QProgressBar, QVBoxLayout, QApplication,\
     QMessageBox,QGraphicsDropShadowEffect,QStyledItemDelegate,QLineEdit
@@ -13,7 +15,7 @@ from PyQt5 import QtWidgets, QtCore,QtGui
 
 # Импортируем наш шаблон.
 from GUI.GUIStartWindow import Ui_MainWindow
-from GUI.DialogIpEnter import DialogIP
+from GUI.DialogIpEnter import DialogEnter
 from GUI.DialogNewFuctory import Ui_Dialog as creat_dialog
 from GUI.DialogSelectFactory import ChooseFactoryDialog
 from GUI.GUICountCriterion import CountCr
@@ -52,7 +54,7 @@ _translate = QtCore.QCoreApplication.translate
 client = config_connect()
 
 
-class DeployDialogIP(QDialog, DialogIP):
+class DeployDialogIP(QDialog, DialogEnter):
     def __init__(self, parent):
         super().__init__(parent)
         self.setupUi(self)
@@ -60,7 +62,177 @@ class DeployDialogIP(QDialog, DialogIP):
         self.NameUser=''
         self.PasswordUser=''
         self.flag_connect = 0
+        self.right=''
+
+
+
+    def activ_user(self):
+        self.activ_dialog()
+        self.buttonBox.accepted.connect(self.connect_activ)
+        regular_ex = QtCore.QRegExp("[A-Za-z\d@$!%*?&]{20}")
+        input_validator = QtGui.QRegExpValidator(regular_ex, self.LE_password)
+        self.LE_password.setValidator(input_validator)
+        #regular_pass = "^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
+    def check_activ(self):
+        self.IPadress = self.LE_IP.text()
+        self.Key=self.LE_key.text()
+        self.NameUser = self.LE_name.text()
+        self.PasswordUser = self.LE_password.text()
+        self.PasswordUser_rep=self.LE_password_rep.text()
+        self.Asterisk_Password.hide()
+        flag_list=[]
+
+
+        if len(self.IPadress) < 8:
+            flag_list.append(0)
+            self.QL_error.setText(_translate("Dialog", "некорректный IP-адрес"))
+            self.Asterisk_IP.show()
+            return flag_list
+        else:
+            flag_list.append(1)
+            self.Asterisk_IP.hide()
+
+        if len(self.Key)<16:
+            flag_list.append(0)
+            self.Asterisk_key.show()
+            self.QL_error.setText(_translate("Dialog", "неверный формат ключа"))
+            return flag_list
+        else:
+            self.Asterisk_key.hide()
+            flag_list.append(1)
+
+        if len(self.NameUser) <= 1:
+            flag_list.append(0)
+            self.QL_error.setText(_translate("Dialog", "слишком короткое имя"))
+            self.Asterisk_Name.show()
+            return flag_list
+        else:
+            flag_list.append(1)
+            self.Asterisk_Name.hide()
+
+        regular_pass = "^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
+
+        if re.match(regular_pass, self.PasswordUser) == None:
+            flag_list.append(0)
+            self.Asterisk_Password.show()
+            self.QL_error.setText(_translate("Dialog", "слишком простой пароль \n"
+                                                       "(должен содержать цифру и быть не меньше 8 символов)"))
+            return flag_list
+        else:
+            flag_list.append(1)
+            self.Asterisk_Password.hide()
+
+
+
+        if self.PasswordUser_rep!=self.PasswordUser:
+            flag_list.append(0)
+            self.Asterisk_Password_rep.show()
+            self.QL_error.setText(_translate("Dialog", "пароли не совпадают \n"
+                                                       ))
+            return flag_list
+        else:
+            flag_list.append(1)
+            self.Asterisk_Password_rep.hide()
+
+        return flag_list
+    def connect_activ(self):
+
+        check_list=self.check_activ()
+        if 0 not in check_list:
+            salt_user = os.urandom(32).hex()
+            salt_user = bytes(salt_user, 'utf-8')
+            self.PasswordUser = argon2.hash_password_raw(time_cost=16, memory_cost=2 ** 15,
+                                                parallelism=2, hash_len=32,
+                                                password=bytes(self.LE_password.text(), 'utf-8'),
+                                                salt=salt_user,
+                                                type=argon2.low_level.Type.ID)
+            activ_user = {
+                "tables": {
+                    "admin": {
+                        "nickname": self.NameUser,
+                        "password": self.PasswordUser.hex(),
+                        "salt_user": salt_user.decode()
+                    },
+                    "keys":{"name_keys":self.Key}
+                }
+            }
+            print("srart")
+            result=client.activate_user(activ_user).content.decode('utf-8')
+            if result!='ok':
+                self.QL_error.setText(_translate("UserRule",result))
+                self.QL_error.show()
+
+            elif result=='ok':
+                self.flag_activate_user=1
+                self.close()
+
+
+    def activ_dialog(self):
+        self.flag_activate_user = 0
+        self.resize(393, 230)
+        self.QL_error.setGeometry(QtCore.QRect(0, 160, 391, 27))
+        self.LE_key = QtWidgets.QLineEdit(self)
+        self.LE_key.setGeometry(QtCore.QRect(60, 50, 271, 20))
+        self.LE_key.setInputMask(">AAAA-AAAA-AAAA-AAAA-AAAA;.")
+        font = QtGui.QFont()
+        font.setFamily("Roboto")
+        font.setPointSize(10)
+        self.LE_key.setFont(font)
+        self.LE_key.setStyleSheet( "border:none;\n"
+                                   "border-bottom: 1px solid rgb(16,240,207);\n"
+                                   "padding_bottom: 7px;\n"
+                                   "background-color: rgb(255, 255,255);\n"
+                                   "border-radius: 5px;\n"
+                                   "")
+        self.LE_key.setPlaceholderText(_translate("Dialog", "ключ активации"))
+        self.LE_key.setObjectName("lineEdit_3")
+
+        self.LE_name.setGeometry(QtCore.QRect(60, 80, 271, 20))
+        self.Asterisk_Name.setGeometry(QtCore.QRect(340, 82, 17, 17))
+
+        self.LE_password.setGeometry(QtCore.QRect(60, 110, 271, 20))
+        self.Asterisk_Password.setGeometry(QtCore.QRect(340, 112, 17, 17))
+
+        self.LE_password_rep = QtWidgets.QLineEdit(self)
+        self.LE_password_rep.setGeometry(QtCore.QRect(60, 140, 271, 20))
+        font = QtGui.QFont()
+        font.setFamily("Roboto")
+        font.setPointSize(10)
+        self.LE_password_rep.setFont(font)
+        self.LE_password_rep.setStyleSheet("border:none;\n"
+                                       "border-bottom: 1px solid rgb(16,240,207);\n"
+                                       "padding_bottom: 7px;\n"
+                                       "background-color: rgb(255, 255,255);\n"
+                                       "border-radius: 5px;\n"
+                                       "")
+        self.LE_password_rep.setObjectName("lineEdit_2")
+        self.LE_password_rep.setPlaceholderText(_translate("Dialog", "повторите пароль"))
+        self.buttonBox.setGeometry(QtCore.QRect(120, 190, 151, 32))
+        self.Asterisk_key = QtWidgets.QLabel(self)
+        self.Asterisk_key.setGeometry(QtCore.QRect(340, 50, 17, 17))
+        self.Asterisk_key.setStyleSheet("border-color:  rgb(74,80 ,106 );\n"
+                                         "color: rgb(255, 129, 112);")
+        self.Asterisk_key.setObjectName("QL_Error_key")
+        self.Asterisk_key.setStyleSheet("border-image: url(./GUI/icon/asterisk.png);")
+
+
+        #inform_password = "Пароль должен содержать минимум восемь символов, \nминимум одну букву и одну цифру"
+
+        # self.QL_Error_pass.setToolTip(_translate("MainWindow",
+        #                                                  inform_password))
+
+        self.Asterisk_Password_rep = QtWidgets.QLabel(self)
+        self.Asterisk_Password_rep.setGeometry(QtCore.QRect(340, 142, 17, 17))
+        self.Asterisk_Password_rep.setStyleSheet('QWidget { border-color:  rgb(74,80 ,106 );color: rgb(255, 129, 112);}')
+        self.Asterisk_Password_rep.setObjectName("QL_Error_name")
+        self.Asterisk_Password_rep.setStyleSheet("border-image: url(./GUI/icon/asterisk.png);")
+
+        self.Asterisk_key.hide()
+
+        self.Asterisk_Password_rep.hide()
+
     def accept(self) -> None:
+
         self.IPadress=self.LE_IP.text()
         self.NameUser=self.LE_name.text()
         self.PasswordUser=self.LE_password.text()
@@ -81,8 +253,29 @@ class DeployDialogIP(QDialog, DialogIP):
             self.Asterisk_Password.hide()
 
         if len(self.IPadress)>8 and len(self.NameUser)>1 and len(self.PasswordUser)>=4:
-            self.flag_connect=1
-            self.close()
+            _translate = QtCore.QCoreApplication.translate
+            client.adress = self.IPadress
+            client.password = self.PasswordUser
+            client.id_user = self.NameUser
+            login_user = {
+                "tables": {
+                    "user": {
+                        "nickname": self.NameUser,
+                        "password": self.PasswordUser,
+                        "salt_user": ''
+                    }
+                }
+            }
+            client.url = f"http://{client.adress}:{5000}"
+            result = client.connect_server(login_user).content.decode('utf-8')
+            result=json.loads(result)
+            if len(result['error'])>0:
+                self.QL_error.setText(_translate("Dialog", f"{result['error']}"))
+                self.QL_error.show()
+            else:
+                self.right=result['right']
+                self.flag_connect=1
+                self.close()
 
 
 class NumericDelegate(QStyledItemDelegate):
@@ -304,24 +497,23 @@ class ChooseFactoryDialog_(QDialog, ChooseFactoryDialog ):
         self.buttonBox.rejected.connect(self.reject_data)
         self.write_in_combobox()
         self.flag_choose = 0
-
+        self.rights_user=[]
+        self.name_person=''
+        self.user=''
 
     def write_in_combobox(self):
         for factory in self.list_factory:
-            self.comboBox.addItem(factory)
-
-
-
+            self.comboBox.addItem(factory[0])
 
     def accept_data(self):
         client.name_db = self.comboBox.currentText()
+        result=client.get_id_user().decode('utf-8')
+        result=json.loads(result)
+        self.rights_user=result['rights']
+        self.name_person=result['name']
+        self.user=result['user']
         self.flag_choose = 1
         self.close()
-
-
-        pass
-
-
 
     def reject_data(self):
         print('reject')
@@ -402,6 +594,12 @@ class Table_start_(QWidget, Table_start_v2):
         self.department={"title": "Отдел_1"}
         self.bonus_koeficient={"percentage_of_profits":2.0}
         self.posts={"label_post": "Инженер"}
+        self.drop_row_dict={
+            "conf_criterion": {'indexes': []},
+            "department":  {'indexes': []},
+            "posts":  {'indexes': []},
+            "bonus_koeficient":{'indexes': []}
+        }
         self.flag_send_data=0
         self.flag_edit_mode=0
         self.flag_receive_data=0
@@ -437,22 +635,58 @@ class Table_start_(QWidget, Table_start_v2):
         self.table_conf_criterion.setRowCount(self.table_conf_criterion.rowCount()+1)
 
     def drop_row_criterion(self):
-        if self.table_conf_criterion.rowCount()>1:
-            self.table_conf_criterion.setRowCount(self.table_conf_criterion.rowCount()-1)
+        if self.table_conf_criterion.rowCount()>1 and len(self.table_conf_criterion.selectedItems())==0:
+            self.drop_row_dict['conf_criterion']['indexes'].append(self.table_conf_criterion.rowCount()-1)
+            self.table_conf_criterion.setRowCount(self.table_conf_criterion_posts.rowCount()-1)
+        elif self.table_conf_criterion.rowCount() > 1 and len(self.table_conf_criterion.selectedItems())> 0:
+            select_items=self.table_conf_criterion.selectedItems()
+            for it in select_items:
+                drop_index=it.row()
+                self.drop_row_dict['conf_criterion']['indexes'].append(drop_index)
+                self.table_conf_criterion.removeRow(drop_index)
 
     def add_row_department(self):
         self.table_department.setRowCount(self.table_department.rowCount()+1)
 
     def drop_row_department(self):
-        if self.table_department.rowCount()>1:
+        print('ok')
+        if self.table_department.rowCount()>1 and len(self.table_department.selectedItems())==0:
+            self.drop_row_dict['department']['indexes'].append(self.table_department.rowCount()-1)
             self.table_department.setRowCount(self.table_department.rowCount()-1)
+        elif self.table_department.rowCount() > 1 and len(self.table_department.selectedItems())> 0:
+            select_items=self.table_department.selectedItems()
+            for it in select_items:
+                drop_index=it.row()
+                self.drop_row_dict['department']['indexes'].append(drop_index)
+                self.table_department.removeRow(drop_index)
 
     def add_row_post(self):
         self.table_posts.setRowCount(self.table_posts.rowCount()+1)
 
     def drop_row_post(self):
-        if self.table_posts.rowCount()>1:
+
+        if self.table_posts.rowCount()>1 and len(self.table_posts.selectedItems())==0:
+            self.drop_row_dict['posts']['indexes'].append(self.table_posts.rowCount()-1)
             self.table_posts.setRowCount(self.table_posts.rowCount()-1)
+        elif self.table_posts.rowCount() > 1 and len(self.table_posts.selectedItems())> 0:
+            select_items=self.table_posts.selectedItems()
+            for it in select_items:
+                drop_index=it.row()
+                self.drop_row_dict['posts']['indexes'].append(drop_index)
+                self.table_posts.removeRow(drop_index)
+
+    def reset_drop_row(self):
+        self.drop_row_dict = {
+            "conf_criterion": {'indexes': []},
+            "department": {'indexes': []},
+            "posts": {'indexes': []},
+            "bonus_koeficient": {'indexes': []}
+        }
+    def drop_all_row(self):
+        self.table_conf_criterion.setRowCount(0)
+        self.table_posts.setRowCount(0)
+        self.table_department.setRowCount(0)
+        self.table_bonus_koeficient.setRowCount(0)
 
     def all_check(self):
         check_massage = {'conf_criterion': '',
@@ -685,23 +919,25 @@ class Table_start_(QWidget, Table_start_v2):
             for table in self.data_load["tables"]:
                 id_dict = {}
                 id_list = []
-                value_list_copy = self.data_edit["tables"][table]
-                value_list = self.data_load["tables"][table]
-                count_del_row = len(value_list) - len(value_list_copy)
-                if count_del_row > 0:
-                    value_list = self.data_load["tables"][table][-count_del_row:]
-                    id_key = list(value_list[0].keys())[0]
-                    for value_dict in value_list:
-                        id_dict[id_key] = value_dict[id_key]
-                        id_list.append(id_dict.copy())
+                ##########################to indexes######################
+                for i in self.drop_row_dict[table]['indexes']:
+                    value_dict=self.data_load["tables"][table][i]
+                    id_key = list(value_dict.keys())[0]
+                    id_dict[id_key] = value_dict[id_key]
+                    id_list.append(id_dict.copy())
                     self.data_send["tables"][table] = id_list
+                ##########################################################
             if len(self.data_send["tables"]) > 0:
-                answer_server_row = client.del_row_table(data_send=self.data_send).content.decode("utf-8")
+                answer_server_row = client.del_row_struct(data_send=self.data_send).content.decode("utf-8")
                 self.data_send["tables"].clear()
                 print(answer_server_row)
                 if answer_server_row == 'ok':
                     self.data_load = client.get_struct().content  # загрузка обновленых таблиц
                     self.data_load = json.loads(self.data_load.decode('utf-8'))
+                elif answer_server_row=='department':
+                    answer_server_row='невозмлжно удалить отдел с сотрудниками'
+                elif answer_server_row == 'posts':
+                    answer_server_row='невозможно удалить должность с сотрудниками'
             ######################################################################
 
             ###############add row #####################################################
@@ -790,6 +1026,7 @@ class mywindow(QtWidgets.QMainWindow):
 
     valueChanged = pyqtSignal(object)
     flagServerChange=pyqtSignal(object)
+    start_win = pyqtSignal()
 
     def __init__(self, MainWindowAll, NextWidget):
         super(mywindow, self).__init__()
@@ -802,6 +1039,7 @@ class mywindow(QtWidgets.QMainWindow):
         self.ui.pushButton_Creat.clicked.connect(self.btn_Creat)
         self.ui.pushButton_Open.clicked.connect(self.btn_Open)
         self.ui.TB_IPEnter.clicked.connect(self.btn_IPEnter)
+        self.ui.TB_ActiveUser.clicked.connect(self.btn_Active)
         self._name_factory=''
         self.name_factory_orig=''
         self._flag_server=0
@@ -819,6 +1057,7 @@ class mywindow(QtWidgets.QMainWindow):
         #MainWindowAll.setMaximumSize(784, 545)
         #self.MainWindowAll.setFixedSize(self.MainWindowAll.width(), self.MainWindowAll.height())
         self.count_crit=NextWidget
+        self.right=''
 
         #self.maxres()
 
@@ -845,20 +1084,52 @@ class mywindow(QtWidgets.QMainWindow):
         self._flag_server=value
         self.flagServerChange.emit(value)
 
+    def btn_Active(self):
+        dlg_ip = DeployDialogIP(self)
+        dlg_ip.activ_user()
+        dlg_ip.exec()
+        pass
+
+    def reset_win(self):
+        self.ui.pushButton_Open.setEnabled(False)
+        self.ui.pushButton_Creat.setEnabled(False)
+        self.ui.TB_ActiveUser.setEnabled(True)
+        self.ui.TB_IPEnter.setEnabled(True)
+        self.ui.TB_IPEnter.setStyleSheet(" border-width: 1px;\n"
+                                      " border-style: solid;\n"
+                                      " border-color:  rgb(158, 158, 158);\n"
+                                      "background-color: rgb(96, 105, 138);\n"
+                                      "border-radius: 5px;")
 
     def btn_IPEnter(self):
-        dlg=DeployDialogIP(self)
-        dlg.exec()
+
+
+        dlg_ip = DeployDialogIP(self)
+        dlg_ip.buttonBox.accepted.connect(dlg_ip.accept)
+        dlg_ip.exec()
+
         result='False'
-        if dlg.flag_connect==1:
-            client.adress=dlg.IPadress
-            client.password=dlg.PasswordUser
-            client.id_user=dlg.NameUser
-            client.url=f"http://{client.adress}:{5000}"
-            result=client.connect_server(command=6666, db_command=6666).content.decode('utf-8')
-        if result=='ok':
+        if dlg_ip.flag_connect==1 and dlg_ip.right=='admin':
             self.ui.pushButton_Open.setEnabled(True)
             self.ui.pushButton_Creat.setEnabled(True)
+            self.ui.TB_ActiveUser.setEnabled(False)
+            self.right=dlg_ip.right
+            self.ui.TB_IPEnter.setStyleSheet(" border-width: 1px;\n"
+                                          " border-style: solid;\n"
+                                          " border-color: rgb(146, 255, 140);\n"
+                                          "background-color: rgb(96, 105, 138);\n"
+                                          "border-radius: 5px;")
+            self.ui.TB_IPEnter.setEnabled(False)
+
+        elif dlg_ip.flag_connect==1 and dlg_ip.right=='user':
+            self.ui.pushButton_Open.setEnabled(True)
+            # client.adress=dlg.IPadress
+            # client.password=dlg.PasswordUser
+            # client.id_user=dlg.NameUser
+            # client.url=f"http://{client.adress}:{5000}"
+            #result=client.connect_server(command=6666, db_command=6666).content.decode('utf-8')
+
+
     def btn_Creat(self):
         dlg = DialogCreatFactory(self)
         dlg.exec()
@@ -880,16 +1151,38 @@ class mywindow(QtWidgets.QMainWindow):
     def btn_Open(self):
 
         print('open')
+        _translate = QtCore.QCoreApplication.translate
         get_json=client.load_databases().content
         databases = json.loads(get_json.decode('utf-8'))
         dlg = ChooseFactoryDialog_(self, list_factory=databases)
         dlg.exec()
         if dlg.flag_choose==1:
+
+            main_win_block={1:self.MainWindowAll.WorkWindow.TB_search_personal,
+                            2:self.MainWindowAll.WorkWindow.TB_analytics,
+                            3:self.MainWindowAll.WorkWindow.TB_project,
+                            4:self.MainWindowAll.WorkWindow.TB_structure,
+                            5:self.MainWindowAll.WorkWindow.TB_assessment}
+            for right in dlg.rights_user:
+                block=main_win_block[right]
+                block.setEnabled(True)
+            self.MainWindowAll.WorkWindow.PB_name_user.setText(_translate("MainWindow",
+                                                                          f"{dlg.name_person} ({dlg.user})"))
+            self.MainWindowAll.user=dlg.user
+            min_id_right=min(dlg.rights_user)
+            self.MainWindowAll.WorkWindow.stackedWidget.setCurrentIndex(min_id_right-1)
+            self.MainWindowAll.hide_line_button(min_id_right)
+            self.start_win.emit()
+
+
             self.MainWindowAll.setMaximumWidth(4000)
             self.MainWindowAll.setMaximumHeight(4000)
             self.MainWindowAll.resize(1500, 901)
             self.MainWindowAll.GlobalstackedWidget.setCurrentIndex(
             self.MainWindowAll.GlobalstackedWidget.currentIndex() + 3)
+
+
+
     def change_name(self):
         worker = Worker_2(self.start_creat_factory)
         worker.signals.finished.connect(self.thread_complete)
