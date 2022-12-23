@@ -122,14 +122,11 @@ class ServerConnector():
         self.coockies=result.cookies
         return result.content
 
-    def add_db(self, command, db_command):
+    def add_db(self):
+        print("new_factory")
         result = requests.post(f"{self.url}/furniture/add_db",
                                cookies=self.coockies,
-                               json={
-                                   "comand": command,
-                                   "user": self.id_user,
-                                   "db_comand": db_command,
-                                   "name_db": self.name_db})
+                               json={"name_db": self.name_db})
         return result
 
     def add_criterion(self, data_send):

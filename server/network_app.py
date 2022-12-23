@@ -128,6 +128,8 @@ def change_log_pass(name_db):
     admin_db = FurnitureDtabase(name_db='admins_base')
     my_db = FurnitureDtabase(name_db=name_db)
     values = [session['user'][0]['id_user_mydb']]
+    result = {"error": '',
+              "result": ''}
     if data["change"] == 'pass':
         salt_server = admin_db.mysql_castom_command(f"SELECT salt_server FROM admin "
                                                     f"WHERE nickname = '{session['user'][0]['nickname']}'")[0][0]
@@ -149,13 +151,19 @@ def change_log_pass(name_db):
             values.extend([data['password_new'],
                            data['salt_user_new']]),
         else:
-            return 'Неверный пароль'
+            result["error"]='Неверный пароль'
+            result=json.dumps(result)
+            return result
 
     elif data["change"] == 'login':
-        reg_login = admin_db.mysql_castom_command(f"SELECT * FROM admin "
+        reg_login_user = admin_db.mysql_castom_command(f"SELECT * FROM users "
                                                   f"WHERE nickname = '{data['tables']['users']['nickname']}'")
-        if len(reg_login) > 0:
-            return 'пользователь с таким именем уже существует'
+        reg_login_admin = admin_db.mysql_castom_command(f"SELECT * FROM admin "
+                                                  f"WHERE nickname = '{data['tables']['users']['nickname']}'")
+        if len(reg_login_user) > 0 or len(reg_login_admin) > 0:
+            result["error"] = 'Пользователь с таким именем уже существует'
+            result = json.dumps(result)
+            return result
         session['user'][0]['nickname'] = data['tables']['users']['nickname']
         session.modified = True
 
@@ -175,7 +183,11 @@ def change_log_pass(name_db):
     elif session['right'][0] == 'admin':
         rows[0] = 'id_admin'
         admin_db.edit_row('admin', tuple(rows), tuple(values))
-    return 'ok'
+
+    result["result"]='ok'
+    result = json.dumps(result)
+    return result
+
 
 
 @app.route('/furniture/get_nick_user/', methods=['POST'])
@@ -460,18 +472,13 @@ def get_personal(name_db):
 
 
 @app.route('/furniture/add_db/', methods=['POST'])
-def add_factory(comand=1111):
-    stand_comand = {'comand': comand,
-                    'user': 'admin',
-                    'db_comand': 1}
+def add_factory():
+
     path_cr_db = "./mysql_scripts/create_database.sql"
     path_cr_tb = "./mysql_scripts/create_table_factory_ed.sql"
 
     a = request.data
     j = json.loads(a.decode('utf-8'))
-    check_error = check_headline(j, stand_comand)
-    if check_error != True:
-        return check_error
     database.create_database(j['name_db'], path_cr_db)
     database.create_tables_factory(j['name_db'], path_cr_tb)
 

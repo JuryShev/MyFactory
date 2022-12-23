@@ -207,6 +207,7 @@ class DeployDialogIP(QDialog, DialogEnter):
                                        "")
         self.LE_password_rep.setObjectName("lineEdit_2")
         self.LE_password_rep.setPlaceholderText(_translate("Dialog", "повторите пароль"))
+        self.LE_password_rep.setEchoMode(QtWidgets.QLineEdit.Password)
         self.buttonBox.setGeometry(QtCore.QRect(120, 190, 151, 32))
         self.Asterisk_key = QtWidgets.QLabel(self)
         self.Asterisk_key.setGeometry(QtCore.QRect(340, 50, 17, 17))
@@ -1173,14 +1174,12 @@ class mywindow(QtWidgets.QMainWindow):
             self.MainWindowAll.WorkWindow.stackedWidget.setCurrentIndex(min_id_right-1)
             self.MainWindowAll.hide_line_button(min_id_right)
             self.start_win.emit()
-
-
             self.MainWindowAll.setMaximumWidth(4000)
             self.MainWindowAll.setMaximumHeight(4000)
             self.MainWindowAll.resize(1500, 901)
             self.MainWindowAll.GlobalstackedWidget.setCurrentIndex(
             self.MainWindowAll.GlobalstackedWidget.currentIndex() + 3)
-
+            self.MainWindowAll.WorkWindow.menubar.show()
 
 
     def change_name(self):
@@ -1220,7 +1219,7 @@ class mywindow(QtWidgets.QMainWindow):
     def start_creat_factory(self):
         client.name_db=self.name_factory
         print(f"client.name_db-----{client.name_db} self.name_factory_orig={self.name_factory_orig} ")
-        result = client.add_db(command=1111, db_command=1).content.decode("utf-8") #comand=1111, db_comand=1
+        result = client.add_db().content.decode("utf-8") #comand=1111, db_comand=1
         self.progress_bar.status_ = result
 
     def thread_complete(self):

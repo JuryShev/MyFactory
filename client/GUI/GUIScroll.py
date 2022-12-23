@@ -52,7 +52,7 @@ class GUIScrollPersonal():
         self.Label_NumLastList.setStyleSheet("color: rgb(255, 255, 255);")
         self.Label_NumLastList.setObjectName("Label_NumLastList")
         self.TB_Left_APers = QtWidgets.QToolButton(frame_loadList)
-        self.TB_Left_APers.setStyleSheet("")
+        self.TB_Left_APers.setStyleSheet("border:none")
         self.TB_Left_APers.setText("")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(
@@ -61,8 +61,7 @@ class GUIScrollPersonal():
         self.TB_Left_APers.setIcon(icon)
         self.TB_Left_APers.setObjectName("TB_Left_APers")
         self.TB_Right_APers = QtWidgets.QToolButton(frame_loadList)
-        self.TB_Right_APers.setStyleSheet("\n"
-                                          "border:none\\n")
+        self.TB_Right_APers.setStyleSheet("border:none")
         self.TB_Right_APers.setText("")
         icon1 = QtGui.QIcon()
         icon1.addPixmap(QtGui.QPixmap(

@@ -41,6 +41,7 @@ class DialogEnter(object):
         self.LE_IP.setValidator(input_validator)
         self.LE_password = QtWidgets.QLineEdit(Dialog)
         self.LE_password.setGeometry(QtCore.QRect(60, 80, 271, 20))
+        self.LE_password.setEchoMode(QtWidgets.QLineEdit.Password)
         font = QtGui.QFont()
         font.setFamily("Roboto")
         font.setPointSize(10)

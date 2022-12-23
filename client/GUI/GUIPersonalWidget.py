@@ -367,11 +367,6 @@ class GUIPersonalWidgetScroll (QtWidgets.QWidget):
         self.TB_APersCheckEdit_new.setCheckable(False)
         self.TB_APersCheckEdit_new.clicked.connect(self.edit_assessment)
 
-        self.Label_APersCheckAssessment_new = QtWidgets.QLabel(self.Pers_new)
-        self.Label_APersCheckAssessment_new=self.config_label(self.Label_APersCheckAssessment_new,
-                                                              rect=QtCore.QRect(479, 10, 21, 21),
-                                                              stylesheet="border-image: url(./GUI/icon/comment.png);",
-                                                              name="Label_APersCheckAssessment_3")
 
     def config_pers_frame(self):
         self.sizePolicy.setHorizontalStretch(0)

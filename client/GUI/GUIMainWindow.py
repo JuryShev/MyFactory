@@ -662,6 +662,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.Analytics.menuAction())
         self.menubar.addAction(self.Struct.menuAction())
         self.menubar.addAction(self.Assessment.menuAction())
+        self.menubar.hide()
         ##################################################
         self.PB_name_user = QtWidgets.QPushButton(self.centralwidget)
         self.PB_name_user.setGeometry(QtCore.QRect(1290, 0, 171, 23))

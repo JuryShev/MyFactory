@@ -158,6 +158,7 @@ class Deploy_ChangeLogin(QDialog, DialogEnter):
                                            "")
         self.LE_password_new.setObjectName("LE_password_new")
         self.LE_password_new.setPlaceholderText(_translate("Dialog", "новый пароль"))
+        self.LE_password_new.setEchoMode(QtWidgets.QLineEdit.Password)
         regular_ex = QtCore.QRegExp("[A-Za-z\d@$!%*?&]{20}")  # №\\b^.*(?=.{8,})(?=.*\d)(?=.*[a-z]).*$\\b
         input_validator = QtGui.QRegExpValidator(regular_ex, self.LE_password_new)
         self.LE_password.setValidator(input_validator)
@@ -177,6 +178,7 @@ class Deploy_ChangeLogin(QDialog, DialogEnter):
                                            "")
         self.LE_password_rep.setObjectName("LE_password_new")
         self.LE_password_rep.setPlaceholderText(_translate("Dialog", "повторите пароль"))
+        self.LE_password_rep.setEchoMode(QtWidgets.QLineEdit.Password)
         input_validator = QtGui.QRegExpValidator(regular_ex, self.LE_password_rep)
         self.LE_password_rep.setValidator(input_validator)
         self.LE_password_rep.hide()
@@ -239,6 +241,8 @@ class Deploy_ChangeLogin(QDialog, DialogEnter):
 
         self.buttonBox.accepted.connect(self.change_)
         self.PB_edit_pass.clicked.connect(self.edit_pass)
+
+        self.buttonBox.setEnabled(False)
 
     def check_change_pass(self):
         _translate = QtCore.QCoreApplication.translate
@@ -303,7 +307,7 @@ class Deploy_ChangeLogin(QDialog, DialogEnter):
         _translate = QtCore.QCoreApplication.translate
         flag_list = []
         self.NameUser_new = self.LE_name.text()
-        if len(self.NameUser) <= 1:
+        if len(self.NameUser_new) <= 1:
             flag_list.append(0)
             self.QL_error.setText(_translate("Dialog", "слишком короткое имя"))
             self.Asterisk_Name.show()
@@ -324,7 +328,8 @@ class Deploy_ChangeLogin(QDialog, DialogEnter):
 
     def change_(self):
         _translate = QtCore.QCoreApplication.translate
-        result = ''
+        result = {"error":'',
+                  "result":''}
         log_pass = ''
         dlg = ImpMassageBox(self)
         dlg.PB_OK_second.hide()
@@ -344,8 +349,7 @@ class Deploy_ChangeLogin(QDialog, DialogEnter):
                         }
                     }
                     result = client.change_log_pass(change_).content.decode('utf-8')
-
-
+                    result = json.loads(result)
         else:
             check_list = self.check_change_pass()
             if 0 not in check_list:
@@ -372,20 +376,23 @@ class Deploy_ChangeLogin(QDialog, DialogEnter):
                     }
                 }
                 result = client.change_log_pass(change_).content.decode('utf-8')
-        if result == 'ok':
-            self.result = result + log_pass
+                result=json.loads(result)
+        if len(result["error"])> 0:
+            self.QL_error.setText(_translate("Dialog", result['error']))
+        elif len(result["error"])==0 and result["result"]=='ok':
+            self.result = result["result"] + log_pass
             self.close()
-        else:
-            self.QL_error.setText(_translate("Dialog", "неверный пароль"))
+
 
     def edit_pass(self):
-        _translate = QtCore.QCoreApplication.translate
         if self.LE_password.isHidden():
+            self.LE_name.setText(_translate("Form", self.NameUser))
             self.resize(380, 230)
             self.QL_error.setGeometry(QtCore.QRect(0, 145, 391, 27))
             self.buttonBox.setGeometry(QtCore.QRect(120, 190, 151, 32))
             self.LE_name.setEnabled(False)
             self.TB_edit_name_user.setEnabled(False)
+            self.buttonBox.setEnabled(True)
             original = QtGui.QPixmap(self.path_icon_edit_inactive)
             self.icon_edit_name_user = QtGui.QIcon(original)
             self.icon_edit_name_user.addPixmap(original, QtGui.QIcon.Normal, QtGui.QIcon.On)
@@ -395,11 +402,14 @@ class Deploy_ChangeLogin(QDialog, DialogEnter):
             self.LE_password.show()
             self.LE_password_new.show()
             self.LE_password_rep.show()
+
+
         else:
             self.resize(380, 120)
             self.buttonBox.setGeometry(QtCore.QRect(120, 80, 151, 32))
             self.QL_error.setGeometry(QtCore.QRect(0, 60, 391, 27))
             self.TB_edit_name_user.setEnabled(True)
+            self.buttonBox.setEnabled(False)
             original = QtGui.QPixmap(self.path_icon_edit)
             self.icon_edit_name_user = QtGui.QIcon(original)
             self.icon_edit_name_user.addPixmap(original, QtGui.QIcon.Normal, QtGui.QIcon.On)
@@ -414,6 +424,7 @@ class Deploy_ChangeLogin(QDialog, DialogEnter):
 
     def edit_name(self):
         self.LE_name.setEnabled(True)
+        self.buttonBox.setEnabled(True)
 
 
 class PersonalWidget(GUIPersonalWidget_2):
@@ -660,6 +671,8 @@ class ScrollPersonal(GUIScrollPersonal):
     def connect_button(self):
         self.TB_Left_APers.clicked.connect(self.next_left)
         self.TB_Right_APers.clicked.connect(self.next_right)
+        self.TB_Left_APers.setEnabled(False)
+        self.TB_Right_APers.setEnabled(False)
 
     def set_default_scroll(self):
         self.start_list_w = []
@@ -873,6 +886,7 @@ class PersonalAssessment(GUIAssessment):
         self.PB_Save_APers.clicked.connect(self.save_data)
         self.ComboBox_Crit_APers.currentTextChanged.connect(self.ComboBox_Crit_APers_changed)
         self.ComboBox_Sorting_APers.currentTextChanged.connect(self.ComboBox_Sorting_APers_changed_slot)
+        self.PB_Save_APers.setEnabled(False)
 
     def reset_win(self):
         self.scroll_personal.clear_scroll_assessment()
@@ -931,7 +945,7 @@ class PersonalAssessment(GUIAssessment):
         time_select = datetime.datetime.strptime(f"{day}-{month}-{year}", "%d-%m-%Y").date()
         div_date = datetime.date.today() - time_select
         if div_date.days < 0:
-            print("warning")
+            view_massage(self, 'Недопустимая дата', 'warning',button=1)
             return
 
         request_send = {
@@ -1001,6 +1015,10 @@ class PersonalAssessment(GUIAssessment):
             "MainWindow",
             f"всего в отделе {len(self.scroll_personal.PersonalDataAssessment['tables']['personal'])} сотрудников"))
         self.ComboBox_Sorting_APers.setEnabled(True)
+        self.scroll_personal.TB_Left_APers.setEnabled(True)
+        self.scroll_personal.TB_Right_APers.setEnabled(True)
+        self.PB_Save_APers.setEnabled(True)
+
 
     def ComboBox_Sorting_APers_changed_slot(self):
         _translate = QtCore.QCoreApplication.translate
@@ -1413,15 +1431,16 @@ class PersonInteraction(GUIPersonInteraction):
         self.ComboBox_Meanval_LPers.setItemText(0, _translate("MainWindow", "За месяц"))
         self.ComboBox_Meanval_LPers.setItemText(1, _translate("MainWindow", "За квартал"))
         self.ComboBox_Meanval_LPers.setItemText(2, _translate("MainWindow", "За год"))
+        self.label_Meanval_LPers.setText(_translate("MainWindow", "Cред. знач."))
         self.ComboBox_Filter_LPers.setItemText(0, _translate("MainWindow", "Все"))
         self.ComboBox_Filter_LPers.setItemText(1, _translate("MainWindow", "С оценкой"))
         self.ComboBox_Filter_LPers.setItemText(2, _translate("MainWindow", "Без оценки"))
         self.ComboBox_Filter_LPers.setItemText(3, _translate("MainWindow", "Отредактированные"))
-        self.label_Filter_LPers.setText(_translate("MainWindow", "показать"))
+        self.label_Filter_LPers.setText(_translate("MainWindow", "Показать"))
         self.TB_Date_LPers.setText(_translate("MainWindow", "..."))
-        self.label_Date_Lpers.setText(_translate("MainWindow", "дата"))
-        self.Label_Dep_LPers.setText(_translate("MainWindow", "отдел"))
-        self.label_Crit_LPers.setText(_translate("MainWindow", "критерий"))
+        self.label_Date_Lpers.setText(_translate("MainWindow", "Дата"))
+        self.Label_Dep_LPers.setText(_translate("MainWindow", "Отдел"))
+        self.label_Crit_LPers.setText(_translate("MainWindow", "Критерий"))
         self.Label_NumCurrentList.setText(_translate("MainWindow", "1 "))
         self.Label_NumLastList.setText(_translate("MainWindow", "...20"))
         self.PB_serch_personalList.setText(_translate("MainWindow", "Загрузить"))
@@ -2463,14 +2482,11 @@ class MainWindow_all_3(QtWidgets.QMainWindow):
         dlg_change_login.NameUser = nickname
         dlg_change_login.LE_name.setText(self._translate("Form", nickname))
         dlg_change_login.exec()
-        massage_box = ImpMassageBox(self)
-        massage_box.PB_OK_Canel.hide()
         if dlg_change_login.result == 'ok_pass':
-            massage_box.Label_message.setText((_translate("Dialog", "Пароль успешно изменен")))
-            massage_box.exec()
+            view_massage(self, "Пароль успешно изменен",'ok', button=1)
         elif dlg_change_login.result == 'ok_login':
-            massage_box.Label_message.setText((_translate("Dialog", "Логин успешно изменен")))
-            massage_box.exec()
+            view_massage(self, "Логин успешно изменен", 'ok', button=1)
+
 
     def add_worksapace(self):
         self.GlobalstackedWidget.addWidget(self.WorkWindow.centralwidget)
