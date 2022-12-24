@@ -882,22 +882,22 @@ def send_assessments(name_db):
 
 # Lana
 def get_id_person(name_person, db):
-    return db.mysql_castom_command(f'''SELECT id_personal FROM personal WHERE name = '{name_person}' ''')[0]
+    return db.mysql_castom_command(f'''SELECT id_personal FROM personal WHERE name = '{name_person}' ''')[0][0]
 
 
 def get_id_bonus(person, data, db):
     """
     Возвращает id бонуса в таблице или -1, если его там нет
     """
-    date_ = '-'.join(data['date'].split('-'))
-    old_bonus = db.mysql_castom_command(f'''SELECT id_bonus, bonus FROM personal_bonus
-                                        WHERE date = '{date_}' AND id_personal = '{get_id_person(person["name"], db)}' ''')
+    date_ = '-'.join(reversed(data['date'].split('-')))
+    old_bonus = db.mysql_castom_command(f'''SELECT id_bonus FROM personal_bonus
+                                        WHERE date = '{date_}' AND id_personal = {get_id_person(person["name"], db)} ''')
     if len(old_bonus) > 0:
-        return old_bonus[0]
+        return old_bonus[0][0]
     return -1
 
 
-def calculate_bonus_for_person(person, data, db):
+def calculate_bonus_for_person(person, db):
     all_salaries = db.mysql_castom_command(f'''SELECT SUM(salaryl) FROM personal''')[0][0]
     department_salary = db.mysql_castom_command(f'''SELECT SUM(salaryl) FROM personal
                                                 INNER JOIN department ON personal.id_department = department.id_department
@@ -913,11 +913,11 @@ def calculate_bonus_for_person(person, data, db):
     criteria_data = db.mysql_castom_command(f'''SELECT assessment, max_coef, w_coef FROM personal_assessment
                                             INNER JOIN conf_criterion 
                                             ON personal_assessment.id_criterion = conf_criterion.id_conf_criterion
-                                            WHERE name = '{get_id_person(person["name"], db)}' ''')
+                                            WHERE id_name_personal = {get_id_person(person["name"], db)} ''')
     employee_goodness = 0
     for assessment, max_coef, w_coef in criteria_data:
         employee_goodness += assessment * w_coef / max_coef
-    return full_bonus * employee_goodness
+    return round(full_bonus * employee_goodness, 2)
 
 
 def add_bonus(id_bonus, bonus, person, data, db):
@@ -937,13 +937,11 @@ def add_bonus(id_bonus, bonus, person, data, db):
 
 
 def edit_bonus(id_bonus, bonus, db):
-    try:
-        db.mysql_castom_command(f'''UPDATE personal_bonus
-                                    SET bonus = {bonus} WHERE id_bonus = {id_bonus};
-                                    ''')
-        # result.append(f"bonus added for person: {person['name']}")
-    except:
+    if id_bonus == -1:
         return False
+    db.mysql_castom_command(f'''UPDATE personal_bonus
+                                SET bonus = {bonus} WHERE id_bonus = {id_bonus};
+                                ''', 0)
     return True
 
 
@@ -957,7 +955,8 @@ def unload_bonus(person, data, db):
                                                    ''')
     for bonus, date_ in all_bonuses:
         result.append({'name': person['name'], 'salaryl': person["salaryl"],
-                       'bonus': bonus, 'sum': person["salaryl"] + bonus, 'date': date_})
+                       'bonus': bonus, 'sum': person["salaryl"] + bonus,
+                       'date': '-'.join(reversed(str(date_).split('-')))})
     return result
 
 
@@ -983,11 +982,11 @@ def calculate_bonus(name_db):
     elif data['calculate'] in ['department', 'all']:
         condition = ''
         if data['calculate'] == 'department':
-            departments = tuple(map(lambda x: x["title"], data['tables']['departments']))
-            condition = f' WHERE department IN {departments} '
-        temp_data = db.mysql_castom_command(f'''SELECT name, salaryl, department FROM personal
+            departments = tuple(map(lambda dep: dep["title"], data['tables']['departments']))
+            condition = f' WHERE title IN {departments} '
+        temp_data = db.mysql_castom_command(f'''SELECT name, salaryl, title FROM personal
                                 INNER JOIN department
-                                ON personal.id_department = department.id.department
+                                ON personal.id_department = department.id_department
                                 {condition} ''')
         for name, salary, department in temp_data:
             personal.append({
@@ -998,22 +997,35 @@ def calculate_bonus(name_db):
 
     for person in personal:
         id_bonus = get_id_bonus(person, data, db)
-        bonus = calculate_bonus_for_person(person, data, db)
+        bonus = calculate_bonus_for_person(person, db)
         if data['flag_calculate'] == 'add':
             add_bonus(id_bonus, bonus, person, data, db)
         elif data['flag_calculate'] == 'edit':
+            db.mysql_castom_command(f'''UPDATE personal
+                                        SET salaryl = {person['salaryl']}
+                                        WHERE id_personal = {get_id_person(person['name'], db)}; ''', 0)
             edit_bonus(id_bonus, bonus, db)
-        elif data['flag_calculate'] == 'unload':
-            if person['department'] not in result['tables']['dapartments']:
-                result['tables']['dapartments'][person['department']] = {'personal': []}
-            result['tables']['dapartments'][person['department']]['personal'].append(unload_bonus(person, data, db))
-        elif data['flag_calculate'] == 'view':
-            if person['department'] not in result['tables']['dapartments']:
-                result['tables']['dapartments'][person['department']] = {'personal': []}
-            result['tables']['dapartments'][person['department']]['personal'].append(
-                view_bonus(id_bonus, bonus, person, data, db))
-
+        # elif data['flag_calculate'] == 'unload':
+        #     temp = unload_bonus(person, data, db)
+        #     if len(temp) > 0:
+        #         if person['department'] not in result['tables']['dapartments']:
+        #             result['tables']['dapartments'][person['department']] = {'personal': []}
+        #         result['tables']['dapartments'][person['department']]['personal'].extend(temp)
+        # elif data['flag_calculate'] == 'view':
+        #     temp = view_bonus(id_bonus, bonus, person, data, db)
+        #     if len(temp) > 0:
+        #         if person['department'] not in result['tables']['dapartments']:
+        #             result['tables']['dapartments'][person['department']] = {'personal': []}
+        #         result['tables']['dapartments'][person['department']]['personal'].extend(temp)
+        elif data['flag_calculate'] in ['unload', 'view']:
+            temp = unload_bonus(person, data, db) if data['flag_calculate'] == 'unload' \
+                else view_bonus(id_bonus, bonus, person, data, db)
+            if len(temp) > 0:
+                if person['department'] not in result['tables']['dapartments']:
+                    result['tables']['dapartments'][person['department']] = {'personal': []}
+                result['tables']['dapartments'][person['department']]['personal'].extend(temp)
     return result
+
 
 # end Lana
 
