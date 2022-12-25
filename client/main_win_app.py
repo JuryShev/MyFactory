@@ -2173,9 +2173,6 @@ class ImpMassageBox(QDialog, MassageBox):
         self.flag_choose = 'ok'
         self.close()
 
-        pass
-
-
 class ImpDialogUserRule(DialogUserRule):
     def __init__(self):
 
@@ -2501,7 +2498,6 @@ class MainWindow_all_3(QtWidgets.QMainWindow):
                           "bonus_koeficient": self.struct.table_bonus_koeficient}
 
         try:
-            self.struct.label_name_factory.setText(self._translate("Form", self.client.name_db))
             get_json = self.client.get_struct().content
             get_json = json.loads(get_json.decode('utf-8'))
             self.struct.data_load["tables"] = get_json["tables"].copy()

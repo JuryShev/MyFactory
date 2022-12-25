@@ -474,15 +474,23 @@ def get_personal(name_db):
 @app.route('/furniture/add_db/', methods=['POST'])
 def add_factory():
 
-    path_cr_db = "./mysql_scripts/create_database.sql"
-    path_cr_tb = "./mysql_scripts/create_table_factory_ed.sql"
-
+    admin_db = FurnitureDtabase(name_db='admins_base')
     a = request.data
     j = json.loads(a.decode('utf-8'))
+    factory=admin_db.mysql_castom_command(
+        f"SELECT * FROM factory WHERE id_admin = {session['user'][0]['id_user']} AND name_factory='{j['name_db']}';"
+    )
+    if len(factory)>0:
+        return 'factory exist'
+
+    path_cr_db = "./mysql_scripts/create_database.sql"
+    path_cr_tb = "./mysql_scripts/create_table_factory_ed.sql"
     database.create_database(j['name_db'], path_cr_db)
     database.create_tables_factory(j['name_db'], path_cr_tb)
-
-    return "ok"
+    admin_db.add_row_v2('factory',
+                     ('name_factory', 'id_admin'),
+                     (j['name_db'], session['user'][0]['id_user']))
+    return 'ok'
 
 
 @app.route('/furniture/get_inside_struct_<name_db>/', methods=['POST'])

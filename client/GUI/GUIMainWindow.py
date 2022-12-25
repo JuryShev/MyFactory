@@ -13,19 +13,19 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 class Ui_MainWindow(object):
     def __init__(self):
-        self.x_start=140
-        self.y_start=80
-        self.WinOpenSizeWidth=0
-        self.WinOpenSizeHeight=0
+        self.x_start = 140
+        self.y_start = 80
+        self.WinOpenSizeWidth = 0
+        self.WinOpenSizeHeight = 0
         # self.w = self.width()
         # self.h = self.height()
-        self.RelationWidth=0.8
+        self.RelationWidth = 0.8
         self.RelationHeight = 0.8
 
     def setupUi(self, MainWindow):
         self.screen = QtWidgets.QDesktopWidget().screenGeometry()
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(self.WinOpenSizeWidth, self.WinOpenSizeHeight)#1500, 901
+        MainWindow.resize(self.WinOpenSizeWidth, self.WinOpenSizeHeight)  # 1500, 901
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -35,7 +35,8 @@ class Ui_MainWindow(object):
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.stackedWidget = QtWidgets.QStackedWidget(self.centralwidget)
-        self.stackedWidget.setGeometry(QtCore.QRect(self.x_start, self.y_start, self.screen.width()-self.x_start, self.screen.height()-self.y_start))
+        self.stackedWidget.setGeometry(QtCore.QRect(self.x_start, self.y_start, self.screen.width() - self.x_start,
+                                                    self.screen.height() - self.y_start))
         self.stackedWidget.setAutoFillBackground(False)
         self.stackedWidget.setStyleSheet("")
         self.stackedWidget.setObjectName("stackedWidget")
@@ -75,14 +76,15 @@ class Ui_MainWindow(object):
         spacerItem2 = QtWidgets.QSpacerItem(20, 15, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.Glay_serch_personal.addItem(spacerItem2, 2, 1, 1, 1)
         self.LE_serch_personal = QtWidgets.QLineEdit(self.gridLayoutWidget_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding,
+                                           QtWidgets.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.LE_serch_personal.sizePolicy().hasHeightForWidth())
         self.LE_serch_personal.setSizePolicy(sizePolicy)
         self.LE_serch_personal.setStyleSheet("\n"
-"background-color: rgb(255, 255, 255);\n"
-" border-radius: 5px;")
+                                             "background-color: rgb(255, 255, 255);\n"
+                                             " border-radius: 5px;")
         self.LE_serch_personal.setText("")
         self.LE_serch_personal.setObjectName("LE_serch_personal")
         self.Glay_serch_personal.addWidget(self.LE_serch_personal, 1, 1, 1, 1)
@@ -104,7 +106,7 @@ class Ui_MainWindow(object):
         font.setWeight(75)
         self.label_head_depart.setFont(font)
         self.label_head_depart.setStyleSheet("color: rgb(255, 255, 255);")
-        self.label_head_depart.setAlignment(QtCore.Qt.AlignBottom|QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing)
+        self.label_head_depart.setAlignment(QtCore.Qt.AlignBottom | QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing)
         self.label_head_depart.setObjectName("label_head_depart")
 
         self.VLay_work_inf.addWidget(self.label_head_depart)
@@ -124,7 +126,7 @@ class Ui_MainWindow(object):
         font.setItalic(True)
         self.label_name_depart.setFont(font)
         self.label_name_depart.setStyleSheet("color: rgb(255, 255, 255);")
-        self.label_name_depart.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTop|QtCore.Qt.AlignTrailing)
+        self.label_name_depart.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignTop | QtCore.Qt.AlignTrailing)
         self.label_name_depart.setObjectName("label_name_depart")
         self.VLay_work_inf.addWidget(self.label_name_depart)
         self.label_hed_post = QtWidgets.QLabel(self.verticalLayoutWidget_2)
@@ -135,7 +137,7 @@ class Ui_MainWindow(object):
         font.setWeight(75)
         self.label_hed_post.setFont(font)
         self.label_hed_post.setStyleSheet("color: rgb(255, 255, 255);")
-        self.label_hed_post.setAlignment(QtCore.Qt.AlignBottom|QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing)
+        self.label_hed_post.setAlignment(QtCore.Qt.AlignBottom | QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing)
         self.label_hed_post.setObjectName("label_hed_post")
         self.VLay_work_inf.addWidget(self.label_hed_post)
         self.line_post = QtWidgets.QFrame(self.verticalLayoutWidget_2)
@@ -151,7 +153,7 @@ class Ui_MainWindow(object):
         font.setItalic(True)
         self.label_name_post.setFont(font)
         self.label_name_post.setStyleSheet("color: rgb(255, 255, 255);")
-        self.label_name_post.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTop|QtCore.Qt.AlignTrailing)
+        self.label_name_post.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignTop | QtCore.Qt.AlignTrailing)
         self.label_name_post.setObjectName("label_name_post")
         self.VLay_work_inf.addWidget(self.label_name_post)
         self.label_head_salaryl = QtWidgets.QLabel(self.verticalLayoutWidget_2)
@@ -163,7 +165,7 @@ class Ui_MainWindow(object):
         font.setWeight(75)
         self.label_head_salaryl.setFont(font)
         self.label_head_salaryl.setStyleSheet("color: rgb(255, 255, 255);")
-        self.label_head_salaryl.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_head_salaryl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.label_head_salaryl.setObjectName("label_head_salaryl")
         self.VLay_work_inf.addWidget(self.label_head_salaryl)
         self.line_salaryl = QtWidgets.QFrame(self.verticalLayoutWidget_2)
@@ -179,7 +181,7 @@ class Ui_MainWindow(object):
         font.setItalic(True)
         self.label_salaryl.setFont(font)
         self.label_salaryl.setStyleSheet("color: rgb(255, 255, 255);")
-        self.label_salaryl.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTop|QtCore.Qt.AlignTrailing)
+        self.label_salaryl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignTop | QtCore.Qt.AlignTrailing)
         self.label_salaryl.setObjectName("label_salaryl")
         self.VLay_work_inf.addWidget(self.label_salaryl)
         spacerItem5 = QtWidgets.QSpacerItem(20, 54, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
@@ -193,9 +195,9 @@ class Ui_MainWindow(object):
         font.setWeight(75)
         self.label_asses_certification.setFont(font)
         self.label_asses_certification.setStyleSheet(" border-radius: 25px;\n"
-"color: rgb(255, 255, 255);\n"
-"background-color: rgb(122, 133, 175);\n"
-"")
+                                                     "color: rgb(255, 255, 255);\n"
+                                                     "background-color: rgb(122, 133, 175);\n"
+                                                     "")
         self.label_asses_certification.setAlignment(QtCore.Qt.AlignCenter)
         self.label_asses_certification.setObjectName("label_asses_certification")
         self.line_number_asses = QtWidgets.QFrame(self.groupBox)
@@ -213,9 +215,9 @@ class Ui_MainWindow(object):
         font.setWeight(75)
         self.label_asses_bonus.setFont(font)
         self.label_asses_bonus.setStyleSheet(" border-radius: 25px;\n"
-"color: rgb(255, 255, 255);\n"
-"background-color: rgb(122, 133, 175);\n"
-"")
+                                             "color: rgb(255, 255, 255);\n"
+                                             "background-color: rgb(122, 133, 175);\n"
+                                             "")
         self.label_asses_bonus.setAlignment(QtCore.Qt.AlignCenter)
         self.label_asses_bonus.setObjectName("label_asses_bonus")
         self.label_avatar = QtWidgets.QLabel(self.groupBox)
@@ -236,7 +238,7 @@ class Ui_MainWindow(object):
         font.setWeight(50)
         self.label_certification.setFont(font)
         self.label_certification.setStyleSheet("color: rgb(255, 255, 255);")
-        self.label_certification.setAlignment(QtCore.Qt.AlignBottom|QtCore.Qt.AlignHCenter)
+        self.label_certification.setAlignment(QtCore.Qt.AlignBottom | QtCore.Qt.AlignHCenter)
         self.label_certification.setObjectName("label_certification")
         self.label_bonus = QtWidgets.QLabel(self.groupBox)
         self.label_bonus.setGeometry(QtCore.QRect(569, 460, 201, 31))
@@ -247,7 +249,7 @@ class Ui_MainWindow(object):
         font.setWeight(50)
         self.label_bonus.setFont(font)
         self.label_bonus.setStyleSheet("color: rgb(255, 255, 255);")
-        self.label_bonus.setAlignment(QtCore.Qt.AlignBottom|QtCore.Qt.AlignHCenter)
+        self.label_bonus.setAlignment(QtCore.Qt.AlignBottom | QtCore.Qt.AlignHCenter)
         self.label_bonus.setObjectName("label_bonus")
         self.label_number = QtWidgets.QLabel(self.groupBox)
         self.label_number.setGeometry(QtCore.QRect(414, 410, 209, 19))
@@ -262,7 +264,7 @@ class Ui_MainWindow(object):
         font.setItalic(True)
         self.label_number.setFont(font)
         self.label_number.setStyleSheet("color: rgb(255, 255, 255);")
-        self.label_number.setAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
+        self.label_number.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
         self.label_number.setObjectName("label_number")
         self.label_surname = QtWidgets.QLabel(self.groupBox)
         self.label_surname.setGeometry(QtCore.QRect(414, 340, 201, 21))
@@ -273,7 +275,7 @@ class Ui_MainWindow(object):
         font.setWeight(75)
         self.label_surname.setFont(font)
         self.label_surname.setStyleSheet("color: rgb(255, 255, 255);")
-        self.label_surname.setAlignment(QtCore.Qt.AlignBottom|QtCore.Qt.AlignHCenter)
+        self.label_surname.setAlignment(QtCore.Qt.AlignBottom | QtCore.Qt.AlignHCenter)
         self.label_surname.setObjectName("label_surname")
         self.label_name = QtWidgets.QLabel(self.groupBox)
         self.label_name.setGeometry(QtCore.QRect(354, 370, 321, 21))
@@ -284,7 +286,7 @@ class Ui_MainWindow(object):
         font.setWeight(75)
         self.label_name.setFont(font)
         self.label_name.setStyleSheet("color: rgb(255, 255, 255);")
-        self.label_name.setAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
+        self.label_name.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
         self.label_name.setObjectName("label_name")
         self.verticalLayoutWidget_4 = QtWidgets.QWidget(self.groupBox)
         self.verticalLayoutWidget_4.setGeometry(QtCore.QRect(790, 320, 209, 181))
@@ -385,7 +387,7 @@ class Ui_MainWindow(object):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(
             "./GUI/icon/plus_mini [#1523].png"),
-                       QtGui.QIcon.Normal, QtGui.QIcon.Off)
+            QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.TB_AddPersonal.setIcon(icon)
         self.TB_AddPersonal.setObjectName("toolButton")
         self.TB_EditPersonal = QtWidgets.QToolButton(self.groupBox)
@@ -403,14 +405,13 @@ class Ui_MainWindow(object):
         self.TB_RemovePersonal.setIcon(icon2)
         self.TB_RemovePersonal.setIconSize(QtCore.QSize(20, 20))
         self.TB_RemovePersonal.setObjectName("TB_remove")
-        #self.stackedWidget.addWidget(self.Search_person)
+        # self.stackedWidget.addWidget(self.Search_person)
         # self.page_2 = QtWidgets.QWidget()
         # self.page_2.setObjectName("page_2")
         # self.stackedWidget.addWidget(self.page_2)
         # self.page_3 = QtWidgets.QWidget()
         # self.page_3.setObjectName("page_3")
         # self.stackedWidget.addWidget(self.page_3)
-
 
         # self.verticalLayoutWidget_3 = QtWidgets.QWidget(self.centralwidget)
         # self.verticalLayoutWidget_3.setGeometry(QtCore.QRect(20, 200, 81, 611))
@@ -430,19 +431,19 @@ class Ui_MainWindow(object):
         self.gridLayout_4.setObjectName("gridLayout_4")
         spacerItem14 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         self.gridLayout_4.addItem(spacerItem14, 2, 0, 1, 1)
-        style_menu_button="""QToolButton{
+        style_menu_button = """QToolButton{
                                               background-color: rgb(88, 96, 127);
                                               color: rgb(0, 0, 0);
                                               border-style: solid;
                                               border-width: 1.5px;
                                               border-color: rgb(88, 96, 127);
                                               border-radius: 20px;  }
-                                              
+
                                                 QToolButton:checked {
                                               border-style: solid;
                                               border-bottom-color: rgb(88, 96, 127);
                                               }
-                                              
+
                                                 QToolButton:hover {
                                               background-color: rgb(140, 148, 180); }"""
         ################################
@@ -464,8 +465,8 @@ class Ui_MainWindow(object):
         self.TB_search_personal.setText("")
         icon8 = QtGui.QIcon()
         icon8.addPixmap(QtGui.QPixmap(
-                "./GUI/icon/personal_2.png"),
-                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
+            "./GUI/icon/personal_2.png"),
+            QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.TB_search_personal.setIcon(icon8)
         self.TB_search_personal.setIconSize(QtCore.QSize(35, 35))
         self.TB_search_personal.setCheckable(True)
@@ -488,8 +489,8 @@ class Ui_MainWindow(object):
         self.TB_analytics.setText("")
         icon9 = QtGui.QIcon()
         icon9.addPixmap(QtGui.QPixmap(
-                "./GUI/icon/analytics2.png"),
-                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
+            "./GUI/icon/analytics2.png"),
+            QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.TB_analytics.setIcon(icon9)
         self.TB_analytics.setIconSize(QtCore.QSize(25, 25))
         self.TB_analytics.setCheckable(True)
@@ -514,8 +515,8 @@ class Ui_MainWindow(object):
         self.TB_project.setText("")
         icon10 = QtGui.QIcon()
         icon10.addPixmap(QtGui.QPixmap(
-                "./GUI/icon/project.png"),
-                         QtGui.QIcon.Normal, QtGui.QIcon.Off)
+            "./GUI/icon/project.png"),
+            QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.TB_project.setIcon(icon10)
         self.TB_project.setIconSize(QtCore.QSize(30, 30))
         self.TB_project.setCheckable(True)
@@ -550,7 +551,7 @@ class Ui_MainWindow(object):
         icon11 = QtGui.QIcon()
         icon11.addPixmap(QtGui.QPixmap(
             "./GUI/icon/structure.png"),
-                         QtGui.QIcon.Normal, QtGui.QIcon.Off)
+            QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.TB_structure.setIcon(icon11)
         self.TB_structure.setIconSize(QtCore.QSize(30, 30))
         self.TB_structure.setCheckable(True)
@@ -593,7 +594,7 @@ class Ui_MainWindow(object):
         icon12 = QtGui.QIcon()
         icon12.addPixmap(QtGui.QPixmap(
             "./GUI/icon/assessment.png"),
-                         QtGui.QIcon.Normal, QtGui.QIcon.Off)
+            QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.TB_assessment.setIcon(icon12)
         self.TB_assessment.setIconSize(QtCore.QSize(30, 30))
         self.TB_assessment.setCheckable(True)
@@ -689,7 +690,17 @@ class Ui_MainWindow(object):
                                         "rgb(205, 202, 153);\n"
                                         "")
         self.PB_name_user.setObjectName("PB_name_user")
-
+        self.label_name_factory = QtWidgets.QLabel(self.centralwidget)
+        self.label_name_factory.setGeometry(QtCore.QRect(140, 40, 1271, 31))
+        font = QtGui.QFont()
+        font.setFamily("Roboto")
+        font.setPointSize(14)
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_name_factory.setFont(font)
+        self.label_name_factory.setStyleSheet("color: rgb(230, 230, 230);")
+        self.label_name_factory.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_name_factory.setObjectName("label_name_factory")
         self.PB_esc = QtWidgets.QPushButton(self.centralwidget)
         self.PB_esc.setGeometry(QtCore.QRect(1360, 20, 41, 23))
         font = QtGui.QFont()
@@ -757,26 +768,25 @@ class Ui_MainWindow(object):
         self.reset_menu_frame()
 
     def reset_menu_frame(self):
-            self.TB_search_personal.setEnabled(False)
-            self.TB_analytics.setEnabled(False)
-            self.TB_project.setEnabled(False)
-            self.TB_structure.setEnabled(False)
-            self.TB_assessment.setEnabled(False)
-            self.line_project.hide()
-            self.line_structure.hide()
-            self.line_search_personal.hide()
-            self.line_analytics.hide()
-            self.line_assessment.hide()
-
+        self.TB_search_personal.setEnabled(False)
+        self.TB_analytics.setEnabled(False)
+        self.TB_project.setEnabled(False)
+        self.TB_structure.setEnabled(False)
+        self.TB_assessment.setEnabled(False)
+        self.line_project.hide()
+        self.line_structure.hide()
+        self.line_search_personal.hide()
+        self.line_analytics.hide()
+        self.line_assessment.hide()
 
 
 ############################динамический список для нескольких сотрудников##############
-class QCustomQWidget (QtWidgets.QWidget):
-    def __init__ (self, parent = None):
+class QCustomQWidget(QtWidgets.QWidget):
+    def __init__(self, parent=None):
         super(QCustomQWidget, self).__init__(parent)
         self.textQVBoxLayout = QtWidgets.QVBoxLayout()
-        self.textUpQLabel    = QtWidgets.QLabel()
-        self.textDownQLabel  = QtWidgets.QLabel()
+        self.textUpQLabel = QtWidgets.QLabel()
+        self.textDownQLabel = QtWidgets.QLabel()
         self.textDownQLabel.setStyleSheet("background-color: rgb(145, 158, 208);")
         self.textUpQLabel.setStyleSheet("background-color: rgb(145, 158, 208);")
         self.textQVBoxLayout.addWidget(self.textUpQLabel)
@@ -787,8 +797,8 @@ class QCustomQWidget (QtWidgets.QWidget):
         font.setBold(True)
         self.textUpQLabel.setFont(font)
         self.textDownQLabel.setFont(font)
-        self.allQHBoxLayout     = QtWidgets.QHBoxLayout()
-        self.file_iconQLabel    = QtWidgets.QLabel()
+        self.allQHBoxLayout = QtWidgets.QHBoxLayout()
+        self.file_iconQLabel = QtWidgets.QLabel()
         self.capture_iconQLabel = QtWidgets.QLabel()
         self.file_iconQLabel.setMinimumSize(80, 80)
         self.file_iconQLabel.setMaximumSize(80, 80)
@@ -796,25 +806,25 @@ class QCustomQWidget (QtWidgets.QWidget):
         self.allQHBoxLayout.addLayout(self.textQVBoxLayout, 1)
         self.setLayout(self.allQHBoxLayout)
 
+    def setTextUp(self, text):
+        self.textUpQLabel.setText("  " + text)
 
-    def setTextUp (self, text):
-        self.textUpQLabel.setText("  "+text)
+    def setTextDown(self, text):
+        self.textDownQLabel.setText("  " + text)
 
-    def setTextDown (self, text):
-        self.textDownQLabel.setText("  "+text)
-
-    def setFileIcon (self, imagePath):
+    def setFileIcon(self, imagePath):
         self.file_iconQLabel.setPixmap(QtGui.QPixmap(imagePath))
 
-    def setCaptureIcon (self, imagePath):
+    def setCaptureIcon(self, imagePath):
         self.capture_iconQLabel.setPixmap(QtGui.QPixmap(imagePath))
 
 
 from PyQt5.QtCore import QTimer
 
-class ExploytListWidget (QtWidgets.QDialog):
 
-    def __init__ (self):
+class ExploytListWidget(QtWidgets.QDialog):
+
+    def __init__(self):
         super(ExploytListWidget, self).__init__()
         self.setObjectName("Dialog")
         self.resize(522, 491)
@@ -824,16 +834,13 @@ class ExploytListWidget (QtWidgets.QDialog):
         self.index = 1
         self.myQListWidget = QtWidgets.QListWidget(self)
         self.myQListWidget.setGeometry(QtCore.QRect(0, 40, 521, 451))
-        #self.myQListWidget.setStyleSheet("background-color: rgb(145, 158, 208);")selection-color: white; show-decoration-selected: 1;selection-background-color: #0068d9;
+        # self.myQListWidget.setStyleSheet("background-color: rgb(145, 158, 208);")selection-color: white; show-decoration-selected: 1;selection-background-color: #0068d9;
         self.myQListWidget.setObjectName("listWidget")
         style = """QListView {    
 }
-
-
 QListView::item:selected:active:!hover{
     background-color: rgb(211, 211, 211); color: white;
 }
-
 QListView::item:!selected:hover{
     background-color: rgb(195, 195, 195); color: white;
 }"""
@@ -844,13 +851,14 @@ QListView::item:!selected:hover{
         self.label.setStyleSheet("color: rgb(255, 255, 255);")
         self.label.setAlignment(QtCore.Qt.AlignCenter)
         self.label.setObjectName("label")
-        #self.setCentralWidget(self.myQListWidget)
+        # self.setCentralWidget(self.myQListWidget)
         self.myQListWidget.itemDoubleClicked.connect(self.extract_index)
-        self.index=-1
+        self.index = -1
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self)
 
-        self.flag_reject=0
+        self.flag_reject = 0
+
     # def closeEvent(self, event):
     #     # do stuff
     #     if self.flag_reject==0:
@@ -864,46 +872,42 @@ QListView::item:!selected:hover{
         self.setWindowTitle(_translate("Dialog", "Dialog"))
         self.label.setText(_translate("Dialog", "Выберите сотрудника"))
 
-
     def dynamicListWidget(self, name, file_icon, post):
-
-            myQCustomQWidget = QCustomQWidget()
-            myQCustomQWidget.setTextUp(post)
-            myQCustomQWidget.setTextDown(name)
-            myQCustomQWidget.setFileIcon(file_icon)
-            myQListWidgetItem = QtWidgets.QListWidgetItem(self.myQListWidget)
-            myQListWidgetItem.setSizeHint(myQCustomQWidget.sizeHint())
-            self.myQListWidget.addItem(myQListWidgetItem)
-            self.myQListWidget.setItemWidget(myQListWidgetItem, myQCustomQWidget)
-
+        myQCustomQWidget = QCustomQWidget()
+        myQCustomQWidget.setTextUp(post)
+        myQCustomQWidget.setTextDown(name)
+        myQCustomQWidget.setFileIcon(file_icon)
+        myQListWidgetItem = QtWidgets.QListWidgetItem(self.myQListWidget)
+        myQListWidgetItem.setSizeHint(myQCustomQWidget.sizeHint())
+        self.myQListWidget.addItem(myQListWidgetItem)
+        self.myQListWidget.setItemWidget(myQListWidgetItem, myQCustomQWidget)
 
     def extract_index(self):
-        self.index=self.myQListWidget.currentIndex().row()
+        self.index = self.myQListWidget.currentIndex().row()
         self.close()
 
 
 class Window(QtWidgets.QMainWindow):
     resized = QtCore.pyqtSignal()
-    def  __init__(self, ScreenSizeWidth, ScreenSizeHeight, parent=None):
+
+    def __init__(self, ScreenSizeWidth, ScreenSizeHeight, parent=None):
         super(Window, self).__init__(parent=parent)
 
         self.ui = Ui_MainWindow()
         # self.ui.WinOpenSizeWidth = self.w * 0.8
         # self.ui.WinOpenSizeHeight = self.h * 0.8
-        self.ui.WinOpenSizeWidth = ScreenSizeWidth*0.8
-        self.ui.WinOpenSizeHeight = ScreenSizeHeight*0.8
+        self.ui.WinOpenSizeWidth = ScreenSizeWidth * 0.8
+        self.ui.WinOpenSizeHeight = ScreenSizeHeight * 0.8
         self.ui.setupUi(self)
         self.resized.connect(self.someFunction)
-        self.a=int(self.ui.WinOpenSizeWidth*0.75/2)
-        #self.ui.stackedWidget.setCurrentIndex(2)
+        self.a = int(self.ui.WinOpenSizeWidth * 0.75 / 2)
+        # self.ui.stackedWidget.setCurrentIndex(2)
         self.ui.TB_structure.clicked.connect(self.inside_structure)
 
-        #self.mainWindow = QtWidgets.QWidget()
+        # self.mainWindow = QtWidgets.QWidget()
         # self.w = self.width()
         # self.h = self.height()
         # self.move_=self.ui.screen.width()/2-self.ui.x_start
-
-
 
     def resizeEvent(self, event):
         self.resized.emit()
@@ -912,14 +916,13 @@ class Window(QtWidgets.QMainWindow):
     def someFunction(self):
         self.w = self.width()
         self.h = self.height()
-        self.move_ = int(self.w / 2 - self.ui.x_start)#
-        self.ui.groupBox.setGeometry(QtCore.QRect(self.move_-self.a, 30, 1152, 648))
+        self.move_ = int(self.w / 2 - self.ui.x_start)  #
+        self.ui.groupBox.setGeometry(QtCore.QRect(self.move_ - self.a, 30, 1152, 648))
+
     def inside_structure(self):
         print("1")
         self.ui.stackedWidget.setCurrentIndex(1)
         pass
-
-
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
@@ -928,18 +931,3 @@ if __name__ == "__main__":
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
-    # if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
-    #     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
-    # if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
-    #     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
-    # app = QtWidgets.QApplication(sys.argv)
-    # screen = app.primaryScreen()
-    # size = screen.size()
-    # w = Window(size.width(), size.height())
-    # w.show()
-    # sys.exit(app.exec_())
-
-    # app  = QtWidgets.QApplication([])
-    # window = ExploytListWidget()
-    # window.show()
-    # sys.exit(app.exec_())

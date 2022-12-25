@@ -53,6 +53,35 @@ name_factory_orig=''
 _translate = QtCore.QCoreApplication.translate
 client = config_connect()
 
+def view_massage(obj, massage_text, icon, name_dialog='Dialog', point_size=8, button=0):
+    massage_box = ImpMassageBox(obj)
+    font = QtGui.QFont()
+    font.setFamily("Roboto")
+    font.setPointSize(point_size)
+    font.setBold(True)
+    font.setWeight(75)
+    dict_icon = {'question': "image: url(./GUI/icon/question [#1444].png);",
+                 'warning': "image: url(./GUI/icon/caution.png);",
+                 'ok': "image: url(./GUI/icon/done_mini [#1484].png);",
+                 'not_found': "image: url(./GUI/icon/emoji_sad_circle [#541]);"}
+    if button == 0:
+        massage_box.PB_OK_second.hide()
+    else:
+        massage_box.PB_OK_Canel.hide()
+    massage_box.Label_message.setText((_translate(f"{name_dialog}", f"{massage_text}")))
+    massage_box.label_2.setStyleSheet(dict_icon[icon])
+    massage_box.exec()
+
+class ImpMassageBox(QDialog, MassageBox):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.setupUi(self)
+        self.flag_choose = ''
+        self.PB_OK_second.clicked.connect(self.accept)
+
+    def accept(self):
+        self.flag_choose = 'ok'
+        self.close()
 
 class DeployDialogIP(QDialog, DialogEnter):
     def __init__(self, parent):
@@ -638,7 +667,7 @@ class Table_start_(QWidget, Table_start_v2):
     def drop_row_criterion(self):
         if self.table_conf_criterion.rowCount()>1 and len(self.table_conf_criterion.selectedItems())==0:
             self.drop_row_dict['conf_criterion']['indexes'].append(self.table_conf_criterion.rowCount()-1)
-            self.table_conf_criterion.setRowCount(self.table_conf_criterion_posts.rowCount()-1)
+            self.table_conf_criterion.setRowCount(self.table_conf_criterion.rowCount()-1)
         elif self.table_conf_criterion.rowCount() > 1 and len(self.table_conf_criterion.selectedItems())> 0:
             select_items=self.table_conf_criterion.selectedItems()
             for it in select_items:
@@ -1173,6 +1202,8 @@ class mywindow(QtWidgets.QMainWindow):
             min_id_right=min(dlg.rights_user)
             self.MainWindowAll.WorkWindow.stackedWidget.setCurrentIndex(min_id_right-1)
             self.MainWindowAll.hide_line_button(min_id_right)
+            self.MainWindowAll.WorkWindow.label_name_factory.setText(_translate("MainWindow", f"{client.name_db}"))
+
             self.start_win.emit()
             self.MainWindowAll.setMaximumWidth(4000)
             self.MainWindowAll.setMaximumHeight(4000)
@@ -1227,6 +1258,11 @@ class mywindow(QtWidgets.QMainWindow):
         if self.progress_bar.status_=='ok':
             self.flag_server=1
             self.progress_bar.status_ = ''
+
+        elif self.progress_bar.status_=='factory exist':
+            print('factory exist')
+            view_massage(self,'Предприятин с таким именем \n уже существует',
+                         'warning', button=1)
 
     def closeEvent(self, event):
         close = QMessageBox.question(self,
