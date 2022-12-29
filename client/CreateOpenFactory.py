@@ -495,7 +495,6 @@ class CountCriterion(QWidget, CountCr):
         if self.table_start_.value_department>0 and self.table_start_.value_criterion>0:
             stack_window_Height = self.table_start_.w_height
             stack_window_Width = self.table_start_.w_width
-            self.table_start_.label_name_factory.setText(_translate("Form", client.name_db))
             self.table_start_.table_conf_criterion.setRowCount(self.table_start_.value_criterion)
             self.table_start_.table_department.setRowCount(self.table_start_.value_department)
             self.MainWindowAll.setMaximumWidth(stack_window_Width)

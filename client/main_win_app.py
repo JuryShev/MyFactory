@@ -469,15 +469,11 @@ class PersonalWidget(GUIPersonalWidget_2):
             self.name_edit = f"{self.name_edit[1]} {self.name_edit[2]} {self.name_edit[0].replace('$', '(архив)')}"
 
     def give_assessment(self):
-        massage_box = ImpMassageBox(self)
-        massage_box.PB_OK_Canel.hide()
-
         if len(self.name_edit) > 0:
-            massage_box.Label_message.setText(_translate("MainWindow", f"Оценил {self.name_add} \n"
-                                                                       f" Ред. {self.name_edit}"))
+            view_massage(self, f"Оценил {self.name_add} \n"
+                               f" Ред. {self.name_edit}", 'ok', button=1)
         else:
-            massage_box.Label_message.setText(_translate("MainWindow", f"Оценил {self.name_add}"))
-        massage_box.exec()
+            view_massage(self, f"Оценил {self.name_add}", 'ok', button=1)
 
     def comment_button(self):
         self.dlg.CommentPersonal = self.comment
@@ -608,6 +604,20 @@ class ListPersonal_(GUIListPersonal):
             personal_wd.setName(self._translate("MainWindow", f"{name} {father_name}"),
                                 self._translate("MainWindow", last_name))
 
+            avatar = person["dir_avatar"]
+            img = base64.b64decode(avatar)  # Convert image data converted to base64 to original binary data# bytes
+            img = BytesIO(img)  # _io.Converted to be handled by BytesIO pillow
+            img = Image.open(img)
+            face = np.asarray(img)
+            personal_wd.label_LPersPhoto.size()
+            label_LPersPhoto_shape = personal_wd.label_LPersPhoto.size()
+            face = cv2.resize(face, (label_LPersPhoto_shape.height(), label_LPersPhoto_shape.width()))
+            height, width, channel = face.shape
+            bytesPerLine = 3 * width
+            qFace = QtGui.QImage(face.data, width, height, bytesPerLine, QtGui.QImage.Format_BGR888)
+            pixmap = QtGui.QPixmap(qFace)
+            personal_wd.label_LPersPhoto.setPixmap(pixmap)
+
             self.list_person_widgets.append(personal_wd)
             myQListWidgetItem = QtWidgets.QListWidgetItem(self.scrollArea_ListPersonal)
             self.scrollArea_ListPersonal.setSpacing(1)
@@ -667,6 +677,7 @@ class ScrollPersonal(GUIScrollPersonal):
         self.set_default_scroll()
         self.retranslateUi()
         self.connect_button()
+        self.flag_edit_person = 0
 
     def connect_button(self):
         self.TB_Left_APers.clicked.connect(self.next_left)
@@ -761,7 +772,7 @@ class ScrollPersonal(GUIScrollPersonal):
             item = self.verticalLayout_scrollArea.takeAt(0)
             item.widget().deleteLater()
 
-    def fill_scroll(self, data_person):
+    def fill_scroll(self, data_person, single_assessment=0):
         """self.ComboBox_Sorting_APers.setItemText(4, _translate("MainWindow", "Ред. Иванов И.А."))
         self.ComboBox_Sorting_APers.setItemText(5, _translate("MainWindow", "Ред. Артемьев. И.Б,"))"""
         _translate = QtCore.QCoreApplication.translate
@@ -782,7 +793,8 @@ class ScrollPersonal(GUIScrollPersonal):
                 personal_wd.ComboBox_SelectAssessment_new.setItemText(i, _translate("MainWindow", str(i)))
             if person["assessment"][self.current_Crit_APers] > 0:
                 personal_wd.ComboBox_SelectAssessment_new.setCurrentIndex(person["assessment"][self.current_Crit_APers])
-                personal_wd.ComboBox_SelectAssessment_new.setEnabled(False)
+                if single_assessment==0:
+                    personal_wd.ComboBox_SelectAssessment_new.setEnabled(False)
                 self.flag_edit_person = 1
             if len(person["comments"][self.current_Crit_APers]) > 0:
                 personal_wd.comment = person["comments"][self.current_Crit_APers]
@@ -792,6 +804,18 @@ class ScrollPersonal(GUIScrollPersonal):
             personal_wd.single_assessment.connect(self.Single_Assesments)
             personal_wd.comment_signal.connect(self.New_Comment)
             personal_wd.edit_assessment_signal.connect(self.Write_Name_Edit)
+            avatar = person["dir_avatar"]
+            img = base64.b64decode(avatar)  # Convert image data converted to base64 to original binary data# bytes
+            img = BytesIO(img)  # _io.Converted to be handled by BytesIO pillow
+            img = Image.open(img)
+            face = np.asarray(img)
+            label_APersPhoto_shape = personal_wd.Label_APersPhoto_new.size()
+            face = cv2.resize(face, (label_APersPhoto_shape.height(), label_APersPhoto_shape.width()))
+            height, width, channel = face.shape
+            bytesPerLine = 3 * width
+            qFace = QtGui.QImage(face.data, width, height, bytesPerLine, QtGui.QImage.Format_BGR888)
+            pixmap = QtGui.QPixmap(qFace)
+            personal_wd.Label_APersPhoto_new.setPixmap(pixmap)
             personal_wd.comment_block()
             self.list_person_widgets.append(personal_wd)
             self.verticalLayout_scrollArea.addWidget(personal_wd.Pers_new)
@@ -814,7 +838,7 @@ class ScrollPersonal(GUIScrollPersonal):
                     wd_id - (self.step_list_w * self.count_list_w)].ComboBox_SelectAssessment_new.currentIndex()
             self.clear_scroll_assessment()
             self.fill_scroll(self.PersonalDataAssessment["tables"]["personal"][
-                             self.start_list_w[self.count_list_w]:self.finish_list_w[self.count_list_w]])
+                             self.start_list_w[self.count_list_w]:self.finish_list_w[self.count_list_w]], single_assessment=1)
 
         else:
             self.check_assessment(wd_id)
@@ -977,6 +1001,7 @@ class PersonalAssessment(GUIAssessment):
             massage.exec_()
             if massage.flag_choose == 'ok':
                 request_send["flag_previous_day"] = 1
+                self.CalendarWidget_APers.setSelectedDate(QtCore.QDate(int(prev_date[2]), int(prev_date[1]), int(prev_date[0])))
                 request_send["date"] = f"{prev_date[0]}-{prev_date[1]}-{prev_date[2]}"
             else:
                 request_send["flag_previous_day"] = 1
@@ -1007,6 +1032,11 @@ class PersonalAssessment(GUIAssessment):
                 len(self.scroll_personal.PersonalDataAssessment["tables"]["personal"])]
             self.scroll_personal.start_list_w = [0]
             self.scroll_personal.Label_NumLastList.setText(_translate("MainWindow", f"...{1}"))
+        elif len(
+                self.scroll_personal.PersonalDataAssessment["tables"]["personal"])==0:
+            view_massage(self,'В отделе нет не оцененных сотрудников  \n '
+                              'зачисленных раньше выбранной даты', 'warning', button=1)
+            return
         self.scroll_personal.current_Crit_APers = self.ComboBox_Crit_APers.currentText()
         self.scroll_personal.fill_scroll(self.scroll_personal.PersonalDataAssessment["tables"]["personal"][
                                          self.scroll_personal.start_list_w[self.scroll_personal.count_list_w]
@@ -1376,7 +1406,7 @@ class PersonInteraction(GUIPersonInteraction):
             data_person = list(
                 filter(lambda d: d['assessment'][self.ComboBox_Crit_LPers.currentText()] == 0, data_person))
             self.list_personal.flag_filter = 1
-        elif self.ComboBox_Filter_LPers.currentText() == "C оценкой":
+        elif self.ComboBox_Filter_LPers.currentText() == "С оценкой":
             data_person = list(
                 filter(lambda d: d['assessment'][self.ComboBox_Crit_LPers.currentText()] > 0, data_person))
             self.list_personal.flag_filter = 1
@@ -1494,6 +1524,9 @@ class PersonInteraction(GUIPersonInteraction):
             self.list_personal.finish_list_w = [len(self.list_personal.PersonalDataAssessment["tables"]["personal"])]
             self.list_personal.start_list_w = [0]
             self.Label_NumLastList.setText(_translate("MainWindow", f"...{1}"))
+        elif len(self.list_personal.PersonalDataAssessment["tables"]["personal"])==0:
+            view_massage(self, 'В выбранном отделе нет сотрудников', 'warning', button=1)
+            return
 
         self.list_personal.current_Crit_LPers = self.ComboBox_Crit_LPers.currentText()
         self.list_personal.fill_scroll(self.list_personal.PersonalDataAssessment["tables"]["personal"][
@@ -1546,11 +1579,7 @@ class PersonInteraction(GUIPersonInteraction):
             answer_server = answer_server.decode('utf-8')
             print("remove_personal=", answer_server)
             if answer_server == 'ok':
-                massage.PB_OK_Canel.hide()
-                massage.PB_OK_second.show()
-                massage.Label_message.setText(_translate("Dialog", "Профиль успешно удален"))
-                massage.label_2.setStyleSheet("image: url(./GUI/icon/done_mini [#1484].png);")
-                massage.exec()
+                view_massage(self, "Профиль успешно удален", 'ok', button=1)
                 self.clear_frame_personal()
 
     def add_personal(self, server):
@@ -1594,11 +1623,7 @@ class PersonInteraction(GUIPersonInteraction):
                 dlg.LE_month.text()] + '-' + day
             answer_server = self.client.add_personal(dlg.PersonalData).content.decode("utf-8")
             if answer_server == 'ok':
-                massage = ImpMassageBox(self)
-                massage.PB_OK_Canel.hide()
-                massage.Label_message.setText(_translate("Dialog", "   Сотрудник успешно добавлен"))
-                massage.label_2.setStyleSheet("image: url(./GUI/icon/done_mini [#1484].png);")
-                massage.exec()
+                view_massage(self, "Сотрудник успешно добавлен", 'ok', button=1)
 
     def edit_personal(self):
         _translate = QtCore.QCoreApplication.translate
@@ -1710,11 +1735,7 @@ class PersonInteraction(GUIPersonInteraction):
 
         if answer_server == 'ok':
             print("Профиль работника отредактирован")
-            massage = ImpMassageBox(self)
-            massage.PB_OK_Canel.hide()
-            massage.Label_message.setText(_translate("Dialog", "Профиль успешно изменен"))
-            massage.label_2.setStyleSheet("image: url(./GUI/done_mini [#1484].png);")
-            massage.exec()
+            view_massage(self, "Профиль успешно изменен", 'ok', button=1)
             self.get_personal(PersonalDataEdit["tables"]["personal"][0]["name"])
         else:
             self.PersonalDataGet["tables"]["personal"][0]["id_posts"] = dlg.comboBox_2.currentText()

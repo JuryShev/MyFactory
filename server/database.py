@@ -55,8 +55,11 @@ def get_databases():
 
 
 def get_date_range(date_: dt, period):
-        if period == "month":
+
+        if period == "month" and date_.month + 1<13:
             return dt(date_.year, date_.month, 1), dt(date_.year, date_.month + 1, 1) - timedelta(days=1)
+        elif period == "month" and date_.month + 1>=13:
+            return dt(date_.year, date_.month, 1), dt(date_.year, date_.month, 31) - timedelta(days=1)
         if period == "quarter":
             return dt(date_.year, (date_.month - 1) // 3 * 3 + 1, 1), \
                    dt(date_.year, (date_.month - 1) // 3 * 3 + 3, calendar.monthrange(date_.year, date_.month)[1])

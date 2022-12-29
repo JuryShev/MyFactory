@@ -103,7 +103,6 @@ def requires_access_level(access_level):
             if user_status == 'admin':
                 return f(*args, **kwargs)
             else:
-
                 user_rights = my_db.mysql_castom_command(f"SELECT id_rule FROM access_rule WHERE"
                                                          f" id_users={session['user'][0]['id_user_mydb']}")
 
@@ -820,30 +819,32 @@ def get_persons_for_assessment(name_db):
     department = data["tables"]["department"]
     id_department = f.mysql_castom_command(f'''SELECT id_department 
                                                 FROM department WHERE title = '{department}' ''')[0][0]
-    count_personal = f.mysql_castom_command(f"SELECT COUNT(*) FROM personal "
-                                            f"WHERE id_department = {id_department}")[0][0]
+
     count_criteria = f.mysql_castom_command("SELECT COUNT(*) FROM conf_criterion")[0][0]
     day, month, year = map(int, data['date'].split('-'))
     cur_date = dt(year, month, day)
     date_today = dt.today().date()
-
-    if (
-            cur_date.date() - date_today).days < 0:  # проверка, если пользователь захочет поставить оценку по старой несуществующей дате
-        count_next_date = f.mysql_castom_command(f'''SELECT COUNT(date) FROM personal_assessment
-                                                        WHERE date = '{cur_date}' ''')[0][0]
-        if count_next_date == 0:
+    count_next_date = f.mysql_castom_command(f'''SELECT COUNT(date) FROM personal_assessment
+                                                    WHERE date = '{cur_date}' ''')[0][0]
+    if (cur_date.date() - date_today).days < 0 and count_next_date == 0:  # проверка, если пользователь захочет поставить оценку по старой несуществующей дате
             result = {"error": "Bad date"}
             json_send = json.dumps(result)
             return json_send
 
     prev_date = f.mysql_castom_command(f"SELECT date FROM personal_assessment "
                                        f"WHERE date < '{cur_date}' ORDER BY date DESC LIMIT 1")
-    # print(prev_date)
+
     if len(prev_date) != 0 and data["flag_previous_day"] == 0:  # проверка на законченность предыдущей оценки
         count_assessments = f.mysql_castom_command(
             f"SELECT COUNT(*) FROM personal_assessment INNER JOIN personal ON personal_assessment.id_name_personal=personal.id_personal  AND personal.id_department={id_department} AND personal_assessment.date = '{prev_date[0][0]}'")[
             0][0]
 
+        count_personal = f.mysql_castom_command(f"""SELECT COUNT(*) FROM personal 
+                                                WHERE id_department = {id_department} AND 
+                                                personal_arch=0 AND 
+                                                DATE(created_pers)<'{prev_date[0][0]}'""")[0][0]#dt(prev_date[0][0].year,
+                                                                                 ##prev_date[0][0].month,
+                                                                                  ##prev_date[0][0].day)
         if count_personal * count_criteria != count_assessments:
             year = prev_date[0][0].year
             month = prev_date[0][0].month
@@ -852,7 +853,7 @@ def get_persons_for_assessment(name_db):
                       "prev_date": f"{day}-{month}-{year}"}
             json_send = json.dumps(result)
             return json_send
-    elif len(prev_date) != 0 and data["flag_previous_day"] == 2:
+    elif len(prev_date) != 0 and data["flag_previous_day"] == 2 and count_next_date==0:
         year = prev_date[0][0].year
         month = prev_date[0][0].month
         day = prev_date[0][0].day
@@ -871,18 +872,22 @@ def get_persons_for_assessment(name_db):
                                                                                                 WHERE title = '{department}') 
                                                     AND personal_arch=0 AND DATE(created_pers)<'{dt(year, month, day)}' ''')
 
-    # print(persons)
+
     for i in range(len(persons)):
+        with open(persons[i][2], "rb") as openfile:
+            avatar = pickle.load(openfile)
+
         assessment_list["tables"]["personal"].append({
             "name": persons[i][1],
             "id_person": persons[i][0],
+            "dir_avatar": avatar,
             "id_assessment": {},
             "assessment": {},
             "comments": {},
             "edit_data": {},
             "add_data": {},
             "average_value": {},
-            "date_created_pers":"",
+            "date_created_pers": "",
 
         })
         person = assessment_list["tables"]["personal"][i]

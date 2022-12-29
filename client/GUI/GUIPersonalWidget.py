@@ -165,6 +165,7 @@ class GUIPersonalWidget_2 (QtWidgets.QWidget):
         sizePolicy.setHeightForWidth(self.label_LPersPhoto.sizePolicy().hasHeightForWidth())
         self.label_LPersPhoto.setSizePolicy(sizePolicy)
         self.label_LPersPhoto.setMinimumSize(QtCore.QSize(64, 64))
+        self.label_LPersPhoto.setMaximumSize(QtCore.QSize(64, 64))
         self.label_LPersPhoto.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.label_LPersPhoto.setText("")
         self.label_LPersPhoto.setObjectName("label_LPersPhoto_5")
