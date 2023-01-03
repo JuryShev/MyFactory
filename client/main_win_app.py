@@ -1319,10 +1319,10 @@ class PersonInteraction(GUIPersonInteraction):
                     view_massage(self, answer['error'], 'warning', point_size=10, button=1)
                 elif answer['result'] == 'ok_add':
                     answer = f"Сотрудник {name_personal}\nназначен администратором"
-                    view_massage(self, answer['result'], 'ok', point_size=10, button=1)
+                    view_massage(self, answer, 'ok', point_size=10, button=1)
                 elif answer['result'] == 'ok_edit':
                     answer = f"Администратор успешно заменен"
-                    view_massage(self, answer['result'], 'ok', point_size=10, button=1)
+                    view_massage(self, answer, 'ok', point_size=10, button=1)
 
     def set_params_personal(self):
         _translate = QtCore.QCoreApplication.translate
