@@ -1,0 +1,6 @@
+{
+  "name": "dialog_massage",
+  "size": { "minimum": [0,0], "maximum": [16777215,20]},
+  "sizePolicy": ["Preferred","Preferred"]
+
+}

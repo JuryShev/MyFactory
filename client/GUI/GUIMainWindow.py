@@ -625,19 +625,11 @@ class Ui_MainWindow(object):
         ##################################################
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1474, 21))
-        self.menubar.setStyleSheet("QMenuBar{color: rgb(255, 255, 255);}\n"
-                                   "\n"
-                                   "QMenuBar::item::selected{\n"
-                                   "color: rgb(0, 0, 0);\n"
-                                   "}\n"
-                                   "\n"
-                                   "\n"
-                                   "\n"
-                                   "QMenu::item::selected\n"
-                                   "{\n"
-                                   "    background-color: #cce8ff;\n"
-                                   "   color: rgb(0, 0, 0);\n"
-                                   "}")
+        self.menubar.setStyleSheet("""QMenuBar{color: rgb(255, 255, 255);}
+                                      QMenuBar::item::selected{color: rgb(0, 0, 0);}
+                                      QMenu::item::selected{background-color: #cce8ff;
+                                                            color: rgb(0, 0, 0);}
+                                   """)
         self.menubar.setObjectName("menubar")
         self.Personal = QtWidgets.QMenu(self.menubar)
         self.Personal.setStyleSheet("color: rgb(255, 255, 255);")
@@ -654,10 +646,21 @@ class Ui_MainWindow(object):
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
-        self.calc_salaryl = QtWidgets.QAction(MainWindow)
-        self.calc_salaryl.setObjectName("calc_salaryl")
+        self.calc_salary_personal = QtWidgets.QAction(MainWindow)
+        self.calc_salary_personal.setObjectName("calc_salaryl")
+        self.calc_salary_personal.setShortcut('Ctrl+Q')
+        self.calc_salary_departmant = QtWidgets.QAction(MainWindow)
+        self.calc_salary_departmant.setObjectName("calc_salary_departmant")
+        self.calc_salary_all = QtWidgets.QAction(MainWindow)
+        self.calc_salary_all.setObjectName("calc_salary_all")
+        self.anketa = QtWidgets.QAction(MainWindow)
+        self.anketa.setObjectName("anketa")
         self.Personal.addSeparator()
-        self.Personal.addAction(self.calc_salaryl)
+        self.Personal.addAction(self.calc_salary_personal)
+        self.Personal.addAction(self.calc_salary_departmant)
+        self.Personal.addAction(self.calc_salary_all)
+        self.Personal.addSeparator()
+        self.Personal.addAction(self.anketa)
         self.menubar.addAction(self.Personal.menuAction())
         self.menubar.addAction(self.Project.menuAction())
         self.menubar.addAction(self.Analytics.menuAction())
@@ -712,19 +715,11 @@ class Ui_MainWindow(object):
         font.setKerning(True)
         self.PB_esc.setFont(font)
         self.PB_esc.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.PB_esc.setStyleSheet("QPushButton{\n"
-                                  "background-color: rgb(74, 80, 106);\n"
-                                  "color: rgb(250, 250, 250);\n"
-                                  "border-style: solid;\n"
-                                  "}\n"
-                                  "\n"
-                                  "QPushButton:hover {\n"
-                                  "\n"
-                                  "    color:rgb(176, 223, 198);\n"
-                                  "}\n"
-                                  "\n"
-                                  "rgb(205, 202, 153);\n"
-                                  "")
+        self.PB_esc.setStyleSheet("""QPushButton{background-color: rgb(74, 80, 106);
+                                                 color: rgb(250, 250, 250);
+                                                 border-style: solid;}                                  
+                                     QPushButton:hover {color:rgb(176, 223, 198);}
+                                  """)
         self.PB_esc.setObjectName("PB_esc")
         self.retranslateUi(MainWindow)
         self.stackedWidget.setCurrentIndex(0)
@@ -764,7 +759,10 @@ class Ui_MainWindow(object):
         self.Analytics.setTitle(_translate("MainWindow", "Аналитика"))
         self.Struct.setTitle(_translate("MainWindow", "Структура"))
         self.Assessment.setTitle(_translate("MainWindow", "Оценка"))
-        self.calc_salaryl.setText(_translate("MainWindow", "Расчитать зар. плату"))
+        self.calc_salary_personal.setText(_translate("MainWindow", "Расч. индивидуальный"))
+        self.calc_salary_departmant.setText(_translate("MainWindow", "Расч. отдела"))
+        self.calc_salary_all.setText(_translate("MainWindow", "Расч. общий"))
+        self.anketa.setText(_translate("MainWindow", "Анкета"))
         self.reset_menu_frame()
 
     def reset_menu_frame(self):

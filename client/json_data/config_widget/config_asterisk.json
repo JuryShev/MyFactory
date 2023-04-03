@@ -1,0 +1,5 @@
+{
+  "name": "asterisk_",
+  "size": { "minimum": [17,17], "maximum": [16777215,20]},
+  "sizePolicy": ["Fixed","Fixed"]
+}

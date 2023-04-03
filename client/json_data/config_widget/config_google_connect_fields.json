@@ -1,0 +1,59 @@
+{
+  "fields": [
+    {
+      "id": 0,
+      "name": "LE_mail",
+      "regular": "([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\\.[A-Z|a-z]{2,})+",
+      "minSymbol": 4,
+      "placeholder": "Service accounts email",
+      "Family": "Roboto",
+      "PointSize": 10,
+      "size": { "minimum": [0,20], "maximum": [16777215,16777215]},
+      "regular error": "не соответствует формату почты",
+      "length error": "символов должно быть больше\n "
+
+    },
+
+    {
+      "id": 1,
+      "name": "LE_ID_form",
+      "regular": "[A-Za-z0-9]",
+      "minSymbol": 10,
+      "placeholder": "Apy key",
+      "Family": "Roboto",
+      "PointSize": 10,
+      "size": { "minimum": [0,20], "maximum": [16777215,16777215]},
+      "regular error": "присутствуют\nзапрещенные символы",
+      "length error": "символов должно быть больше\n "
+
+    },
+
+    {
+      "id": 2,
+      "name": "LE_Apy_key",
+      "regular": "[A-Za-z0-9]",
+      "minSymbol": 10,
+      "placeholder": "ID form",
+      "Family": "Roboto",
+      "PointSize": 10,
+      "size": { "minimum": [0,20], "maximum": [16777215,16777215]},
+      "regular error": "присутствуют\nзапрещенные символы",
+      "length error": "символов должно быть больше\n "
+
+    },
+
+
+    {
+      "id": 3,
+      "name": "LE_dir_json",
+      "regular": "^[A-Za-z]:/(?:[^\\\\/:*?\\\"<>|]+/)*[^\\\\/:*?\\\"<>|]+\\\\/.(json)",
+      "minSymbol": 10,
+      "placeholder": ":C\\",
+      "Family": "Roboto",
+      "PointSize": 10,
+      "size": { "minimum": [0,20], "maximum": [16777215,16777215]},
+      "regular error": "не соответствует формату пути",
+      "length error": "символов должно быть больше\n "}
+  ]
+}
+

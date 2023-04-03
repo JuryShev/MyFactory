@@ -16,18 +16,23 @@ from abc import ABC, abstractmethod
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtWidgets import QDialog, QFileDialog, qApp, QWidget
 
+from GUI.qss import style_
 from GUI.GUIMainWindow import Ui_MainWindow, ExploytListWidget
 from GUI.DialofAddPersonal import DialogAddPersonal
 from GUI.MassageBox import MassageBox
 from GUI.DialogCalendar import DialogCalendar
 from GUI.GUIPersonInteraction import GUIPersonInteraction
-from GUI.GUIScroll import GUIListPersonal, GUIScrollPersonal
+from GUI.GUIScroll import GUIListPersonal, GUIScrollPersonal, GUIList
 from GUI.GUIPersonalWidget import GUIPersonalWidget, GUIPersonalWidgetScroll, GUIPersonalWidget_2
 from GUI.GUIAssessment import GUIAssessment
 from GUI.DialogComment import DialogComment
 from GUI.DialogIpEnter import DialogEnter
+from GUI.GUIConnectQuestionWidget import BuilderConnectWidget
 import CreateOpenFactory as COF
+from GUI.GUIQuestion import GUIQuestion
 from GUI.DialogUserRule import *
+from GUI.BuildModules.TabContainer import TabContainer
+from GUI.BuildModules.ConfigWidget import ConfigWidget
 
 basedir = os.path.dirname(__file__)
 try:
@@ -252,7 +257,7 @@ class Deploy_ChangeLogin(QDialog, DialogEnter):
         self.PasswordUser_new = self.LE_password_new.text()
         self.PasswordUser_rep = self.LE_password_rep.text()
 
-        if re.match(regular_pass, self.PasswordUser) == None:
+        if re.match(regular_pass, self.PasswordUser) is None:
             flag_list.append(0)
             self.Asterisk_Password.show()
             self.QL_error.setText(_translate("Dialog", "слишком простой пароль \n"
@@ -328,8 +333,8 @@ class Deploy_ChangeLogin(QDialog, DialogEnter):
 
     def change_(self):
         _translate = QtCore.QCoreApplication.translate
-        result = {"error":'',
-                  "result":''}
+        result = {"error": '',
+                  "result": ''}
         log_pass = ''
         dlg = ImpMassageBox(self)
         dlg.PB_OK_second.hide()
@@ -376,13 +381,12 @@ class Deploy_ChangeLogin(QDialog, DialogEnter):
                     }
                 }
                 result = client.change_log_pass(change_).content.decode('utf-8')
-                result=json.loads(result)
-        if len(result["error"])> 0:
+                result = json.loads(result)
+        if len(result["error"]) > 0:
             self.QL_error.setText(_translate("Dialog", result['error']))
-        elif len(result["error"])==0 and result["result"]=='ok':
+        elif len(result["error"]) == 0 and result["result"] == 'ok':
             self.result = result["result"] + log_pass
             self.close()
-
 
     def edit_pass(self):
         if self.LE_password.isHidden():
@@ -542,6 +546,50 @@ class PersonalWidgetScroll(GUIPersonalWidgetScroll):
 
     def combobox_select_assessment_emit(self):
         self.single_assessment.emit(self.id)
+
+
+class ListConnect(GUIList):
+    """
+    Класс со список виджетов для подключения к сервисам опросников
+    """
+    leaved = pyqtSignal()
+
+    def __init__(self, frame_loadList, minimum_size, base_size, style):
+        """
+
+        :param frame_loadList: фрэйм для добавления списка
+        :param minimum_size: минимальный размер окна списка
+        :param base_size: базовый размер окна списка
+        :param style: стиль списка
+        """
+        super(ListConnect, self).__init__(frame_loadList, minimum_size, base_size, style)
+        self.setSpacing(64)
+        self.list_wd = []
+
+    def leaveEvent(self, event):
+        # Переопределение метода, когда курсор покидает область списка
+        super().leaveEvent(event)
+        self.leaved.emit()
+
+    def fill_list(self, data_widget):
+        # Метод заполнения список виджетами
+        for dw in data_widget:
+            myQListWidgetItem = QtWidgets.QListWidgetItem(self)
+            builder_cw =BuilderConnectWidget(dw['name'], minimum_size=(0, 80))
+            builder_cw.build_full_widget(self)
+            builder_cw.set_logo(dw['dir_icon'])
+            builder_cw.set_inform(dw['name'], dw['inform'])
+            widget_quest = builder_cw.product
+            size_v = widget_quest.HLay_connect.sizeHint()
+            self.setSpacing(1)
+            self.list_wd.append(widget_quest)
+            myQListWidgetItem.setSizeHint(size_v)
+            self.addItem(myQListWidgetItem)
+            self.setItemWidget(myQListWidgetItem, widget_quest.HLay_connect)
+        self.setSpacing(2)
+
+    def extract_index(self):
+        index = self.currentIndex().row()
 
 
 class ListPersonal_(GUIListPersonal):
@@ -793,7 +841,7 @@ class ScrollPersonal(GUIScrollPersonal):
                 personal_wd.ComboBox_SelectAssessment_new.setItemText(i, _translate("MainWindow", str(i)))
             if person["assessment"][self.current_Crit_APers] > 0:
                 personal_wd.ComboBox_SelectAssessment_new.setCurrentIndex(person["assessment"][self.current_Crit_APers])
-                if single_assessment==0:
+                if single_assessment == 0:
                     personal_wd.ComboBox_SelectAssessment_new.setEnabled(False)
                 self.flag_edit_person = 1
             if len(person["comments"][self.current_Crit_APers]) > 0:
@@ -838,7 +886,8 @@ class ScrollPersonal(GUIScrollPersonal):
                     wd_id - (self.step_list_w * self.count_list_w)].ComboBox_SelectAssessment_new.currentIndex()
             self.clear_scroll_assessment()
             self.fill_scroll(self.PersonalDataAssessment["tables"]["personal"][
-                             self.start_list_w[self.count_list_w]:self.finish_list_w[self.count_list_w]], single_assessment=1)
+                             self.start_list_w[self.count_list_w]:self.finish_list_w[self.count_list_w]],
+                             single_assessment=1)
 
         else:
             self.check_assessment(wd_id)
@@ -887,6 +936,60 @@ class ScrollPersonal(GUIScrollPersonal):
                 self.current_Crit_APers] = 'Иванов'
 
 
+class PersonQuestion(GUIQuestion):
+    def __init__(self, cl):
+        super(PersonQuestion, self).__init__()
+
+        self.client = cl
+        self.list_connect = ListConnect(self.float_menu, (30, 10), (251, 661), style_.style_list_connect_question)
+        self.list_size_w = self.list_connect.width()
+        self.horizontalLayout_2.addWidget(self.list_connect)
+        self.list_connect.close()
+        self.connect()
+        self.fill_data()
+        ConfigWidget.config_size(self.PB_connect, minimum_size=(0, 25), maximum_size=(25, 1000))
+        ConfigWidget.config_size(self.float_menu, geometry=(0, 10, 61, 671))
+        ConfigWidget.config_style({
+            self.PB_connect: style_.PB_connect_style,
+            self.float_menu: style_.float_menu_style
+        })
+
+
+    def fill_data(self):
+        data_form = self.load_data_wd()
+        self.list_connect.fill_list(data_form)
+
+    def connect(self):
+        self.PB_connect.entered.connect(self.handle_entered)
+        self.list_connect.leaved.connect(self.handle_leaved)
+
+    def handle_entered(self):
+        print()
+        ConfigWidget.config_size(self.float_menu, geometry=(0, 10, self.list_size_w+50, 671))
+        ConfigWidget.config_size(self.PB_connect,
+                                 geometry=(self.PB_connect.pos().x(),
+                                           self.PB_connect.pos().y(),
+                                           self.PB_connect.frameGeometry().width(),
+                                           self.PB_connect.frameGeometry().height()),
+                                 minimum_size=(30, 30), maximum_size=(30, 10000))
+        self.list_connect.show()
+
+    def handle_leaved(self):
+        ConfigWidget.config_size(self.float_menu, geometry=(0, 10, 61, 671))
+        ConfigWidget.config_size(self.PB_connect,
+                                 geometry=(self.PB_connect.pos().x(),
+                                           self.PB_connect.pos().y(),
+                                           self.PB_connect.frameGeometry().width(),
+                                           self.PB_connect.frameGeometry().height()),
+                                 minimum_size=(30, 30), maximum_size=(30, 10000))
+        self.list_connect.close()
+
+    def load_data_wd(self):
+        with open('.\json_data\data_question.json', 'r', encoding='utf-8') as json_file:
+            data = json.load(json_file)
+            return data['data']
+
+
 class PersonalAssessment(GUIAssessment):
     def __init__(self, cl):
         super(PersonalAssessment, self).__init__()
@@ -911,6 +1014,10 @@ class PersonalAssessment(GUIAssessment):
         self.ComboBox_Crit_APers.currentTextChanged.connect(self.ComboBox_Crit_APers_changed)
         self.ComboBox_Sorting_APers.currentTextChanged.connect(self.ComboBox_Sorting_APers_changed_slot)
         self.PB_Save_APers.setEnabled(False)
+        # self.PB_connect.entered.connect(self.handle_entered)
+
+    def handle_entered(self):
+        self.list_connect.show()
 
     def reset_win(self):
         self.scroll_personal.clear_scroll_assessment()
@@ -932,6 +1039,8 @@ class PersonalAssessment(GUIAssessment):
         self.ComboBox_Sorting_APers.setItemText(3, _translate("Form", "Только отредактированне"))
         self.Label_Name_Sorting_APers.setText(_translate("Form", "показать"))
         self.PB_Save_APers.setText(_translate("Form", "Сохранить оценку"))
+        # self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_assessment), _translate("Form", " Оценка "))
+        # self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_question), _translate("Form", " Анкетирование"))
 
     def load_combobox_assessment(self):
         _translate = QtCore.QCoreApplication.translate
@@ -969,7 +1078,7 @@ class PersonalAssessment(GUIAssessment):
         time_select = datetime.datetime.strptime(f"{day}-{month}-{year}", "%d-%m-%Y").date()
         div_date = datetime.date.today() - time_select
         if div_date.days < 0:
-            view_massage(self, 'Недопустимая дата', 'warning',button=1)
+            view_massage(self, 'Недопустимая дата', 'warning', button=1)
             return
 
         request_send = {
@@ -1001,7 +1110,8 @@ class PersonalAssessment(GUIAssessment):
             massage.exec_()
             if massage.flag_choose == 'ok':
                 request_send["flag_previous_day"] = 1
-                self.CalendarWidget_APers.setSelectedDate(QtCore.QDate(int(prev_date[2]), int(prev_date[1]), int(prev_date[0])))
+                self.CalendarWidget_APers.setSelectedDate(
+                    QtCore.QDate(int(prev_date[2]), int(prev_date[1]), int(prev_date[0])))
                 request_send["date"] = f"{prev_date[0]}-{prev_date[1]}-{prev_date[2]}"
             else:
                 request_send["flag_previous_day"] = 1
@@ -1033,9 +1143,9 @@ class PersonalAssessment(GUIAssessment):
             self.scroll_personal.start_list_w = [0]
             self.scroll_personal.Label_NumLastList.setText(_translate("MainWindow", f"...{1}"))
         elif len(
-                self.scroll_personal.PersonalDataAssessment["tables"]["personal"])==0:
-            view_massage(self,'В отделе нет не оцененных сотрудников  \n '
-                              'зачисленных раньше выбранной даты', 'warning', button=1)
+                self.scroll_personal.PersonalDataAssessment["tables"]["personal"]) == 0:
+            view_massage(self, 'В отделе нет не оцененных сотрудников  \n '
+                               'зачисленных раньше выбранной даты', 'warning', button=1)
             return
         self.scroll_personal.current_Crit_APers = self.ComboBox_Crit_APers.currentText()
         self.scroll_personal.fill_scroll(self.scroll_personal.PersonalDataAssessment["tables"]["personal"][
@@ -1048,7 +1158,6 @@ class PersonalAssessment(GUIAssessment):
         self.scroll_personal.TB_Left_APers.setEnabled(True)
         self.scroll_personal.TB_Right_APers.setEnabled(True)
         self.PB_Save_APers.setEnabled(True)
-
 
     def ComboBox_Sorting_APers_changed_slot(self):
         _translate = QtCore.QCoreApplication.translate
@@ -1200,6 +1309,7 @@ class PersonInteraction(GUIPersonInteraction):
                                          border-style: inset;
                                          background-color: rgb(24, 33, 69);
                                          color: rgb(250, 250, 250)}"""
+
         self.stile_button_not_rights = """QPushButton{
                                          background-color: rgb(151, 156, 180);
                                          color: rgb(0, 0, 0);
@@ -1264,16 +1374,18 @@ class PersonInteraction(GUIPersonInteraction):
         self.label_avatar.setPixmap(pixmap)
         icon1 = QtGui.QIcon()
         icon1.addPixmap(QtGui.QPixmap("./GUI/icon/pen_inactive [#1320].png"),
-            QtGui.QIcon.Normal, QtGui.QIcon.Off)
+                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.TB_EditPersonal.setIcon(icon1)
         self.TB_EditPersonal.setEnabled(False)
         self.TB_RemovePersonal.setEnabled(False)
         self.PB_right_admin.setStyleSheet(self.stile_button_not_rights)
         self.PB_right_user.setStyleSheet(self.stile_button_not_rights)
 
-
     def clear_list_personal(self):
         pass
+
+    def calc_salary_person(self):
+        print("salary_person")
 
     def reset_win(self):
         self.clear_frame_personal()
@@ -1282,7 +1394,6 @@ class PersonInteraction(GUIPersonInteraction):
         self.ComboBox_Crit_LPers.clear()
         self.ComboBox_Dep_LPers.clear()
         self.label_date_assessment.setText(_translate("MainWindow", f""))
-
 
     def connect_button(self):
         self.PB_serch_personalList.clicked.connect(self.fill_scroll_slot)
@@ -1315,7 +1426,7 @@ class PersonInteraction(GUIPersonInteraction):
                 answer = json.loads(answer)
                 name_personal = f"{self.PersonalDataGet['tables']['personal'][0]['name'].split(' ')[0]}" \
                                 f" {self.PersonalDataGet['tables']['personal'][0]['name'].split(' ')[1]}"
-                if len(answer['error'])>0:
+                if len(answer['error']) > 0:
                     view_massage(self, answer['error'], 'warning', point_size=10, button=1)
                 elif answer['result'] == 'ok_add':
                     answer = f"Сотрудник {name_personal}\nназначен администратором"
@@ -1524,7 +1635,7 @@ class PersonInteraction(GUIPersonInteraction):
             self.list_personal.finish_list_w = [len(self.list_personal.PersonalDataAssessment["tables"]["personal"])]
             self.list_personal.start_list_w = [0]
             self.Label_NumLastList.setText(_translate("MainWindow", f"...{1}"))
-        elif len(self.list_personal.PersonalDataAssessment["tables"]["personal"])==0:
+        elif len(self.list_personal.PersonalDataAssessment["tables"]["personal"]) == 0:
             view_massage(self, 'В выбранном отделе нет сотрудников', 'warning', button=1)
             return
 
@@ -2194,6 +2305,7 @@ class ImpMassageBox(QDialog, MassageBox):
         self.flag_choose = 'ok'
         self.close()
 
+
 class ImpDialogUserRule(DialogUserRule):
     def __init__(self):
 
@@ -2246,7 +2358,6 @@ class ImpDialogUserRule(DialogUserRule):
         self.close()
 
     def accept(self):
-        print('ok')
         if self.flag_register_user == 1:
             reg_inform = self.get_reg_inform()
             rule_ch = self.get_rule_inform()
@@ -2367,9 +2478,10 @@ class MainWindow_all_3(QtWidgets.QMainWindow):
         self.center = int(1011 / 2)
         self.center_struct = int(1390 / 2)
         self.x_start_struct = 60
-
         self.pers_inter = PersonInteraction(cl=client)
         self.pers_assessment = PersonalAssessment(cl=client)
+        self.pers_question = PersonQuestion(cl=client)
+        self.tab_question = TabContainer(style=style_.style_tab_question)
         self.struct = COF.Table_start_(cr_ed='edit')
         self.client = client
         self.struct.refreshButton.clicked.connect(self.refresh_inside_structure)
@@ -2386,17 +2498,20 @@ class MainWindow_all_3(QtWidgets.QMainWindow):
         self.page_3.setObjectName("page_2")
         self.WorkWindow.stackedWidget.addWidget(self.page_3)
         self.WorkWindow.stackedWidget.addWidget(self.struct)  # стек№4
-
-        self.WorkWindow.stackedWidget.addWidget(self.pers_assessment)
+        self.tab_question.dict_widget = {"Оценка": self.pers_assessment, " Анкетирование ": self.pers_question}
+        self.tab_question.fill_tab()
+        self.WorkWindow.stackedWidget.addWidget(self.tab_question)  #
 
         self.WorkWindow.TB_structure.clicked.connect(self.inside_structure)
         self.WorkWindow.TB_search_personal.clicked.connect(self.personal)
         self.WorkWindow.TB_project.clicked.connect(self.projects)
         self.WorkWindow.TB_analytics.clicked.connect(self.analytics)
         self.WorkWindow.TB_assessment.clicked.connect(self.assessment)
+        self.WorkWindow.PB_name_user.clicked.connect(self.change_log)
+        self.WorkWindow.calc_salary_personal.triggered.connect(self.pers_inter.calc_salary_person)
+
         self.WorkWindow.TB_EditPersonal.setEnabled(False)
         self.WorkWindow.TB_RemovePersonal.setEnabled(False)
-        self.WorkWindow.PB_name_user.clicked.connect(self.change_log)
 
         face = cv2.imread('./GUI/icon/silhouette_icon128x128.png')
         height, width, channel = face.shape
@@ -2501,10 +2616,9 @@ class MainWindow_all_3(QtWidgets.QMainWindow):
         dlg_change_login.LE_name.setText(self._translate("Form", nickname))
         dlg_change_login.exec()
         if dlg_change_login.result == 'ok_pass':
-            view_massage(self, "Пароль успешно изменен",'ok', button=1)
+            view_massage(self, "Пароль успешно изменен", 'ok', button=1)
         elif dlg_change_login.result == 'ok_login':
             view_massage(self, "Логин успешно изменен", 'ok', button=1)
-
 
     def add_worksapace(self):
         self.GlobalstackedWidget.addWidget(self.WorkWindow.centralwidget)
@@ -2651,6 +2765,4 @@ if __name__ == "__main__":
     ui.add_worksapace()
     ui.show()
     start_w.maxres()
-    # ui=PersonalAssessment(2)
-    # ui.show()
     sys.exit(app.exec_())

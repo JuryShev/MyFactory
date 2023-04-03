@@ -21,6 +21,23 @@ class GUIListPersonal(QtWidgets.QWidget):
         self.scrollArea_ListPersonal.setStyleSheet(style)
 
 
+class GUIList(QtWidgets.QListWidget):
+#########################################################################
+    def __init__(self, frame_loadList, minimum_size, base_size, style):
+        super(GUIList, self).__init__(frame_loadList)
+        ####__________________Настройка листа______________________________####
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        self.setGeometry(QtCore.QRect(30, 10, 376, 661))
+        sizePolicy.setHeightForWidth(self.sizePolicy().hasHeightForWidth())
+        self.setSizePolicy(sizePolicy)
+        self.setMinimumSize(QtCore.QSize(minimum_size[0], minimum_size[1]))  # 0,70
+        self.setBaseSize(QtCore.QSize(base_size[0], base_size[1]))  # 150,150
+        self.setObjectName("scrollArea_AListPersonal_")
+        self.setStyleSheet(style)
+
+
 
 class GUIScrollPersonal():
     def __init__(self, frame_loadList, base_size):
