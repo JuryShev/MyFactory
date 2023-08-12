@@ -68,6 +68,13 @@ class ServerConnector():
         self.password=password
         self.coockies=None
 
+    def get_list_tables(self):
+        result = requests.post(f"{self.url}/furniture/get_list_tables_{self.name_db}/",
+                               cookies=self.coockies
+                               ).content.decode("utf-8")
+        result = json.loads(result)
+        return result
+
     def get_nick_user(self):
         result = requests.post(f"{self.url}/furniture/get_nick_user/",
                                cookies=self.coockies

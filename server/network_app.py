@@ -3,9 +3,10 @@ import json
 from flask import Flask, request, session
 import pickle
 import itertools
+from langdetect import detect
 import os
 from datetime import datetime as dt
-
+import toml
 import argon2
 from functools import wraps
 import database
@@ -89,8 +90,29 @@ def check_table(data, list_tables):
     return check
 
 
+def open_json(open_direct):
+    with open(open_direct, encoding='utf-8') as json_file:
+        result_json = json.load(json_file, )
+    return result_json
+
+
+def load_config(list_config):
+    for config in list_config:
+        ext = os.path.splitext(config)[-1].lower()
+        config_file = os.path.join('./config/', config)
+        if os.path.exists(config_file):
+            if ext == ".toml":
+                app.config.update(toml.load(config_file))
+            elif ext == ".json":
+                app.config.update(open_json(config_file))
+        else:
+            raise FileNotFoundError(f"Config file {config_file} not found.")
+
+
+list_config = ["config_database.toml", "rus_field.json"]
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z]/'
+load_config(list_config)
 
 
 def requires_access_level(access_level):
@@ -108,7 +130,7 @@ def requires_access_level(access_level):
 
                 result_message = {'error': ''}
                 for id_right in user_rights:
-                    access=set(access_level) - set(id_right)
+                    access = set(access_level) - set(id_right)
                     if len(access) == len(access_level):
                         result_message['error'] = 'Нет прав на данную операцию'
                     else:
@@ -119,6 +141,15 @@ def requires_access_level(access_level):
         return decorated_function
 
     return decorator
+
+
+def init_request(name_db):
+    a = request.data
+    json_data = json.loads(a.decode('utf-8'))
+    check_none(json_data)
+    my_db = FurnitureDtabase(name_db=name_db)
+    return json_data, my_db
+
 
 @app.route('/furniture/change_log_pass_<name_db>/', methods=['POST'])
 def change_log_pass(name_db):
@@ -150,15 +181,15 @@ def change_log_pass(name_db):
             values.extend([data['password_new'],
                            data['salt_user_new']]),
         else:
-            result["error"]='Неверный пароль'
-            result=json.dumps(result)
+            result["error"] = 'Неверный пароль'
+            result = json.dumps(result)
             return result
 
     elif data["change"] == 'login':
         reg_login_user = admin_db.mysql_castom_command(f"SELECT * FROM users "
-                                                  f"WHERE nickname = '{data['tables']['users']['nickname']}'")
+                                                       f"WHERE nickname = '{data['tables']['users']['nickname']}'")
         reg_login_admin = admin_db.mysql_castom_command(f"SELECT * FROM admin "
-                                                  f"WHERE nickname = '{data['tables']['users']['nickname']}'")
+                                                        f"WHERE nickname = '{data['tables']['users']['nickname']}'")
         if len(reg_login_user) > 0 or len(reg_login_admin) > 0:
             result["error"] = 'Пользователь с таким именем уже существует'
             result = json.dumps(result)
@@ -183,10 +214,9 @@ def change_log_pass(name_db):
         rows[0] = 'id_admin'
         admin_db.edit_row('admin', tuple(rows), tuple(values))
 
-    result["result"]='ok'
+    result["result"] = 'ok'
     result = json.dumps(result)
     return result
-
 
 
 @app.route('/furniture/get_nick_user/', methods=['POST'])
@@ -445,14 +475,14 @@ def get_personal(name_db):
                 result = my_db.search_personal(name_db, comb)
                 if len(result) > 0:
                     for pers in result:
-                        pers['right_user']=''
+                        pers['right_user'] = ''
                         dir_avatar = pers['dir_avatar']
                         with open(dir_avatar, "rb") as openfile:
                             avatar = pickle.load(openfile)
                             pers['dir_avatar'] = avatar
 
                             data_user = my_db.mysql_castom_command(f"SELECT id_users, right_user FROM users "
-                                                                 f"WHERE id_personal = '{pers['id_personal']}'")
+                                                                   f"WHERE id_personal = '{pers['id_personal']}'")
 
                             if len(data_user) > 0:
                                 id_user = data_user[0][0]
@@ -460,7 +490,7 @@ def get_personal(name_db):
                                 rules = my_db.mysql_castom_command(f"SELECT id_rule FROM access_rule "
                                                                    f"WHERE id_users = '{id_user}'")
                                 pers['rules'] = [r[0] for r in rules] if right_user == 'user' else [1, 2, 3, 4, 5]
-                                pers['right_user']=right_user
+                                pers['right_user'] = right_user
 
                     json_send = json.dumps(result, default=str)
                     return json_send
@@ -472,14 +502,13 @@ def get_personal(name_db):
 
 @app.route('/furniture/add_db/', methods=['POST'])
 def add_factory():
-
     admin_db = FurnitureDtabase(name_db='admins_base')
     a = request.data
     j = json.loads(a.decode('utf-8'))
-    factory=admin_db.mysql_castom_command(
+    factory = admin_db.mysql_castom_command(
         f"SELECT * FROM factory WHERE id_admin = {session['user'][0]['id_user']} AND name_factory='{j['name_db']}';"
     )
-    if len(factory)>0:
+    if len(factory) > 0:
         return 'factory exist'
 
     path_cr_db = "./mysql_scripts/create_database.sql"
@@ -487,8 +516,8 @@ def add_factory():
     database.create_database(j['name_db'], path_cr_db)
     database.create_tables_factory(j['name_db'], path_cr_tb)
     admin_db.add_row_v2('factory',
-                     ('name_factory', 'id_admin'),
-                     (j['name_db'], session['user'][0]['id_user']))
+                        ('name_factory', 'id_admin'),
+                        (j['name_db'], session['user'][0]['id_user']))
     return 'ok'
 
 
@@ -503,7 +532,7 @@ def get_inside_struct(name_db):
     temp_data = {}
     my_db = FurnitureDtabase(name_db=name_db)
     for name_table in table_list["tables"]:
-        data_table = my_db.get_data_all(name_table)
+        data_table = my_db.extract_table(name_table)
         column_table = my_db.get_name_column(name_table)
         for h in data_table:
             for i in range(len(h)):
@@ -514,6 +543,7 @@ def get_inside_struct(name_db):
             table_list["tables"][name_table].append(temp_data.copy())
         temp_data.clear()
     json_send = json.dumps(table_list)
+    my_db.close()
     return json_send
 
 
@@ -583,14 +613,14 @@ def del_row_tables(data, db):
             if name_table == 'conf_criterion':
                 list_column_criterion = db.get_name_column(name_table, format_result='names')
                 for id_drop_criterion in value:
-                    if len(db.check_value('personal_assessment', 'id_progress_now', 'id_criterion',
+                    if len(db.check_value('personal_assessment', 'id_progress_now', 'id_conf_criterion',
                                           id_drop_criterion)) > 0:
                         row_drop_criterion = db.check_value(name_table, '*', 'id_conf_criterion', id_drop_criterion)
                         db.add_row('drop_criterion', list_column_criterion[1:], row_drop_criterion[0][1:])
                         last_id_drop_criterion = db.get_last_row(name_table='drop_criterion',
                                                                  name_column='id_drop_criterion'
                                                                  )
-                        db.edit_row('personal_assessment', ('id_criterion', 'id_drop_criterion'),
+                        db.edit_row('personal_assessment', ('id_conf_criterion', 'id_drop_criterion'),
                                     (id_drop_criterion, last_id_drop_criterion[0][0]))
 
             db.del_row(name_table, tuple(title), tuple(value))
@@ -649,7 +679,7 @@ def del_person(name_db):
     admin_db = FurnitureDtabase(name_db='admins_base')
     id_personal = data['tables']["personal"][0]['id_personal']
     id_add_personal = my_db.mysql_castom_command(
-        f"SELECT id_assessment FROM personal_assessment WHERE id_person_add = '{id_personal}' OR id_person_edit = '{id_personal}'")
+        f"SELECT id_assessment FROM personal_assessment WHERE id_personal_add = '{id_personal}' OR id_personal_edit = '{id_personal}'")
     data_user = my_db.mysql_castom_command(
         f"SELECT nickname, right_user FROM users WHERE id_personal = '{id_personal}'")
 
@@ -663,12 +693,12 @@ def del_person(name_db):
         admin_db.del_row('users', row, nickname)
         my_db.del_row('users', row, nickname)
 
-    if len(id_add_personal) > 0 :
+    if len(id_add_personal) > 0:
         rows = ('id_personal', 'personal_arch')
         values = (id_personal, 1)
         my_db.edit_row('personal', tuple(rows), tuple(values))
-        my_db.del_row('personal_assessment', 'id_name_personal', id_personal)
-        result='ok'
+        my_db.del_row('personal_assessment', 'id_personal', id_personal)
+        result = 'ok'
     else:
         names_column_file = {'personal': 'dir_avatar'}
         data['names_column_file'] = names_column_file
@@ -686,14 +716,14 @@ def del_row_struct(name_db):
     data = json.loads(a.decode('utf-8'))
 
     for tables in data['tables']:
-        if tables=='department' or tables=='posts':
-            id_title= data['tables'][tables][0][f'id_{tables}']
-            person=my_db.mysql_castom_command(
+        if tables == 'department' or tables == 'posts':
+            id_title = data['tables'][tables][0][f'id_{tables}']
+            person = my_db.mysql_castom_command(
                 f"SELECT * FROM personal WHERE id_{tables} ={id_title};"
             )
-            if len(person)>0 and tables == 'department':
+            if len(person) > 0 and tables == 'department':
                 return 'department'
-            elif len(person)>0 and tables == 'posts':
+            elif len(person) > 0 and tables == 'posts':
                 return 'posts'
     return del_row_tables(data, my_db)
 
@@ -818,7 +848,7 @@ def get_persons_for_assessment(name_db):
     data = json.loads(request.data.decode('utf-8'))
     department = data["tables"]["department"]
     id_department = f.mysql_castom_command(f'''SELECT id_department 
-                                                FROM department WHERE title = '{department}' ''')[0][0]
+                                                FROM department WHERE name = '{department}' ''')[0][0]
 
     count_criteria = f.mysql_castom_command("SELECT COUNT(*) FROM conf_criterion")[0][0]
     day, month, year = map(int, data['date'].split('-'))
@@ -826,25 +856,27 @@ def get_persons_for_assessment(name_db):
     date_today = dt.today().date()
     count_next_date = f.mysql_castom_command(f'''SELECT COUNT(date) FROM personal_assessment
                                                     WHERE date = '{cur_date}' ''')[0][0]
-    if (cur_date.date() - date_today).days < 0 and count_next_date == 0:  # проверка, если пользователь захочет поставить оценку по старой несуществующей дате
-            result = {"error": "Bad date"}
-            json_send = json.dumps(result)
-            return json_send
+    if (
+            cur_date.date() - date_today).days < 0 and count_next_date == 0:  # проверка, если пользователь захочет поставить оценку по старой несуществующей дате
+        result = {"error": "Bad date"}
+        json_send = json.dumps(result)
+        return json_send
 
     prev_date = f.mysql_castom_command(f"SELECT date FROM personal_assessment "
                                        f"WHERE date < '{cur_date}' ORDER BY date DESC LIMIT 1")
 
     if len(prev_date) != 0 and data["flag_previous_day"] == 0:  # проверка на законченность предыдущей оценки
         count_assessments = f.mysql_castom_command(
-            f"SELECT COUNT(*) FROM personal_assessment INNER JOIN personal ON personal_assessment.id_name_personal=personal.id_personal  AND personal.id_department={id_department} AND personal_assessment.date = '{prev_date[0][0]}'")[
+            f"SELECT COUNT(*) FROM personal_assessment INNER JOIN personal ON personal_assessment.id_personal=personal.id_personal  AND personal.id_department={id_department} AND personal_assessment.date = '{prev_date[0][0]}'")[
             0][0]
 
         count_personal = f.mysql_castom_command(f"""SELECT COUNT(*) FROM personal 
                                                 WHERE id_department = {id_department} AND 
                                                 personal_arch=0 AND 
-                                                DATE(created_pers)<'{prev_date[0][0]}'""")[0][0]#dt(prev_date[0][0].year,
-                                                                                 ##prev_date[0][0].month,
-                                                                                  ##prev_date[0][0].day)
+                                                DATE(created_pers)<'{prev_date[0][0]}'""")[0][
+            0]  # dt(prev_date[0][0].year,
+        ##prev_date[0][0].month,
+        ##prev_date[0][0].day)
         if count_personal * count_criteria != count_assessments:
             year = prev_date[0][0].year
             month = prev_date[0][0].month
@@ -853,7 +885,7 @@ def get_persons_for_assessment(name_db):
                       "prev_date": f"{day}-{month}-{year}"}
             json_send = json.dumps(result)
             return json_send
-    elif len(prev_date) != 0 and data["flag_previous_day"] == 2 and count_next_date==0:
+    elif len(prev_date) != 0 and data["flag_previous_day"] == 2 and count_next_date == 0:
         year = prev_date[0][0].year
         month = prev_date[0][0].month
         day = prev_date[0][0].day
@@ -864,14 +896,13 @@ def get_persons_for_assessment(name_db):
     if "period_mean" in data:
         persons = f.mysql_castom_command(f'''SELECT id_personal, name, dir_avatar, created_pers FROM personal 
                                             WHERE id_department = (SELECT id_department FROM department
-                                                                                        WHERE title = '{department}') 
+                                                                                        WHERE name = '{department}') 
                                             AND personal_arch=0 ''')
     else:
         persons = f.mysql_castom_command(f'''SELECT id_personal, name, dir_avatar FROM personal 
                                                     WHERE id_department = (SELECT id_department FROM department
-                                                                                                WHERE title = '{department}') 
+                                                                                                WHERE name = '{department}') 
                                                     AND personal_arch=0 AND DATE(created_pers)<'{dt(year, month, day)}' ''')
-
 
     for i in range(len(persons)):
         with open(persons[i][2], "rb") as openfile:
@@ -891,14 +922,14 @@ def get_persons_for_assessment(name_db):
 
         })
         person = assessment_list["tables"]["personal"][i]
-        for criterion in f.mysql_castom_command("SELECT id_conf_criterion, title_criterion FROM conf_criterion"):
+        for criterion in f.mysql_castom_command("SELECT id_conf_criterion, name FROM conf_criterion"):
             person["id_assessment"][criterion[1]] = [0, 0]
             exist_assessment = f.mysql_castom_command(f'''SELECT personal_assessment.id_assessment,
                                                           personal_assessment.date,
-                                                          personal_assessment.id_name_personal,
-                                                          personal_assessment.id_title_project,
+                                                          personal_assessment.id_personal,
+                                                          personal_assessment.id_project,
                                                           personal_assessment.comments,
-                                                          personal_assessment.id_criterion,
+                                                          personal_assessment.id_conf_criterion,
                                                           personal_assessment.id_drop_criterion,
                                                           personal.name,
                                                           personal.personal_arch,
@@ -906,11 +937,11 @@ def get_persons_for_assessment(name_db):
                                                           personal2.personal_arch,
                                                           personal_assessment.assessment 
                                                           FROM personal_assessment INNER JOIN personal 
-                                                          ON personal_assessment.id_person_add = personal.id_personal
-						                                  LEFT  JOIN personal personal2 ON personal_assessment.id_person_edit = personal2.id_personal                        
+                                                          ON personal_assessment.id_personal_add = personal.id_personal
+						                                  LEFT  JOIN personal personal2 ON personal_assessment.id_personal_edit = personal2.id_personal                        
                                                           WHERE date = '{cur_date}'
-                                                          AND id_name_personal = '{persons[i][0]}' 
-                                                          AND id_criterion = {criterion[0]}; ''')
+                                                          AND personal_assessment.id_personal = '{persons[i][0]}' 
+                                                          AND id_conf_criterion = {criterion[0]}; ''')
 
             person["id_assessment"][criterion[1]][0] = exist_assessment[0][0] if len(exist_assessment) != 0 else 0
             person["assessment"][criterion[1]] = exist_assessment[0][11] if len(exist_assessment) != 0 else 0
@@ -925,27 +956,25 @@ def get_persons_for_assessment(name_db):
                     person["add_data"][criterion[1]] = ''
 
                 if exist_assessment[0][10] == 0:
-                    person["edit_data"][criterion[1]] = ' '+exist_assessment[0][9]
+                    person["edit_data"][criterion[1]] = ' ' + exist_assessment[0][9]
                 elif exist_assessment[0][10] == 1:
-                    person["edit_data"][criterion[1]] = '$ '+exist_assessment[0][9]
+                    person["edit_data"][criterion[1]] = '$ ' + exist_assessment[0][9]
                 else:
                     person["edit_data"][criterion[1]] = ''
             else:
                 person["add_data"][criterion[1]] = ''
-                person["edit_data"][criterion[1]]=''
-
+                person["edit_data"][criterion[1]] = ''
 
             if "period_mean" in data:
                 person["average_value"][criterion[1]] = f.get_average_value(cur_date, data["period_mean"],
                                                                             person["id_person"], criterion[0])
-                if persons[i][3]>=cur_date:
+                if persons[i][3] >= cur_date:
                     year_cr = persons[i][3].year
                     month_cr = persons[i][3].month
                     if len(str(month)) == 1:
                         month = '0' + str(month)
                     day_cr = persons[i][3].day
-                    person["date_created_pers"]=f"{day_cr}.{month_cr}.{year_cr}"
-
+                    person["date_created_pers"] = f"{day_cr}.{month_cr}.{year_cr}"
 
         # with open(persons[i][2], "rb") as open_file:
         #     assessment_list["tables"]["personal"][i]["avatar"] = pickle.load(open_file)
@@ -976,10 +1005,11 @@ def send_assessments(name_db):
                 if id_row == 0:  # добавляем новую оценку
                     # print('add')
                     id_criterion = f.mysql_castom_command(
-                        f"SELECT id_conf_criterion FROM conf_criterion WHERE title_criterion = '{criterion}'")[0][0]
+                        f"SELECT id_conf_criterion FROM conf_criterion WHERE name = '{criterion}'")[0][0]
                     f.add_row_v2('personal_assessment',
-                                 ('date', 'id_name_personal', 'id_title_project', 'comments',
-                                  'id_criterion', 'id_drop_criterion', 'id_person_add', 'id_person_edit', 'assessment'),
+                                 ('date', 'id_personal', 'id_title_project', 'comments',
+                                  'id_conf_criterion', 'id_drop_criterion', 'id_personal_add', 'id_personal_edit',
+                                  'assessment'),
                                  (cur_date, person['id_person'], 'NULL', person['comments'][criterion],
                                   id_criterion, 'NULL', id_person_user, 'NULL', person['assessment'][criterion]
                                   ))
@@ -990,7 +1020,7 @@ def send_assessments(name_db):
                                                     SET
                                                         assessment = {person['assessment'][criterion]},
                                                         comments = '{person['comments'][criterion]}',
-                                                        id_person_edit = '{id_person_user}'
+                                                        id_personal_edit = '{id_person_user}'
                                                     WHERE id_assessment = {id_row};''', 0)
                     print(f.mysql_castom_command(
                         f'''SELECT * FROM personal_assessment WHERE id_assessment = {id_row}'''))
@@ -1000,6 +1030,7 @@ def send_assessments(name_db):
                 f.mysql_castom_command(f"DELETE FROM personal_assessment WHERE id_assessment = {id_row}", 0)
 
     return "ok"
+
 
 @app.route('/furniture/register_<name_db>/', methods=['POST'])
 @requires_access_level([1])
@@ -1013,7 +1044,7 @@ def register(name_db):
     user = data['tables']['users']
     access_rules = data['tables']["access_rule"]
     id_personal = user["id_personal"]
-    if data['status']=='register':
+    if data['status'] == 'register':
         nickname = user["nickname"]
         password = user["password"]
         salt_user = data['tables']['users']["salt_user"]
@@ -1063,18 +1094,19 @@ def register(name_db):
                 my_db.add_row_v2('access_rule',
                                  ('id_users', 'id_rule'),
                                  (id_user, id_rule))
-    elif data['status']=='change':
+    elif data['status'] == 'change':
         id_users = my_db.mysql_castom_command(f"SELECT id_users FROM users "
-                                                   f"WHERE id_personal = '{id_personal}'")[0][0]
+                                              f"WHERE id_personal = '{id_personal}'")[0][0]
         for right in access_rules['add_right']:
             my_db.add_row_v2("access_rule",
-                            ("id_users", "id_rule"),
-                            (id_users, right))
+                             ("id_users", "id_rule"),
+                             (id_users, right))
         for right in access_rules['del_right']:
-            my_db.mysql_castom_command(f"DELETE FROM access_rule WHERE id_users = {id_users } AND id_rule= {right}",
+            my_db.mysql_castom_command(f"DELETE FROM access_rule WHERE id_users = {id_users} AND id_rule= {right}",
                                        GET=0)
 
     return 'ok'
+
 
 @app.route('/furniture/del_user_<name_db>/', methods=['POST'])
 @requires_access_level([1])
@@ -1083,14 +1115,16 @@ def del_user(name_db):
     my_db = database.FurnitureDtabase(name_db)
     admin_db = FurnitureDtabase(name_db='admins_base')
     id_personal = data['tables']['users']['id_personal']
-    id_users=my_db.mysql_castom_command(f"SELECT id_users FROM users "
-                               f"WHERE id_personal = '{id_personal}'")[0][0]
-    nickname=my_db.mysql_castom_command(f"SELECT nickname FROM users "
-                                                   f"WHERE id_personal = '{id_personal}'")[0][0]
-    my_db.del_row("users", "id_users", id_users )
+    id_users = my_db.mysql_castom_command(f"SELECT id_users FROM users "
+                                          f"WHERE id_personal = '{id_personal}'")[0][0]
+    nickname = my_db.mysql_castom_command(f"SELECT nickname FROM users "
+                                          f"WHERE id_personal = '{id_personal}'")[0][0]
+    my_db.del_row("users", "id_users", id_users)
     admin_db.del_row("users", "nickname", nickname)
 
     return 'ok'
+
+
 @app.route('/furniture/appoint_admin_<name_db>/', methods=['POST'])
 @requires_access_level([0])
 def appoint_admin(name_db):
@@ -1101,8 +1135,8 @@ def appoint_admin(name_db):
 
     id_user = session['user'][0]['id_user']
     nickname = session['user'][0]['nickname']
-    result={"result":'',
-            "error":''}
+    result = {"result": '',
+              "error": ''}
     id_user_to_admin = data['tables']['personal'][0]["id_personal"]
     admin = my_db.mysql_castom_command(f"SELECT * FROM users WHERE right_user = 'admin'")
     if len(admin) == 0:
@@ -1123,6 +1157,101 @@ def appoint_admin(name_db):
     return result
 
 
+@app.route('/furniture/get_list_tables_<name_db>/', methods=['POST'])
+def get_list_tables(name_db):
+    db = database.FurnitureDtabase(name_db)
+    list_tables = db.get_tables()
+    result = {"tables": {}}
+    for name_table in list_tables:
+        if name_table not in app.config["forbidden_tables"]["name"]:
+            type_columns = db.get_type(name_table, 0)
+            type_columns_rus = {}
+            drop_forbidden_column(name_table, type_columns)
+            columns_name = list(type_columns.keys())
+            eng_to_rus_column(name_table, columns_name)
+            for i, column in enumerate(type_columns):
+                type_columns_rus[columns_name[i]] = type_columns[column]
+            name_table = eng_to_rus_table(name_table)
+            result["tables"][name_table] = {"types": type_columns_rus}
+    return result
+
+
+def eng_to_rus_column(table_name, name_column, lang="en_ru"):
+    column_rus = app.config[lang][table_name]
+    for id, name in enumerate(name_column):
+        if " as " in name:
+            name = name.split(" as ")[-1]
+        elif '.' in name:
+            name = name.split(".")[-1]
+        try:
+            name_column[id] = column_rus[name]
+        except KeyError:
+            continue
+
+
+def eng_to_rus_table(table_name, lang="en_ru"):
+    column_rus = app.config[lang][table_name]
+    return column_rus[table_name]
+
+
+def drop_forbidden_column(table_name, columns):
+    try:
+        forbidden_columns = app.config["forbidden_column"][table_name]["name"]
+        for column in forbidden_columns:
+            if isinstance(columns, list):
+                columns.remove(column)
+            elif isinstance(columns, dict):
+                columns.pop(column)
+            else:
+                raise TypeError(f"{type(columns)} не поддерживает удаление")
+
+    except KeyError:
+        pass
+
+
+def check_none(json_data):
+    for key in json_data:
+        if isinstance(json_data[key], dict):
+            check_none(json_data[key])
+            return None
+        if isinstance(json_data[key], bool): continue
+        if len(json_data[key]) == 0: json_data[key] = None
+
+
+@app.route('/furniture/get_join_table_<name_db>/', methods=['POST'])
+def extract_tables(name_db):
+    json_data, my_db = init_request(name_db)
+    json_data_ = {"tables": {}}
+    for table_name in json_data["tables"]:
+        if json_data["tables"][table_name]["input_lang"] is not None:
+            eng_to_rus_column(table_name, json_data["tables"][table_name]["columns"], lang="ru_en")
+        json_data_["tables"][eng_to_rus_table(table_name, lang="ru_en")] = json_data["tables"][table_name]
+    json_data = json_data_
+    result = {}
+    for table_name in json_data["tables"]:
+        result_command, name_column = my_db.extract_table(table_name, json_data["tables"][table_name],
+                                                          json_data["tables"][table_name]["JOIN"])
+        if json_data["tables"][table_name]["output_lang"] is not None:
+            eng_to_rus_column(table_name, name_column)
+        table_name = eng_to_rus_table(table_name)
+        result = {"table": {"name": table_name,
+                            "columns": name_column,
+                            "data": result_command}}
+
+    return json.dumps(result)
+
+
+# @app.route('/furniture/get_not_join_<name_db>/', methods=['POST'])
+# def get_column(name_db):
+#     json_data, my_db = init_request(name_db)
+#     result={}
+#     for table_name in json_data["tables"]:
+#         result_command, name_column = my_db.extract_table(table_name, json_data["tables"][table_name])
+#         eng_to_rus_column(table_name, name_column)
+#         result = {"table": {"name": table_name,
+#                             "columns": name_column,
+#                             "data": result}}
+#     return json.dumps(result)
 # name taken
 
 
