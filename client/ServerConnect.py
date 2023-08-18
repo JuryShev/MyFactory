@@ -222,6 +222,12 @@ class ServerConnector():
                                json=data_send)
         return result
 
+    def get_join_table(self, data_send):
+        result = requests.post(f"{self.url}/furniture/get_join_table_{self.name_db}/",
+                               cookies=self.coockies,
+                               json=data_send).content.decode("utf-8")
+        result = json.loads(result)
+        return result
     def add_row_table(self, data_send):
         result = requests.post(f"{self.url}/furniture/add_row_{self.name_db}/",
                                cookies=self.coockies,

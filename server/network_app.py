@@ -5,12 +5,15 @@ import pickle
 import itertools
 from langdetect import detect
 import os
+from copy import copy
 from datetime import datetime as dt
 import toml
 import argon2
 from functools import wraps
 import database
 from database import FurnitureDtabase
+import lib
+import lib.lang_convert as lang_convert
 
 
 def full_check(json_data, stand_comand: dir, name_db):
@@ -1211,8 +1214,11 @@ def drop_forbidden_column(table_name, columns):
 
 def check_none(json_data):
     for key in json_data:
-        if isinstance(json_data[key], dict):
+        if isinstance(json_data[key], dict) and len(json_data[key].keys()) > 0:
             check_none(json_data[key])
+            return None
+        elif isinstance(json_data[key], dict) and len(json_data[key].keys()) == 0:
+            json_data[key] = None
             return None
         if isinstance(json_data[key], bool): continue
         if len(json_data[key]) == 0: json_data[key] = None
@@ -1224,7 +1230,22 @@ def extract_tables(name_db):
     json_data_ = {"tables": {}}
     for table_name in json_data["tables"]:
         if json_data["tables"][table_name]["input_lang"] is not None:
-            eng_to_rus_column(table_name, json_data["tables"][table_name]["columns"], lang="ru_en")
+            eng_to_rus_column(table_name,
+                              json_data["tables"][table_name]["columns"],
+                              lang=json_data["tables"][table_name]["input_lang"])
+
+            ####convert where########################################################################
+            if json_data["tables"][table_name]["WHERE"] is not None:
+                where_req_conv = copy(json_data["tables"][table_name]["WHERE"])
+                where_req = json_data["tables"][table_name]["WHERE"]
+                fields_where = list(where_req.keys())
+                lang_convert.eng_to_rus_column(app.config, table_name, fields_where,
+                                               json_data["tables"][table_name]["input_lang"])
+                for i, f in enumerate(where_req.keys()):
+                    where_req_conv[fields_where[i]] = where_req[f]
+                    del where_req_conv[f]
+                json_data["tables"][table_name]["WHERE"]=where_req_conv
+            #########################################################################################
         json_data_["tables"][eng_to_rus_table(table_name, lang="ru_en")] = json_data["tables"][table_name]
     json_data = json_data_
     result = {}
